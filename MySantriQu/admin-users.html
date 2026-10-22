@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#114d35">
+    <link rel="manifest" href="manifest.webmanifest">
+    <link rel="apple-touch-icon" href="assets/app-icon-192.png">
+    <title>Manajemen User - Recording Mahasantri</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f5f5; }
+        .navbar {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 1rem 2rem; background: #2d5016; color: white;
+        }
+        .nav-brand { display: flex; align-items: center; gap: 10px; font-size: 1.2rem; font-weight: bold; }
+        .nav-logo { width: 40px; height: 40px; }
+        .nav-user { display: flex; align-items: center; gap: 15px; }
+        .user-photo { width: 35px; height: 35px; border-radius: 50%; }
+        .btn-logout { padding: 8px 16px; background: #dc3545; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        .container { max-width: 1200px; margin: 2rem auto; padding: 0 2rem; }
+        h1 { margin-bottom: 1.5rem; color: #2d5016; }
+        .btn-back {
+            display: inline-block; margin-bottom: 1rem; padding: 10px 20px;
+            background: #2d5016; color: white; text-decoration: none; border-radius: 5px;
+        }
+        .btn { padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-size: 14px; }
+        .btn-primary { background: #28a745; color: white; }
+        .btn-warning { background: #ffc107; color: #000; }
+        .btn-sm { padding: 5px 10px; font-size: 12px; }
+        .card {
+            background: white; border-radius: 10px; padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 20px;
+        }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #eee; }
+        th { background: #f8f9fa; font-weight: bold; color: #2d5016; }
+        .badge { padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: bold; display: inline-block; }
+        .badge-admin { background: #dc3545; color: white; }
+        .badge-kepala { background: #6f42c1; color: white; }
+        .badge-musyrif { background: #fd7e14; color: white; }
+        .badge-santri { background: #28a745; color: white; }
+        .badge-bk { background: #17a2b8; color: white; }
+        select { padding: 8px 12px; border: 1px solid #ddd; border-radius: 5px; cursor: pointer; }
+    </style>
+    <link rel="stylesheet" href="app-theme.css?v=20261013">
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+</head>
+<body data-access="admin">
+    <nav class="navbar">
+        <div class="nav-brand">
+            <img src="assets/Logo.png" alt="Logo" class="nav-logo">
+            <ion-icon name="school-outline" aria-hidden="true"></ion-icon>
+            <span>Recording Mahasantri</span>
+        </div>
+        <div class="nav-user">
+            <img id="user-photo" src="" alt="User" class="user-photo">
+            <span id="user-name">Loading...</span>
+            <button id="btn-logout" class="btn-logout"><ion-icon name="log-out-outline" aria-hidden="true"></ion-icon> Logout</button>
+        </div>
+    </nav>
+
+    <div class="container">
+        <a href="dashboard.html" class="btn-back"><ion-icon name="arrow-back-outline" aria-hidden="true"></ion-icon> Kembali ke Dashboard</a>
+        <h1><span class="page-heading-icon"><ion-icon name="people-outline" aria-hidden="true"></ion-icon></span> Manajemen User</h1>
+        
+        <div class="card">
+            <h2>Daftar User</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nama</th>
+                        <th>Email</th>
+                        <th>Role</th>
+                        <th>Profil Santri</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody id="user-table-body">
+                    <tr><td colspan="6">Memuat data...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        console.log("Admin Users page loaded");
+        
+        const user_id = localStorage.getItem("user_id");
+        const userData = JSON.parse(localStorage.getItem("user_data"));
+        
+        if (!user_id) {
+            window.location.href = "index.html";
+        }
+        
+        if (userData) {
+            document.getElementById("user-name").textContent = userData.name;
+            var fotoUrl = userData.picture || userData.photo || 'assets/Logo.png';
+            document.getElementById("user-photo").src = fotoUrl;
+        }
+        
+        // Load semua user
+        function loadUsers() {
+            fetch('api/get-users.php')
+                .then(function(res) { return res.json(); })
+                .then(function(data) {
+                    console.log("Data users:", data);
+                    
+                    if (data.success) {
+                        var tbody = document.getElementById("user-table-body");
+                        
+                        if (data.users.length === 0) {
+                            tbody.innerHTML = '<tr><td colspan="6">Tidak ada user</td></tr>';
+                        } else {
+                            tbody.textContent = '';
+                            data.users.forEach(function(u) {
+                                var row = tbody.insertRow();
+                                [u.id, u.name, u.email].forEach(function(value) {
+                                    row.insertCell().textContent = value;
+                                });
+
+                                var roleCell = row.insertCell();
+                                var roleSelect = document.createElement('select');
+                                roleSelect.id = 'role-' + u.id;
+                                [
+                                    ['admin', 'Admin'],
+                                    ['kajur', 'Kajur'],
+                                    ['musyrif', 'Musyrif'],
+                                    ["mas'ul", "Mas'ul"],
+                                    ['mahasantri', 'Mahasantri']
+                                ].forEach(function(role) {
+                                    var option = document.createElement('option');
+                                    option.value = role[0];
+                                    option.textContent = role[1];
+                                    option.selected = u.role === role[0];
+                                    roleSelect.appendChild(option);
+                                });
+                                roleCell.appendChild(roleSelect);
+
+                                var santriCell = row.insertCell();
+                                var santriSelect = document.createElement('select');
+                                santriSelect.id = 'santri-' + u.id;
+                                var emptyOption = document.createElement('option');
+                                emptyOption.value = '';
+                                emptyOption.textContent = '-- Pilih profil santri --';
+                                santriSelect.appendChild(emptyOption);
+                                (data.santri_options || []).forEach(function(s) {
+                                    var option = document.createElement('option');
+                                    option.value = s.id;
+                                    option.textContent = s.nama + (s.angkatan ? ' (' + s.angkatan + ')' : '');
+                                    option.selected = String(u.santri_id || '') === String(s.id);
+                                    santriSelect.appendChild(option);
+                                });
+                                santriSelect.style.display = roleSelect.value === 'mahasantri' ? '' : 'none';
+                                roleSelect.addEventListener('change', function() {
+                                    santriSelect.style.display = this.value === 'mahasantri' ? '' : 'none';
+                                });
+                                santriCell.appendChild(santriSelect);
+
+                                var actionCell = row.insertCell();
+                                var saveButton = document.createElement('button');
+                                saveButton.type = 'button';
+                                saveButton.className = 'btn btn-primary btn-sm';
+                                saveButton.textContent = 'Simpan';
+                                saveButton.addEventListener('click', function() { updateUser(u.id); });
+                                actionCell.appendChild(saveButton);
+                            });
+                        }
+                    } else {
+                        console.error('Error:', data.error);
+                    }
+                })
+                .catch(function(error) {
+                    console.error('Error:', error);
+                });
+        }
+        
+        loadUsers();
+        
+        // Update role
+        function updateUser(userId) {
+            var newRole = document.getElementById('role-' + userId).value;
+            var santriId = document.getElementById('santri-' + userId).value;
+            if (confirm('Yakin ingin mengubah role user ini menjadi ' + newRole.toUpperCase() + '?')) {
+                fetch('api/update-user-role.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ user_id: userId, role: newRole, santri_id: santriId })
+                })
+                .then(function(res) { return res.json(); })
+                .then(function(data) {
+                    if (data.success) {
+                        alert('Role berhasil diupdate!');
+                        loadUsers();
+                    } else {
+                        alert('Error: ' + data.error);
+                    }
+                })
+                .catch(function(error) {
+                    console.error('Error:', error);
+                    alert('Terjadi kesalahan');
+                });
+            } else {
+                loadUsers(); // Reload untuk reset dropdown
+            }
+        }
+        
+        // Logout
+        document.getElementById("btn-logout").addEventListener("click", function() {
+            localStorage.removeItem("user_data");
+            localStorage.removeItem("user_id");
+            localStorage.removeItem("user_role");
+            window.location.href = "index.html";
+        });
+    </script>
+    <script src="js/role-guard.js?v=20261012"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/theme.js?v=20261012-3"></script>
+</body>
+</html>

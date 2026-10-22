@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#114d35">
+    <title>Manajemen Asatidz - MySantriQu</title>
+    <link rel="stylesheet" href="app-theme.css?v=20261013">
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+    <style>
+        .page-toolbar { display: flex; justify-content: space-between; align-items: center; gap: 1rem; margin-bottom: 1rem; }
+        .assignment-list { display: grid; gap: 0.7rem; }
+        .assignment-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(150px, 220px); align-items: center; gap: 1rem; padding: 0.8rem; border: 1px solid var(--app-border); border-radius: 12px; background: rgba(255,255,255,0.04); }
+        .assignment-activity { display: flex; align-items: center; gap: 0.7rem; }
+        .assignment-activity input { width: 18px; min-height: 18px; }
+        .assignment-activity span { color: var(--app-text); }
+        .table-wrap { overflow-x: auto; }
+        .action-buttons { display: flex; gap: 0.4rem; }
+        .empty-state { color: var(--app-muted); text-align: center; padding: 1.5rem; }
+        .help-text { margin: 0.3rem 0 0.9rem; color: var(--app-muted); font-size: 0.9rem; }
+        @media (max-width: 600px) {
+            .page-toolbar { align-items: stretch; flex-direction: column; }
+            .assignment-row { grid-template-columns: minmax(0, 1fr); }
+        }
+        html[data-theme="light"] .assignment-row { background: rgba(255,255,255,0.72); }
+        html[data-theme="light"] .assignment-activity span,
+        html[data-theme="light"] .help-text,
+        html[data-theme="light"] .empty-state { color: #315b46; }
+    </style>
+</head>
+<body data-access="admin">
+    <nav class="navbar">
+        <div class="nav-brand">
+            <img src="assets/Logo.png" alt="Logo" class="nav-logo">
+            <ion-icon name="school-outline" aria-hidden="true"></ion-icon>
+            <span>Recording Mahasantri</span>
+        </div>
+        <div class="nav-user">
+            <img id="user-photo" src="assets/Logo.png" alt="" class="user-photo">
+            <span id="user-name">Loading...</span>
+            <button id="btn-logout" class="btn-logout" type="button">Logout</button>
+        </div>
+    </nav>
+
+    <main class="container">
+        <a href="dashboard.html" class="btn-back"><ion-icon name="arrow-back-outline" aria-hidden="true"></ion-icon> Kembali ke Dashboard</a>
+        <h1><span class="page-heading-icon"><ion-icon name="people-outline" aria-hidden="true"></ion-icon></span> Manajemen Asatidz</h1>
+        <section class="card">
+            <div class="page-toolbar">
+                <div>
+                    <h2>Daftar Asatidz</h2>
+                    <p class="help-text">Mata pelajaran dan jabatan bersifat opsional. Satu asatidz dapat ditugaskan ke beberapa kegiatan dengan peran berbeda.</p>
+                </div>
+                <button class="btn btn-primary" id="add-button" type="button">+ Tambah Asatidz</button>
+            </div>
+            <div class="table-wrap">
+                <table>
+                    <thead><tr><th>No</th><th>Nama lengkap</th><th>Mata pelajaran</th><th>Jabatan manajerial</th><th>Penugasan kegiatan</th><th>Aksi</th></tr></thead>
+                    <tbody id="asatidz-body"><tr><td colspan="6" class="empty-state">Memuat data...</td></tr></tbody>
+                </table>
+            </div>
+            <p id="page-error" role="alert" style="display:none"></p>
+        </section>
+    </main>
+
+    <div class="modal" id="asatidz-modal" aria-hidden="true">
+        <section class="modal-content" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+            <div class="modal-header">
+                <h2 id="modal-title">Tambah Asatidz</h2>
+                <button class="close-btn" id="close-modal" type="button" aria-label="Tutup">&times;</button>
+            </div>
+            <form id="asatidz-form">
+                <input type="hidden" id="asatidz-id">
+                <div class="form-group">
+                    <label for="asatidz-nama">Nama lengkap *</label>
+                    <input id="asatidz-nama" type="text" maxlength="255" required>
+                </div>
+                <div class="form-group">
+                    <label for="asatidz-mapel">Mata pelajaran (opsional)</label>
+                    <input id="asatidz-mapel" type="text" maxlength="150" placeholder="Contoh: Tahfidz, Matematika">
+                </div>
+                <div class="form-group">
+                    <label for="asatidz-jabatan">Jabatan manajerial (opsional)</label>
+                    <input id="asatidz-jabatan" type="text" maxlength="150" placeholder="Contoh: Kepala bidang, koordinator">
+                </div>
+                <div class="form-group">
+                    <label>Penugasan kegiatan</label>
+                    <p class="help-text">Centang kegiatan yang diampu, lalu pilih peran. Kosongkan jika asatidz tidak terlibat dalam kegiatan tertentu.</p>
+                    <div id="assignment-list" class="assignment-list"></div>
+                </div>
+                <p id="form-error" role="alert" style="display:none"></p>
+                <button class="btn btn-primary" id="save-button" type="submit" style="width:100%">Simpan</button>
+            </form>
+        </section>
+    </div>
+
+    <script>
+        const roles = [
+            { value: "masul", label: "Mas'ul" },
+            { value: "musyrif", label: "Musyrif" },
+            { value: "pengampu", label: "Pengampu" }
+        ];
+        let activities = [];
+
+        function showError(element, message) {
+            element.textContent = message;
+            element.style.display = message ? "block" : "none";
+        }
+
+        async function requestJson(url, options) {
+            const response = await fetch(url, options || {});
+            const data = await response.json();
+            if (!response.ok || !data.success) throw new Error(data.error || "Permintaan gagal.");
+            return data;
+        }
+
+        function makeAssignmentRows(assignments) {
+            const selected = new Map((assignments || []).map(item => [String(item.kegiatan_id), item.peran]));
+            const list = document.getElementById("assignment-list");
+            list.textContent = "";
+            if (!activities.length) {
+                const empty = document.createElement("p");
+                empty.className = "empty-state";
+                empty.textContent = "Belum ada kegiatan terdaftar.";
+                list.appendChild(empty);
+                return;
+            }
+            activities.forEach(activity => {
+                const row = document.createElement("div");
+                row.className = "assignment-row";
+                const label = document.createElement("label");
+                label.className = "assignment-activity";
+                const checkbox = document.createElement("input");
+                checkbox.type = "checkbox";
+                checkbox.className = "activity-assignment";
+                checkbox.value = activity.id;
+                checkbox.checked = selected.has(String(activity.id));
+                const name = document.createElement("span");
+                name.textContent = activity.nama_kegiatan;
+                label.append(checkbox, name);
+
+                const select = document.createElement("select");
+                select.className = "activity-role";
+                select.setAttribute("aria-label", "Peran pada " + activity.nama_kegiatan);
+                roles.forEach(role => {
+                    const option = document.createElement("option");
+                    option.value = role.value;
+                    option.textContent = role.label;
+                    select.appendChild(option);
+                });
+                select.value = selected.get(String(activity.id)) || "pengampu";
+                select.disabled = !checkbox.checked;
+                checkbox.addEventListener("change", () => { select.disabled = !checkbox.checked; });
+                row.append(label, select);
+                list.appendChild(row);
+            });
+        }
+
+        function collectAssignments() {
+            return Array.from(document.querySelectorAll(".assignment-row")).reduce((result, row) => {
+                const checkbox = row.querySelector(".activity-assignment");
+                if (checkbox.checked) {
+                    result.push({ kegiatan_id: Number(checkbox.value), peran: row.querySelector(".activity-role").value });
+                }
+                return result;
+            }, []);
+        }
+
+        async function loadAsatidz() {
+            const tbody = document.getElementById("asatidz-body");
+            try {
+                const data = await requestJson("api/get-asatidz.php");
+                tbody.textContent = "";
+                if (!data.asatidz.length) {
+                    const row = tbody.insertRow();
+                    const cell = row.insertCell();
+                    cell.colSpan = 6;
+                    cell.className = "empty-state";
+                    cell.textContent = "Belum ada data asatidz.";
+                    return;
+                }
+                data.asatidz.forEach((person, index) => {
+                    const row = tbody.insertRow();
+                    [index + 1, person.nama, person.mata_pelajaran || "-", person.jabatan || "-", person.penugasan_label || "Belum ditugaskan"].forEach(value => {
+                        row.insertCell().textContent = value;
+                    });
+                    const actions = row.insertCell();
+                    actions.className = "action-buttons";
+                    const edit = document.createElement("button");
+                    edit.type = "button";
+                    edit.className = "btn btn-warning btn-sm";
+                    edit.textContent = "Edit";
+                    edit.addEventListener("click", () => openEditor(person.id));
+                    const remove = document.createElement("button");
+                    remove.type = "button";
+                    remove.className = "btn btn-danger btn-sm";
+                    remove.textContent = "Hapus";
+                    remove.addEventListener("click", () => deleteAsatidz(person.id, person.nama));
+                    actions.append(edit, remove);
+                });
+            } catch (error) {
+                showError(document.getElementById("page-error"), error.message);
+                const row = tbody.insertRow();
+                const cell = row.insertCell();
+                cell.colSpan = 6;
+                cell.className = "empty-state";
+                cell.textContent = "Data asatidz gagal dimuat.";
+            }
+        }
+
+        function closeEditor() {
+            document.getElementById("asatidz-modal").classList.remove("active");
+            document.getElementById("asatidz-modal").setAttribute("aria-hidden", "true");
+        }
+
+        async function openEditor(id) {
+            const form = document.getElementById("asatidz-form");
+            form.reset();
+            document.getElementById("asatidz-id").value = "";
+            showError(document.getElementById("form-error"), "");
+            let assignments = [];
+            if (id) {
+                try {
+                    const result = await requestJson("api/get-asatidz.php?id=" + encodeURIComponent(id));
+                    const person = result.asatidz;
+                    document.getElementById("asatidz-id").value = person.id;
+                    document.getElementById("asatidz-nama").value = person.nama;
+                    document.getElementById("asatidz-mapel").value = person.mata_pelajaran || "";
+                    document.getElementById("asatidz-jabatan").value = person.jabatan || "";
+                    assignments = person.penugasan;
+                } catch (error) {
+                    alert(error.message);
+                    return;
+                }
+            }
+            makeAssignmentRows(assignments);
+            document.getElementById("modal-title").textContent = id ? "Edit Asatidz" : "Tambah Asatidz";
+            document.getElementById("asatidz-modal").classList.add("active");
+            document.getElementById("asatidz-modal").setAttribute("aria-hidden", "false");
+        }
+
+        async function deleteAsatidz(id, name) {
+            if (!confirm("Hapus data " + name + "? Riwayat absensi lama akan tetap disimpan.")) return;
+            try {
+                await requestJson("api/delete-asatidz.php", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ id: id })
+                });
+                await loadAsatidz();
+            } catch (error) {
+                alert(error.message);
+            }
+        }
+
+        document.getElementById("asatidz-form").addEventListener("submit", async event => {
+            event.preventDefault();
+            const id = document.getElementById("asatidz-id").value;
+            const button = document.getElementById("save-button");
+            const payload = {
+                nama: document.getElementById("asatidz-nama").value.trim(),
+                mata_pelajaran: document.getElementById("asatidz-mapel").value.trim(),
+                jabatan: document.getElementById("asatidz-jabatan").value.trim(),
+                penugasan: collectAssignments()
+            };
+            if (id) payload.id = Number(id);
+            button.disabled = true;
+            try {
+                await requestJson(id ? "api/update-asatidz.php" : "api/add-asatidz.php", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload)
+                });
+                closeEditor();
+                await loadAsatidz();
+            } catch (error) {
+                showError(document.getElementById("form-error"), error.message);
+            } finally {
+                button.disabled = false;
+            }
+        });
+
+        document.getElementById("add-button").addEventListener("click", () => openEditor());
+        document.getElementById("close-modal").addEventListener("click", closeEditor);
+        document.getElementById("asatidz-modal").addEventListener("click", event => {
+            if (event.target === event.currentTarget) closeEditor();
+        });
+        document.getElementById("btn-logout").addEventListener("click", async () => {
+            try { await fetch("api/logout.php", { method: "POST" }); } catch (error) { console.error(error); }
+            localStorage.removeItem("user_data");
+            localStorage.removeItem("user_id");
+            localStorage.removeItem("user_role");
+            window.location.href = "index.html";
+        });
+
+        (async function initialize() {
+            try {
+                const session = await requestJson("api/session.php");
+                if (!session.user || session.user.role !== "admin") {
+                    window.location.href = "dashboard.html";
+                    return;
+                }
+                document.getElementById("user-name").textContent = session.user.name || "Admin";
+                document.getElementById("user-photo").src = session.user.photo || "assets/Logo.png";
+                localStorage.setItem("user_id", String(session.user.id));
+                localStorage.setItem("user_role", session.user.role);
+                localStorage.setItem("user_data", JSON.stringify(session.user));
+                const kegiatan = await requestJson("api/get-kegiatan.php");
+                activities = kegiatan.kegiatan;
+                await loadAsatidz();
+            } catch (error) {
+                showError(document.getElementById("page-error"), error.message);
+            }
+        })();
+    </script>
+    <script src="js/auth.js"></script>
+    <script src="js/role-guard.js?v=20261013"></script>
+    <script src="js/theme.js?v=20261013"></script>
+</body>
+</html>
