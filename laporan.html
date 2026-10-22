@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Laporan Santri — MySantriQu</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/app.css">
+  <style>
+    .report-sheet {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 36px;
+      box-shadow: var(--shadow);
+    }
+    .kop-surat {
+      text-align: center;
+      border-bottom: 2px solid var(--ink);
+      padding-bottom: 16px;
+      margin-bottom: 24px;
+    }
+    .kop-surat h2 { font-size: 1.5rem; letter-spacing: 0.05em; text-transform: uppercase; }
+    .kop-surat p { font-size: 0.85rem; color: var(--muted); }
+    .signature-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      margin-top: 48px;
+      text-align: center;
+      font-size: 0.88rem;
+    }
+    .sig-space { height: 70px; }
+  </style>
+</head>
+<body>
+
+<header class="app-header">
+  <div class="wrap nav-inner">
+    <a href="index.php" class="logo">
+      <i>Q</i>
+      <span>MySantriQu</span>
+    </a>
+    <nav class="nav-menu">
+      <a href="index.php">Beranda</a>
+      <a href="dashboard.html">Dashboard</a>
+      <a href="santri.html">Data Santri</a>
+      <a href="absensi.html">Absensi</a>
+      <a href="kegiatan.html">Kegiatan</a>
+      <a href="pelanggaran.html">Pelanggaran</a>
+      <a href="laporan.html" class="active">Laporan</a>
+      <a href="admin-users.html">Pengguna</a>
+    </nav>
+    <button class="mobile-toggle" aria-label="Toggle Menu">☰</button>
+  </div>
+</header>
+
+<main class="wrap" style="padding-bottom: 40px;">
+  <div class="page-head no-print">
+    <div>
+      <h1 class="page-title">Rekap & Laporan Santri</h1>
+      <p class="page-sub">Cetak laporan kehadiran dan perkembangan santri untuk arsip & wali santri.</p>
+    </div>
+    <div class="page-actions">
+      <button class="btn btn-ghost" onclick="exportCSV()">📥 Ekspor CSV</button>
+      <button class="btn btn-primary" onclick="window.print()">🖨️ Cetak / Unduh PDF</button>
+    </div>
+  </div>
+
+  <div class="card no-print" style="margin-bottom: 24px;">
+    <div class="filter-bar">
+      <div>
+        <label class="form-label">Jenis Laporan</label>
+        <select id="lap-jenis" class="select" onchange="renderReport()">
+          <option value="absensi">Rekap Kehadiran Santri</option>
+          <option value="pelanggaran">Rekap Pelanggaran & Kedisiplinan</option>
+        </select>
+      </div>
+      <div>
+        <label class="form-label">Periode</label>
+        <select id="lap-periode" class="select" onchange="renderReport()">
+          <option value="Okt 2026">Oktober 2026</option>
+          <option value="Sep 2026">September 2026</option>
+        </select>
+      </div>
+      <div>
+        <label class="form-label">Filter Kelas</label>
+        <select id="lap-kelas" class="select" onchange="renderReport()">
+          <option value="">Semua Kelas</option>
+          <option value="1A">Kelas 1A</option>
+          <option value="1B">Kelas 1B</option>
+          <option value="2A">Kelas 2A</option>
+          <option value="2B">Kelas 2B</option>
+          <option value="3A">Kelas 3A</option>
+          <option value="3B">Kelas 3B</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pratinjau Lembar Laporan Cetak -->
+  <div class="report-sheet" id="printable-area">
+    <div class="kop-surat">
+      <h2>PONDOK PESANTREN MADS AL-HIKMAH</h2>
+      <p>Badan Pengasuhan Santri & Bagian Kedisiplinan</p>
+      <p style="font-size: 0.78rem;">Jl. Raya Pesantren No. 12 · info@darsya.com · Aplikasi MySantriQu</p>
+    </div>
+
+    <div style="display:flex; justify-content:space-between; margin-bottom:16px; font-size:0.88rem;">
+      <div>
+        <b>Judul Laporan:</b> <span id="lbl-lap-title">Rekap Kehadiran Santri</span><br>
+        <b>Periode:</b> <span id="lbl-lap-periode">Oktober 2026</span>
+      </div>
+      <div style="text-align:right">
+        <b>Tanggal Cetak:</b> <span id="lbl-lap-date"></span><br>
+        <b>Kelas:</b> <span id="lbl-lap-kelas">Semua Kelas</span>
+      </div>
+    </div>
+
+    <div class="table-wrap" style="box-shadow:none; border-radius:0;">
+      <table class="table" id="report-table">
+        <!-- Render dinamis via JS -->
+      </table>
+    </div>
+
+    <div class="signature-grid">
+      <div>
+        <p>Mengetahui,<br><b>Wali Kelas / Musyrif</b></p>
+        <div class="sig-space"></div>
+        <p>( Ust. Farhan Al-Hafidz )</p>
+      </div>
+      <div>
+        <p>Pengasuh Pondok Pesantren,<br><b>Direktur Pengasuhan</b></p>
+        <div class="sig-space"></div>
+        <p>( Ust. Zulkifli, Lc )</p>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer class="app-footer">
+  <div class="wrap">
+    <span>© <span id="year-span"></span> MySantriQu — Sistem Manajemen Pesantren Modern</span>
+  </div>
+</footer>
+
+<script src="js/app.js"></script>
+<script>
+  function initPage() {
+    document.getElementById('lbl-lap-date').textContent = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+    renderReport();
+  }
+
+  function renderReport() {
+    const jenis = document.getElementById('lap-jenis').value;
+    const periode = document.getElementById('lap-periode').value;
+    const fKelas = document.getElementById('lap-kelas').value;
+
+    document.getElementById('lbl-lap-periode').textContent = periode;
+    document.getElementById('lbl-lap-kelas').textContent = fKelas ? `Kelas ${fKelas}` : 'Semua Kelas';
+
+    const table = document.getElementById('report-table');
+
+    if (jenis === 'absensi') {
+      document.getElementById('lbl-lap-title').textContent = 'Rekap Kehadiran Santri';
+      const santri = SantriDB.get('santri', SantriDB.defaultSantri).filter(s => !fKelas || s.kelas === fKelas);
+
+      table.innerHTML = `
+        <thead>
+          <tr>
+            <th>No</th>
+            <th>NIS</th>
+            <th>Nama Santri</th>
+            <th>Kelas</th>
+            <th>Hadir</th>
+            <th>Sakit</th>
+            <th>Izin</th>
+            <th>Alpha</th>
+            <th>Persentase</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${santri.map((s, idx) => `
+            <tr>
+              <td>${idx + 1}</td>
+              <td>${s.nis}</td>
+              <td><b>${s.nama}</b></td>
+              <td>${s.kelas}</td>
+              <td>28</td>
+              <td>1</td>
+              <td>1</td>
+              <td>0</td>
+              <td><b>96.6%</b></td>
+            </tr>
+          `).join('')}
+        </tbody>
+      `;
+    } else {
+      document.getElementById('lbl-lap-title').textContent = 'Rekap Catatan Pelanggaran Santri';
+      const pel = SantriDB.get('pelanggaran', SantriDB.defaultPelanggaran).filter(p => !fKelas || p.kelas === fKelas);
+
+      table.innerHTML = `
+        <thead>
+          <tr>
+            <th>No</th>
+            <th>Tanggal</th>
+            <th>Nama Santri</th>
+            <th>Kelas</th>
+            <th>Pelanggaran</th>
+            <th>Poin</th>
+            <th>Takzir / Sanksi</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${pel.map((p, idx) => `
+            <tr>
+              <td>${idx + 1}</td>
+              <td>${p.tanggal}</td>
+              <td><b>${p.nama}</b></td>
+              <td>${p.kelas}</td>
+              <td>${p.jenis}</td>
+              <td>+${p.poin}</td>
+              <td>${p.sanksi}</td>
+              <td>${p.status}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      `;
+    }
+  }
+
+  function exportCSV() {
+    const jenis = document.getElementById('lap-jenis').value;
+    let csv = '';
+    if (jenis === 'absensi') {
+      csv = 'NIS,Nama,Kelas,Hadir,Sakit,Izin,Alpha,Persentase\n';
+      const santri = SantriDB.get('santri', SantriDB.defaultSantri);
+      santri.forEach(s => {
+        csv += `"${s.nis}","${s.nama}","${s.kelas}",28,1,1,0,96.6%\n`;
+      });
+    } else {
+      csv = 'Tanggal,Nama,Kelas,Pelanggaran,Poin,Status\n';
+      const pel = SantriDB.get('pelanggaran', SantriDB.defaultPelanggaran);
+      pel.forEach(p => {
+        csv += `"${p.tanggal}","${p.nama}","${p.kelas}","${p.jenis}",${p.poin},"${p.status}"\n`;
+      });
+    }
+
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `Laporan_MySantriQu_${jenis}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast('Berkas CSV berhasil diunduh!');
+  }
+
+  document.addEventListener('DOMContentLoaded', initPage);
+</script>
+</body>
+</html>

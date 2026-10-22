@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Hak Akses Pengguna — MySantriQu</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+
+<header class="app-header">
+  <div class="wrap nav-inner">
+    <a href="index.php" class="logo">
+      <i>Q</i>
+      <span>MySantriQu</span>
+    </a>
+    <nav class="nav-menu">
+      <a href="index.php">Beranda</a>
+      <a href="dashboard.html">Dashboard</a>
+      <a href="santri.html">Data Santri</a>
+      <a href="absensi.html">Absensi</a>
+      <a href="kegiatan.html">Kegiatan</a>
+      <a href="pelanggaran.html">Pelanggaran</a>
+      <a href="laporan.html">Laporan</a>
+      <a href="admin-users.html" class="active">Pengguna</a>
+    </nav>
+    <button class="mobile-toggle" aria-label="Toggle Menu">☰</button>
+  </div>
+</header>
+
+<main class="wrap" style="padding-bottom: 40px;">
+  <div class="page-head">
+    <div>
+      <h1 class="page-title">Pengguna & Hak Akses</h1>
+      <p class="page-sub">Kelola akun asatidz, pengasuh, dan batas kewenangan akses modul.</p>
+    </div>
+    <div class="page-actions">
+      <button class="btn btn-primary" onclick="openModal()">+ Tambah Pengguna</button>
+    </div>
+  </div>
+
+  <div class="grid-4" style="margin-bottom: 24px;">
+    <div class="kpi-card">
+      <span class="kpi-label">Super Admin</span>
+      <span class="kpi-val" style="font-size:1.4rem;">Penuh</span>
+      <span class="kpi-sub">Semua menu & config</span>
+    </div>
+    <div class="kpi-card">
+      <span class="kpi-label">Musyrif Tahfidz</span>
+      <span class="kpi-val" style="font-size:1.4rem;">Absensi & KBM</span>
+      <span class="kpi-sub">Pencatatan harian</span>
+    </div>
+    <div class="kpi-card">
+      <span class="kpi-label">Pengasuhan</span>
+      <span class="kpi-val" style="font-size:1.4rem;">Kedisiplinan</span>
+      <span class="kpi-sub">Pelanggaran & izin</span>
+    </div>
+    <div class="kpi-card">
+      <span class="kpi-label">Tata Usaha</span>
+      <span class="kpi-val" style="font-size:1.4rem;">Data & Laporan</span>
+      <span class="kpi-sub">Arsip & cetak PDF</span>
+    </div>
+  </div>
+
+  <div class="card" style="margin-bottom: 20px;">
+    <div class="table-wrap">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Nama Pengguna</th>
+            <th>Email Login</th>
+            <th>Peran (Role)</th>
+            <th>Terakhir Masuk</th>
+            <th>Status</th>
+            <th style="text-align:right">Aksi</th>
+          </tr>
+        </thead>
+        <tbody id="user-rows">
+          <!-- Diisi via JS -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+</main>
+
+<!-- Modal Tambah User -->
+<div class="modal-backdrop" id="user-modal">
+  <div class="modal-card">
+    <div class="modal-head">
+      <h3 style="font-size:1.2rem;">Tambah Pengguna Baru</h3>
+      <button class="modal-close" onclick="closeModal()">&times;</button>
+    </div>
+    <form onsubmit="saveUser(event)">
+      <div class="form-group">
+        <label class="form-label">Nama Lengkap</label>
+        <input type="text" id="usr-nama" class="input" required placeholder="Contoh: Ust. Danial Mukhlis">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Email</label>
+        <input type="email" id="usr-email" class="input" required placeholder="email@pondok.id">
+      </div>
+      <div class="grid-2">
+        <div class="form-group">
+          <label class="form-label">Peran (Role)</label>
+          <select id="usr-role" class="select" required>
+            <option value="Super Admin">Super Admin</option>
+            <option value="Musyrif Tahfidz">Musyrif Tahfidz</option>
+            <option value="Pengasuhan & Kedisiplinan">Pengasuhan & Kedisiplinan</option>
+            <option value="Tata Usaha / Wali Kelas">Tata Usaha / Wali Kelas</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Status</label>
+          <select id="usr-status" class="select">
+            <option value="Aktif">Aktif</option>
+            <option value="Nonaktif">Nonaktif</option>
+          </select>
+        </div>
+      </div>
+      <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:16px;">
+        <button type="button" class="btn btn-ghost" onclick="closeModal()">Batal</button>
+        <button type="submit" class="btn btn-primary">Simpan Akun</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<footer class="app-footer">
+  <div class="wrap">
+    <span>© <span id="year-span"></span> MySantriQu — Sistem Manajemen Pesantren Modern</span>
+  </div>
+</footer>
+
+<script src="js/app.js"></script>
+<script>
+  let userList = [];
+
+  function loadUsers() {
+    userList = SantriDB.get('users', SantriDB.defaultUsers);
+    renderUsers();
+  }
+
+  function renderUsers() {
+    const tbody = document.getElementById('user-rows');
+    tbody.innerHTML = userList.map(u => `
+      <tr>
+        <td><b>${u.nama}</b></td>
+        <td><code>${u.email}</code></td>
+        <td><span class="badge badge-info">${u.role}</span></td>
+        <td><small style="color:var(--muted)">${u.lastLogin || 'Belum pernah'}</small></td>
+        <td>
+          <span class="badge ${u.status === 'Aktif' ? 'badge-ok' : 'badge-danger'}">${u.status}</span>
+        </td>
+        <td style="text-align:right;">
+          <button class="btn btn-ghost btn-sm" onclick="toggleUserStatus(${u.id})">Toggle Status</button>
+          <button class="btn btn-danger btn-sm" onclick="deleteUser(${u.id})">Hapus</button>
+        </td>
+      </tr>
+    `).join('');
+  }
+
+  function openModal() {
+    document.getElementById('user-modal').classList.add('show');
+  }
+
+  function closeModal() {
+    document.getElementById('user-modal').classList.remove('show');
+  }
+
+  function saveUser(e) {
+    e.preventDefault();
+    const item = {
+      id: Date.now(),
+      nama: document.getElementById('usr-nama').value.trim(),
+      email: document.getElementById('usr-email').value.trim(),
+      role: document.getElementById('usr-role').value,
+      status: document.getElementById('usr-status').value,
+      lastLogin: 'Belum pernah'
+    };
+    userList.push(item);
+    SantriDB.set('users', userList);
+    closeModal();
+    renderUsers();
+    toast('Akun pengguna berhasil dibuat!');
+  }
+
+  function toggleUserStatus(id) {
+    const item = userList.find(u => u.id === id);
+    if (!item) return;
+    item.status = item.status === 'Aktif' ? 'Nonaktif' : 'Aktif';
+    SantriDB.set('users', userList);
+    renderUsers();
+    toast(`Status akun diubah ke "${item.status}"`);
+  }
+
+  function deleteUser(id) {
+    if (!confirm('Hapus akun pengguna ini?')) return;
+    userList = userList.filter(u => u.id !== id);
+    SantriDB.set('users', userList);
+    renderUsers();
+    toast('Pengguna dihapus', 'warn');
+  }
+
+  document.addEventListener('DOMContentLoaded', loadUsers);
+</script>
+</body>
+</html>

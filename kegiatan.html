@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Kegiatan Pondok — MySantriQu</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+
+<header class="app-header">
+  <div class="wrap nav-inner">
+    <a href="index.php" class="logo">
+      <i>Q</i>
+      <span>MySantriQu</span>
+    </a>
+    <nav class="nav-menu">
+      <a href="index.php">Beranda</a>
+      <a href="dashboard.html">Dashboard</a>
+      <a href="santri.html">Data Santri</a>
+      <a href="absensi.html">Absensi</a>
+      <a href="kegiatan.html" class="active">Kegiatan</a>
+      <a href="pelanggaran.html">Pelanggaran</a>
+      <a href="laporan.html">Laporan</a>
+      <a href="admin-users.html">Pengguna</a>
+    </nav>
+    <button class="mobile-toggle" aria-label="Toggle Menu">☰</button>
+  </div>
+</header>
+
+<main class="wrap" style="padding-bottom: 40px;">
+  <div class="page-head">
+    <div>
+      <h1 class="page-title">Jadwal & Agenda Kegiatan</h1>
+      <p class="page-sub">Rangkaian jadwal ibadah, kegiatan belajar, dan ekstrakurikuler pondok.</p>
+    </div>
+    <div class="page-actions">
+      <button class="btn btn-primary" onclick="openModal()">+ Tambah Agenda</button>
+    </div>
+  </div>
+
+  <div class="card" style="margin-bottom: 20px;">
+    <div class="filter-bar">
+      <select id="filter-status" class="select" onchange="renderKegiatan()">
+        <option value="">Semua Status</option>
+        <option value="Berlangsung">Sedang Berlangsung</option>
+        <option value="Terjadwal">Terjadwal</option>
+        <option value="Selesai">Selesai</option>
+      </select>
+    </div>
+
+    <div class="table-wrap">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Waktu</th>
+            <th>Nama Kegiatan</th>
+            <th>Pembimbing / Asatidz</th>
+            <th>Tempat / Lokasi</th>
+            <th>Status</th>
+            <th style="text-align:right">Aksi</th>
+          </tr>
+        </thead>
+        <tbody id="kegiatan-rows">
+          <!-- Diisi via JS -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+</main>
+
+<!-- Modal Tambah Agenda -->
+<div class="modal-backdrop" id="kegiatan-modal">
+  <div class="modal-card">
+    <div class="modal-head">
+      <h3 style="font-size:1.2rem;">Tambah Agenda Kegiatan</h3>
+      <button class="modal-close" onclick="closeModal()">&times;</button>
+    </div>
+    <form onsubmit="saveKegiatan(event)">
+      <div class="form-group">
+        <label class="form-label">Nama Kegiatan</label>
+        <input type="text" id="keg-nama" class="input" required placeholder="Contoh: Muhadharah Santri 3 Bahasa">
+      </div>
+      <div class="grid-2">
+        <div class="form-group">
+          <label class="form-label">Rentang Waktu</label>
+          <input type="text" id="keg-waktu" class="input" required placeholder="Contoh: 19:45 - 21:00">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Tempat / Ruangan</label>
+          <input type="text" id="keg-tempat" class="input" required placeholder="Contoh: Aula Utama">
+        </div>
+      </div>
+      <div class="grid-2">
+        <div class="form-group">
+          <label class="form-label">Pembimbing / Penanggung Jawab</label>
+          <input type="text" id="keg-pembimbing" class="input" required placeholder="Contoh: Ust. Danial">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Status</label>
+          <select id="keg-status" class="select">
+            <option value="Terjadwal">Terjadwal</option>
+            <option value="Berlangsung">Sedang Berlangsung</option>
+            <option value="Selesai">Selesai</option>
+          </select>
+        </div>
+      </div>
+      <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:16px;">
+        <button type="button" class="btn btn-ghost" onclick="closeModal()">Batal</button>
+        <button type="submit" class="btn btn-primary">Simpan Agenda</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<footer class="app-footer">
+  <div class="wrap">
+    <span>© <span id="year-span"></span> MySantriQu — Sistem Manajemen Pesantren Modern</span>
+  </div>
+</footer>
+
+<script src="js/app.js"></script>
+<script>
+  let kegiatanList = [];
+
+  function loadKegiatan() {
+    kegiatanList = SantriDB.get('kegiatan', SantriDB.defaultKegiatan);
+    renderKegiatan();
+  }
+
+  function renderKegiatan() {
+    const fStatus = document.getElementById('filter-status').value;
+    const filtered = kegiatanList.filter(k => !fStatus || k.status === fStatus);
+
+    const tbody = document.getElementById('kegiatan-rows');
+    if (filtered.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:30px; color:var(--muted);">Tidak ada kegiatan yang sesuai filter.</td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = filtered.map(k => `
+      <tr>
+        <td><b>⏰ ${k.waktu}</b></td>
+        <td><b>${k.nama}</b></td>
+        <td>👤 ${k.pembimbing}</td>
+        <td>📍 ${k.tempat}</td>
+        <td>
+          <span class="badge ${k.status === 'Berlangsung' ? 'badge-ok' : (k.status === 'Selesai' ? 'badge-info' : 'badge-warn')}">${k.status}</span>
+        </td>
+        <td style="text-align:right;">
+          <button class="btn btn-ghost btn-sm" onclick="toggleStatus(${k.id})">Ubah Status</button>
+          <button class="btn btn-danger btn-sm" onclick="deleteKegiatan(${k.id})">Hapus</button>
+        </td>
+      </tr>
+    `).join('');
+  }
+
+  function openModal() {
+    document.getElementById('kegiatan-modal').classList.add('show');
+  }
+
+  function closeModal() {
+    document.getElementById('kegiatan-modal').classList.remove('show');
+  }
+
+  function saveKegiatan(e) {
+    e.preventDefault();
+    const item = {
+      id: Date.now(),
+      nama: document.getElementById('keg-nama').value.trim(),
+      waktu: document.getElementById('keg-waktu').value.trim(),
+      tempat: document.getElementById('keg-tempat').value.trim(),
+      pembimbing: document.getElementById('keg-pembimbing').value.trim(),
+      status: document.getElementById('keg-status').value
+    };
+    kegiatanList.push(item);
+    SantriDB.set('kegiatan', kegiatanList);
+    closeModal();
+    renderKegiatan();
+    toast('Agenda kegiatan berhasil ditambahkan!');
+  }
+
+  function toggleStatus(id) {
+    const item = kegiatanList.find(k => k.id === id);
+    if (!item) return;
+    if (item.status === 'Terjadwal') item.status = 'Berlangsung';
+    else if (item.status === 'Berlangsung') item.status = 'Selesai';
+    else item.status = 'Terjadwal';
+
+    SantriDB.set('kegiatan', kegiatanList);
+    renderKegiatan();
+    toast(`Status kegiatan diubah ke "${item.status}"`);
+  }
+
+  function deleteKegiatan(id) {
+    if (!confirm('Hapus agenda kegiatan ini?')) return;
+    kegiatanList = kegiatanList.filter(k => k.id !== id);
+    SantriDB.set('kegiatan', kegiatanList);
+    renderKegiatan();
+    toast('Kegiatan dihapus', 'warn');
+  }
+
+  document.addEventListener('DOMContentLoaded', loadKegiatan);
+</script>
+</body>
+</html>

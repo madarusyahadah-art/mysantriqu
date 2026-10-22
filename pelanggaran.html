@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Kedisiplinan & Pelanggaran — MySantriQu</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+
+<header class="app-header">
+  <div class="wrap nav-inner">
+    <a href="index.php" class="logo">
+      <i>Q</i>
+      <span>MySantriQu</span>
+    </a>
+    <nav class="nav-menu">
+      <a href="index.php">Beranda</a>
+      <a href="dashboard.html">Dashboard</a>
+      <a href="santri.html">Data Santri</a>
+      <a href="absensi.html">Absensi</a>
+      <a href="kegiatan.html">Kegiatan</a>
+      <a href="pelanggaran.html" class="active">Pelanggaran</a>
+      <a href="laporan.html">Laporan</a>
+      <a href="admin-users.html">Pengguna</a>
+    </nav>
+    <button class="mobile-toggle" aria-label="Toggle Menu">☰</button>
+  </div>
+</header>
+
+<main class="wrap" style="padding-bottom: 40px;">
+  <div class="page-head">
+    <div>
+      <h1 class="page-title">Catatan Kedisiplinan</h1>
+      <p class="page-sub">Dokumentasi poin kedisiplinan dan pembinaan santri secara berkeadilan.</p>
+    </div>
+    <div class="page-actions">
+      <button class="btn btn-primary" onclick="openModal()">+ Catat Pelanggaran</button>
+    </div>
+  </div>
+
+  <div class="grid-3" style="margin-bottom: 20px;">
+    <div class="kpi-card">
+      <span class="kpi-label">Total Pelanggaran</span>
+      <span class="kpi-val" id="pel-total">0</span>
+      <span class="kpi-sub">Bulan berjalan</span>
+    </div>
+    <div class="kpi-card">
+      <span class="kpi-label">Tuntas Dibina</span>
+      <span class="kpi-val" style="color:var(--brand)" id="pel-selesai">0</span>
+      <span class="kpi-sub">Takzir edukatif selesai</span>
+    </div>
+    <div class="kpi-card">
+      <span class="kpi-label">Dalam Pembinaan</span>
+      <span class="kpi-val" style="color:var(--gold)" id="pel-bina">0</span>
+      <span class="kpi-sub">Perlu monitoring ustadz</span>
+    </div>
+  </div>
+
+  <div class="card" style="margin-bottom: 20px;">
+    <div class="filter-bar">
+      <input type="text" id="pel-search" class="input" placeholder="🔍 Cari santri atau pelanggaran..." oninput="renderTable()">
+      <select id="pel-filter-status" class="select" onchange="renderTable()">
+        <option value="">Semua Status</option>
+        <option value="Pembinaan">Dalam Pembinaan</option>
+        <option value="Selesai">Selesai</option>
+      </select>
+    </div>
+
+    <div class="table-wrap">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Tanggal</th>
+            <th>Nama Santri</th>
+            <th>Jenis Pelanggaran</th>
+            <th>Poin</th>
+            <th>Bentuk Takzir / Sanksi</th>
+            <th>Pencatat</th>
+            <th>Status</th>
+            <th style="text-align:right">Aksi</th>
+          </tr>
+        </thead>
+        <tbody id="pelanggaran-rows">
+          <!-- Diisi via JS -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+</main>
+
+<!-- Modal Input Pelanggaran -->
+<div class="modal-backdrop" id="pel-modal">
+  <div class="modal-card">
+    <div class="modal-head">
+      <h3 style="font-size:1.2rem;">Catat Pelanggaran Santri</h3>
+      <button class="modal-close" onclick="closeModal()">&times;</button>
+    </div>
+    <form onsubmit="savePelanggaran(event)">
+      <div class="grid-2">
+        <div class="form-group">
+          <label class="form-label">Tanggal Kejadian</label>
+          <input type="date" id="form-pel-tgl" class="input" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Santri Pelanggar</label>
+          <select id="form-pel-santri" class="select" required>
+            <!-- Diisi santri aktif -->
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Jenis Pelanggaran</label>
+        <input type="text" id="form-pel-jenis" class="input" required placeholder="Contoh: Terlambat sholat berjamaah">
+      </div>
+      <div class="grid-2">
+        <div class="form-group">
+          <label class="form-label">Poin Pelanggaran</label>
+          <input type="number" id="form-pel-poin" class="input" min="1" max="50" value="5" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Ustadz / Musyrif Pencatat</label>
+          <input type="text" id="form-pel-ustadz" class="input" required placeholder="Contoh: Ust. Danial">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Bentuk Pembinaan / Takzir Edukatif</label>
+        <textarea id="form-pel-sanksi" class="textarea" rows="2" required placeholder="Contoh: Membaca Al-Qur'an 1 juz dan membersihkan masjid"></textarea>
+      </div>
+      <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:16px;">
+        <button type="button" class="btn btn-ghost" onclick="closeModal()">Batal</button>
+        <button type="submit" class="btn btn-primary">Simpan Catatan</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<footer class="app-footer">
+  <div class="wrap">
+    <span>© <span id="year-span"></span> MySantriQu — Sistem Manajemen Pesantren Modern</span>
+  </div>
+</footer>
+
+<script src="js/app.js"></script>
+<script>
+  let pelList = [];
+
+  function loadPage() {
+    pelList = SantriDB.get('pelanggaran', SantriDB.defaultPelanggaran);
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('form-pel-tgl').value = today;
+
+    // populate santri dropdown
+    const santri = SantriDB.get('santri', SantriDB.defaultSantri);
+    const sel = document.getElementById('form-pel-santri');
+    sel.innerHTML = santri.map(s => `<option value="${s.nama}" data-kelas="${s.kelas}">${s.nama} (${s.kelas})</option>`).join('');
+
+    renderTable();
+  }
+
+  function renderTable() {
+    const q = document.getElementById('pel-search').value.toLowerCase();
+    const fStatus = document.getElementById('pel-filter-status').value;
+
+    const filtered = pelList.filter(p => {
+      const matchQ = p.nama.toLowerCase().includes(q) || p.jenis.toLowerCase().includes(q);
+      const matchStatus = !fStatus || p.status === fStatus;
+      return matchQ && matchStatus;
+    });
+
+    const tbody = document.getElementById('pelanggaran-rows');
+    if (filtered.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:30px; color:var(--muted);">Tidak ada data pelanggaran.</td></tr>`;
+    } else {
+      tbody.innerHTML = filtered.map(p => `
+        <tr>
+          <td><small>${p.tanggal}</small></td>
+          <td><b>${p.nama}</b><br><small style="color:var(--muted)">Kelas ${p.kelas}</small></td>
+          <td>${p.jenis}</td>
+          <td><span class="badge badge-warn">+${p.poin} Poin</span></td>
+          <td><small>${p.sanksi}</small></td>
+          <td>${p.ustadz}</td>
+          <td>
+            <span class="badge ${p.status === 'Selesai' ? 'badge-ok' : 'badge-danger'}">${p.status}</span>
+          </td>
+          <td style="text-align:right;">
+            ${p.status !== 'Selesai' ? `<button class="btn btn-ghost btn-sm" onclick="completePel(${p.id})">Tuntaskan</button>` : ''}
+            <button class="btn btn-danger btn-sm" onclick="deletePel(${p.id})">Hapus</button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    // Update KPIs
+    document.getElementById('pel-total').textContent = pelList.length;
+    document.getElementById('pel-selesai').textContent = pelList.filter(p => p.status === 'Selesai').length;
+    document.getElementById('pel-bina').textContent = pelList.filter(p => p.status !== 'Selesai').length;
+  }
+
+  function openModal() {
+    document.getElementById('pel-modal').classList.add('show');
+  }
+
+  function closeModal() {
+    document.getElementById('pel-modal').classList.remove('show');
+  }
+
+  function savePelanggaran(e) {
+    e.preventDefault();
+    const santriSel = document.getElementById('form-pel-santri');
+    const selectedOpt = santriSel.options[santriSel.selectedIndex];
+    const nama = santriSel.value;
+    const kelas = selectedOpt.getAttribute('data-kelas') || '1A';
+
+    const item = {
+      id: Date.now(),
+      tanggal: document.getElementById('form-pel-tgl').value,
+      nama: nama,
+      kelas: kelas,
+      jenis: document.getElementById('form-pel-jenis').value.trim(),
+      poin: parseInt(document.getElementById('form-pel-poin').value, 10),
+      ustadz: document.getElementById('form-pel-ustadz').value.trim(),
+      sanksi: document.getElementById('form-pel-sanksi').value.trim(),
+      status: 'Pembinaan'
+    };
+
+    pelList.unshift(item);
+    SantriDB.set('pelanggaran', pelList);
+    closeModal();
+    renderTable();
+    toast('Catatan pelanggaran disimpan!');
+  }
+
+  function completePel(id) {
+    const item = pelList.find(p => p.id === id);
+    if (!item) return;
+    item.status = 'Selesai';
+    SantriDB.set('pelanggaran', pelList);
+    renderTable();
+    toast('Status takzir telah dituntaskan!');
+  }
+
+  function deletePel(id) {
+    if (!confirm('Hapus catatan pelanggaran ini?')) return;
+    pelList = pelList.filter(p => p.id !== id);
+    SantriDB.set('pelanggaran', pelList);
+    renderTable();
+    toast('Catatan dihapus', 'warn');
+  }
+
+  document.addEventListener('DOMContentLoaded', loadPage);
+</script>
+</body>
+</html>

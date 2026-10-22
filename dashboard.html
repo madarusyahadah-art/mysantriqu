@@ -1,0 +1,259 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dashboard — MySantriQu</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/app.css">
+  <style>
+    .chart-bars {
+      display: flex;
+      align-items: flex-end;
+      gap: 12px;
+      height: 140px;
+      margin: 20px 0 8px;
+      padding: 0 4px;
+    }
+    .chart-bar-wrap {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      height: 100%;
+      justify-content: flex-end;
+      gap: 6px;
+    }
+    .chart-bar {
+      width: 100%;
+      background: var(--brand-soft);
+      border-radius: 6px 6px 2px 2px;
+      transition: height .3s ease;
+    }
+    .chart-bar.active {
+      background: linear-gradient(var(--brand-2), var(--brand));
+    }
+    .chart-label {
+      font-size: 0.72rem;
+      color: var(--muted);
+    }
+    .timeline {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .timeline-item {
+      display: flex;
+      gap: 12px;
+      font-size: 0.88rem;
+    }
+    .timeline-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--brand);
+      margin-top: 5px;
+      flex-shrink: 0;
+    }
+    .quick-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+    .quick-btn {
+      padding: 12px;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      background: var(--surface);
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      font-size: 0.85rem;
+      transition: all .15s ease;
+    }
+    .quick-btn:hover {
+      border-color: var(--brand);
+      background: var(--brand-soft);
+    }
+    .quick-btn b { color: var(--ink); font-size: 0.9rem; }
+    .quick-btn span { color: var(--muted); font-size: 0.75rem; }
+  </style>
+</head>
+<body>
+
+<header class="app-header">
+  <div class="wrap nav-inner">
+    <a href="index.php" class="logo">
+      <i>Q</i>
+      <span>MySantriQu</span>
+    </a>
+    <nav class="nav-menu">
+      <a href="index.php">Beranda</a>
+      <a href="dashboard.html" class="active">Dashboard</a>
+      <a href="santri.html">Data Santri</a>
+      <a href="absensi.html">Absensi</a>
+      <a href="kegiatan.html">Kegiatan</a>
+      <a href="pelanggaran.html">Pelanggaran</a>
+      <a href="laporan.html">Laporan</a>
+      <a href="admin-users.html">Pengguna</a>
+    </nav>
+    <button class="mobile-toggle" aria-label="Toggle Menu">☰</button>
+  </div>
+</header>
+
+<main class="wrap" style="padding-bottom: 40px;">
+  <div class="page-head">
+    <div>
+      <h1 class="page-title">Dashboard Pengasuhan</h1>
+      <p class="page-sub">Pantauan kehadiran, kedisiplinan, dan agenda harian santri.</p>
+    </div>
+    <div class="page-actions">
+      <a href="absensi.html" class="btn btn-primary">✓ Absensi Hari Ini</a>
+      <a href="santri.html" class="btn btn-ghost">+ Tambah Santri</a>
+    </div>
+  </div>
+
+  <!-- KPI Metrics -->
+  <div class="grid-4" style="margin-bottom: 24px;">
+    <div class="kpi-card">
+      <span class="kpi-label">Total Santri</span>
+      <span class="kpi-val" id="total-santri">148</span>
+      <span class="kpi-sub">140 Mukim · 8 Asatidz</span>
+    </div>
+    <div class="kpi-card">
+      <span class="kpi-label">Kehadiran Hari Ini</span>
+      <span class="kpi-val" style="color: var(--brand);">96.4%</span>
+      <span class="kpi-sub">142 Hadir · 4 Izin · 2 Sakit</span>
+    </div>
+    <div class="kpi-card">
+      <span class="kpi-label">Agenda Berjalan</span>
+      <span class="kpi-val" style="color: var(--blue);">1 / 4</span>
+      <span class="kpi-sub">Halaqah Tahfidz Sore</span>
+    </div>
+    <div class="kpi-card">
+      <span class="kpi-label">Pelanggaran Pekan Ini</span>
+      <span class="kpi-val" style="color: var(--gold);">3 Kasus</span>
+      <span class="kpi-sub">2 Selesai · 1 Pembinaan</span>
+    </div>
+  </div>
+
+  <!-- Grid Main Content -->
+  <div class="grid-2">
+    <!-- Kolom Kiri -->
+    <div style="display: flex; flex-direction: column; gap: 20px;">
+      <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <h3>Grafik Kehadiran Pekan Ini</h3>
+          <span class="badge badge-ok">Rata-rata 95.8%</span>
+        </div>
+        <div class="chart-bars">
+          <div class="chart-bar-wrap"><div class="chart-bar" style="height: 75%;"></div><span class="chart-label">Sab</span></div>
+          <div class="chart-bar-wrap"><div class="chart-bar" style="height: 85%;"></div><span class="chart-label">Ahd</span></div>
+          <div class="chart-bar-wrap"><div class="chart-bar" style="height: 94%;"></div><span class="chart-label">Sen</span></div>
+          <div class="chart-bar-wrap"><div class="chart-bar" style="height: 91%;"></div><span class="chart-label">Sel</span></div>
+          <div class="chart-bar-wrap"><div class="chart-bar" style="height: 88%;"></div><span class="chart-label">Rab</span></div>
+          <div class="chart-bar-wrap"><div class="chart-bar active" style="height: 96%;"></div><span class="chart-label">Kam</span></div>
+          <div class="chart-bar-wrap"><div class="chart-bar" style="height: 60%;"></div><span class="chart-label">Jum</span></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+          <h3>Jadwal Kegiatan Hari Ini</h3>
+          <a href="kegiatan.html" style="font-size: 0.82rem; color: var(--brand); font-weight: 600;">Lihat Semua →</a>
+        </div>
+        <div class="timeline" id="dashboard-kegiatan">
+          <!-- Diisi via JS -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Kolom Kanan -->
+    <div style="display: flex; flex-direction: column; gap: 20px;">
+      <div class="card">
+        <h3 style="margin-bottom: 14px;">Menu Cepat</h3>
+        <div class="quick-grid">
+          <a href="absensi.html" class="quick-btn">
+            <b>📝 Absensi Santri</b>
+            <span>Input kehadiran per sesi</span>
+          </a>
+          <a href="santri.html" class="quick-btn">
+            <b>👥 Data Santri</b>
+            <span>Kamar, kelas & kontak wali</span>
+          </a>
+          <a href="pelanggaran.html" class="quick-btn">
+            <b>⚖️ Pelanggaran</b>
+            <span>Catatan poin & takzir</span>
+          </a>
+          <a href="laporan.html" class="quick-btn">
+            <b>📊 Rekap & Cetak</b>
+            <span>Laporan wali santri & PDF</span>
+          </a>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3 style="margin-bottom: 14px;">Aktivitas Terkini</h3>
+        <div class="timeline">
+          <div class="timeline-item">
+            <div class="timeline-dot"></div>
+            <div>
+              <b>Absensi Halaqah Pagi</b> selesai dicatat oleh Ust. Farhan.<br>
+              <span style="color:var(--muted); font-size:0.75rem;">15 menit lalu · Kelas 1A, 2A, 3A</span>
+            </div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-dot" style="background:var(--gold)"></div>
+            <div>
+              <b>Surat Izin Pulang</b> disetujui untuk M. Rizki Pratama.<br>
+              <span style="color:var(--muted); font-size:0.75rem;">1 jam lalu · Alasan: Keperluan keluarga</span>
+            </div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-dot" style="background:var(--danger)"></div>
+            <div>
+              <b>Catatan Pelanggaran Baru</b>: Terlambat sholat Subuh berjamaah.<br>
+              <span style="color:var(--muted); font-size:0.75rem;">Pagi ini · Ditindaklanjuti Musyrif</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer class="app-footer">
+  <div class="wrap">
+    <span>© <span id="year-span"></span> MySantriQu — Sistem Manajemen Pesantren Modern</span>
+  </div>
+</footer>
+
+<script src="js/app.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const list = SantriDB.get('kegiatan', SantriDB.defaultKegiatan);
+    const box = document.getElementById('dashboard-kegiatan');
+    box.innerHTML = list.map(k => `
+      <div class="timeline-item">
+        <div class="timeline-dot" style="${k.status === 'Berlangsung' ? 'background:var(--brand-2); box-shadow: 0 0 0 3px var(--brand-soft)' : (k.status === 'Selesai' ? 'background:var(--muted)' : 'background:var(--gold)')}"></div>
+        <div style="flex:1">
+          <div style="display:flex; justify-content:space-between; align-items:center">
+            <b>${k.nama}</b>
+            <span class="badge ${k.status === 'Berlangsung' ? 'badge-ok' : (k.status === 'Selesai' ? 'badge-info' : 'badge-warn')}">${k.status}</span>
+          </div>
+          <div style="color:var(--muted); font-size:0.78rem; margin-top:2px;">
+            ⏰ ${k.waktu} · 📍 ${k.tempat} · 👤 ${k.pembimbing}
+          </div>
+        </div>
+      </div>
+    `).join('');
+
+    const santri = SantriDB.get('santri', SantriDB.defaultSantri);
+    const totalEl = document.getElementById('total-santri');
+    if (totalEl) totalEl.textContent = santri.length + 140;
+  });
+</script>
+</body>
+</html>

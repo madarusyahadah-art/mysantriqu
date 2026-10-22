@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Data Santri — MySantriQu</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+
+<header class="app-header">
+  <div class="wrap nav-inner">
+    <a href="index.php" class="logo">
+      <i>Q</i>
+      <span>MySantriQu</span>
+    </a>
+    <nav class="nav-menu">
+      <a href="index.php">Beranda</a>
+      <a href="dashboard.html">Dashboard</a>
+      <a href="santri.html" class="active">Data Santri</a>
+      <a href="absensi.html">Absensi</a>
+      <a href="kegiatan.html">Kegiatan</a>
+      <a href="pelanggaran.html">Pelanggaran</a>
+      <a href="laporan.html">Laporan</a>
+      <a href="admin-users.html">Pengguna</a>
+    </nav>
+    <button class="mobile-toggle" aria-label="Toggle Menu">☰</button>
+  </div>
+</header>
+
+<main class="wrap" style="padding-bottom: 40px;">
+  <div class="page-head">
+    <div>
+      <h1 class="page-title">Data Santri</h1>
+      <p class="page-sub">Kelola biodata santri, pembagian kamar, kelas, dan kontak wali.</p>
+    </div>
+    <div class="page-actions">
+      <button class="btn btn-primary" onclick="openAddModal()">+ Tambah Santri</button>
+    </div>
+  </div>
+
+  <div class="card" style="margin-bottom: 20px;">
+    <div class="filter-bar">
+      <input type="text" id="search-input" class="input" placeholder="🔍 Cari nama atau NIS..." oninput="renderTable()">
+      <select id="filter-kelas" class="select" onchange="renderTable()">
+        <option value="">Semua Kelas</option>
+        <option value="1A">Kelas 1A</option>
+        <option value="1B">Kelas 1B</option>
+        <option value="2A">Kelas 2A</option>
+        <option value="2B">Kelas 2B</option>
+        <option value="3A">Kelas 3A</option>
+        <option value="3B">Kelas 3B</option>
+      </select>
+      <select id="filter-kamar" class="select" onchange="renderTable()">
+        <option value="">Semua Asrama</option>
+        <option value="Abu Bakar">Asrama Abu Bakar</option>
+        <option value="Umar">Asrama Umar</option>
+        <option value="Utsman">Asrama Utsman</option>
+        <option value="Ali">Asrama Ali</option>
+      </select>
+      <div style="margin-left:auto; color:var(--muted); font-size:0.85rem;" id="count-info">
+        Menampilkan 0 santri
+      </div>
+    </div>
+
+    <div class="table-wrap">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>NIS</th>
+            <th>Nama Santri</th>
+            <th>Kelas</th>
+            <th>Kamar</th>
+            <th>Wali Santri</th>
+            <th>No. Kontak HP</th>
+            <th>Status</th>
+            <th style="text-align:right">Aksi</th>
+          </tr>
+        </thead>
+        <tbody id="santri-rows">
+          <!-- Diisi via JS -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+</main>
+
+<!-- Modal Tambah Santri -->
+<div class="modal-backdrop" id="add-modal">
+  <div class="modal-card">
+    <div class="modal-head">
+      <h3 style="font-size:1.2rem;">Tambah Santri Baru</h3>
+      <button class="modal-close" onclick="closeAddModal()">&times;</button>
+    </div>
+    <form id="add-form" onsubmit="saveSantri(event)">
+      <div class="form-group">
+        <label class="form-label">NIS (Nomor Induk Santri)</label>
+        <input type="text" id="form-nis" class="input" required placeholder="Contoh: 20240109">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Nama Lengkap</label>
+        <input type="text" id="form-nama" class="input" required placeholder="Nama lengkap santri">
+      </div>
+      <div class="grid-2">
+        <div class="form-group">
+          <label class="form-label">Kelas</label>
+          <select id="form-kelas" class="select" required>
+            <option value="1A">Kelas 1A</option>
+            <option value="1B">Kelas 1B</option>
+            <option value="2A">Kelas 2A</option>
+            <option value="2B">Kelas 2B</option>
+            <option value="3A">Kelas 3A</option>
+            <option value="3B">Kelas 3B</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Kamar / Asrama</label>
+          <input type="text" id="form-kamar" class="input" required placeholder="Contoh: Abu Bakar 03">
+        </div>
+      </div>
+      <div class="grid-2">
+        <div class="form-group">
+          <label class="form-label">Nama Wali</label>
+          <input type="text" id="form-wali" class="input" required placeholder="Nama orang tua / wali">
+        </div>
+        <div class="form-group">
+          <label class="form-label">No. HP Wali (WhatsApp)</label>
+          <input type="tel" id="form-hp" class="input" required placeholder="08xxxxxxxxxx">
+        </div>
+      </div>
+      <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:16px;">
+        <button type="button" class="btn btn-ghost" onclick="closeAddModal()">Batal</button>
+        <button type="submit" class="btn btn-primary">Simpan Santri</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<footer class="app-footer">
+  <div class="wrap">
+    <span>© <span id="year-span"></span> MySantriQu — Sistem Manajemen Pesantren Modern</span>
+  </div>
+</footer>
+
+<script src="js/app.js"></script>
+<script>
+  let dataList = [];
+
+  function loadData() {
+    dataList = SantriDB.get('santri', SantriDB.defaultSantri);
+    renderTable();
+  }
+
+  function renderTable() {
+    const q = document.getElementById('search-input').value.toLowerCase();
+    const fKelas = document.getElementById('filter-kelas').value;
+    const fKamar = document.getElementById('filter-kamar').value;
+
+    const filtered = dataList.filter(s => {
+      const matchQ = s.nama.toLowerCase().includes(q) || s.nis.includes(q);
+      const matchKelas = !fKelas || s.kelas === fKelas;
+      const matchKamar = !fKamar || s.kamar.includes(fKamar);
+      return matchQ && matchKelas && matchKamar;
+    });
+
+    document.getElementById('count-info').textContent = `Menampilkan ${filtered.length} dari ${dataList.length} santri`;
+
+    const tbody = document.getElementById('santri-rows');
+    if (filtered.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:30px; color:var(--muted);">Tidak ada santri yang sesuai filter.</td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = filtered.map(s => `
+      <tr>
+        <td><code>${s.nis}</code></td>
+        <td><b>${s.nama}</b></td>
+        <td><span class="badge badge-info">${s.kelas}</span></td>
+        <td>${s.kamar}</td>
+        <td>${s.wali}</td>
+        <td><a href="https://wa.me/${s.hp.replace(/^0/, '62')}" target="_blank" style="color:var(--brand);">${s.hp}</a></td>
+        <td><span class="badge badge-ok">${s.status || 'Aktif'}</span></td>
+        <td style="text-align:right;">
+          <button class="btn btn-danger btn-sm" onclick="deleteSantri(${s.id})">Hapus</button>
+        </td>
+      </tr>
+    `).join('');
+  }
+
+  function openAddModal() {
+    document.getElementById('add-modal').classList.add('show');
+  }
+
+  function closeAddModal() {
+    document.getElementById('add-modal').classList.remove('show');
+    document.getElementById('add-form').reset();
+  }
+
+  function saveSantri(e) {
+    e.preventDefault();
+    const newSantri = {
+      id: Date.now(),
+      nis: document.getElementById('form-nis').value.trim(),
+      nama: document.getElementById('form-nama').value.trim(),
+      kelas: document.getElementById('form-kelas').value,
+      kamar: document.getElementById('form-kamar').value.trim(),
+      wali: document.getElementById('form-wali').value.trim(),
+      hp: document.getElementById('form-hp').value.trim(),
+      status: "Aktif"
+    };
+
+    dataList.unshift(newSantri);
+    SantriDB.set('santri', dataList);
+    closeAddModal();
+    renderTable();
+    toast('Data santri berhasil disimpan!');
+  }
+
+  function deleteSantri(id) {
+    if (!confirm('Yakin ingin menghapus data santri ini?')) return;
+    dataList = dataList.filter(s => s.id !== id);
+    SantriDB.set('santri', dataList);
+    renderTable();
+    toast('Santri berhasil dihapus', 'warn');
+  }
+
+  document.addEventListener('DOMContentLoaded', loadData);
+</script>
+</body>
+</html>
