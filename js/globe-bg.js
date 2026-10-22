@@ -1,11 +1,11 @@
-// Background 3D: Cloudflare-style dot-matrix globe + "DS FOR ALL" banner.
-// Diadaptasi dari globe-cf-1.html (tanpa rel emas atas/bawah, tanpa interaksi drag).
+// Background 3D: Cloudflare-style dot-matrix globe + "DARUSY SYAHADAH FOR ALL" orbit banner.
+// Menggunakan Three.js r160 ES Module.
 import * as THREE from 'three';
 import { FontLoader } from 'three/addons/loaders/FontLoader.js';
 import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 
-const BANNER_TEXT = 'DS FOR ALL';
+const BANNER_TEXT = 'DARUSY SYAHADAH FOR ALL';
 
 /* ---------- KONSTANTA & PALET ---------- */
 const R = 1;
@@ -23,12 +23,14 @@ renderer.setClearColor(0x060810, 0);
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1.05;
 container.appendChild(renderer.domElement);
-const canvas = renderer.domElement;
 
 const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(45, innerWidth / innerHeight, 0.1, 200);
-let zoomTarget = 1, zoom = 1;          // skala globe dari scroll/pinch
-const camDist = 4.4;
+// Kamera telephoto (FOV 18) untuk mencegah distorsi elips/gepeng di sudut layar desktop (1366x840 dsb)
+const FOV = 18;
+const TARGET_VISH = 2 * Math.tan(THREE.MathUtils.degToRad(45 / 2)) * 4.4; // 3.645
+const camDist = (TARGET_VISH / 2) / Math.tan(THREE.MathUtils.degToRad(FOV / 2)); // ~11.51
+const camera = new THREE.PerspectiveCamera(FOV, innerWidth / innerHeight, 0.1, 200);
+let zoomTarget = 1, zoom = 1; // skala globe dari scroll/pinch
 camera.position.set(0, 0, camDist);
 
 const pmrem = new THREE.PMREMGenerator(renderer);
@@ -45,6 +47,7 @@ const globeRoot = new THREE.Group(); scene.add(globeRoot);
 const tiltGroup = new THREE.Group(); tiltGroup.rotation.z = -TILT; globeRoot.add(tiltGroup);
 const spinGroup = new THREE.Group(); tiltGroup.add(spinGroup);
 const textGroup = new THREE.Group();
+textGroup.rotation.y = 2.4; // Posisi awal agar huruf awal (DARUSY) masuk terlebih dahulu
 const bannerTilt = new THREE.Group();
 bannerTilt.add(textGroup);
 globeRoot.add(bannerTilt);
@@ -168,8 +171,8 @@ function loadMask(index = 0) {
 }
 
 function latLonToVec3(lat, lon, r) {
-  const phi = THREE.MathUtils.degToRad(90 - lat);
-  const theta = THREE.MathUtils.degToRad(lon + 180);
+  const phi = (90 - lat) * (Math.PI / 180);
+  const theta = (lon + 180) * (Math.PI / 180);
   return new THREE.Vector3(
     -r * Math.sin(phi) * Math.cos(theta),
     r * Math.cos(phi),
@@ -178,90 +181,141 @@ function latLonToVec3(lat, lon, r) {
 }
 
 function buildDots(mask) {
-  const positions = [], colors = [], sizes = [];
-  const cTmp = new THREE.Color();
-  const step = 1.55;
-  for (let lat = -84; lat <= 84; lat += step) {
-    const cosLat = Math.cos(THREE.MathUtils.degToRad(lat));
-    const lonStep = step / Math.max(cosLat, 0.12);
-    for (let lon = -180; lon < 180; lon += lonStep) {
-      let land = true;
+  const N_LAT = 150;
+  const positions = [], colors = [], scales = [];
+  const cCyan = CYAN.clone(), cAmber = AMBER.clone(), cDim = new THREE.Color(0x0f223f);
+  const c = new THREE.Color();
+
+  for (let i = 0; i < N_LAT; i++) {
+    const lat = 90 - (180 * (i + 0.5)) / N_LAT;
+    const circ = 2 * Math.PI * R * Math.cos(lat * Math.PI / 180);
+    const count = Math.max(1, Math.round(circ * (N_LAT / Math.PI)));
+    for (let j = 0; j < count; j++) {
+      const lon = -180 + (360 * j) / count;
+      let isLand = false;
       if (mask) {
-        const u = Math.floor(((lon + 180) / 360) * mask.w) % mask.w;
-        const v = Math.min(mask.h - 1, Math.floor(((90 - lat) / 180) * mask.h));
-        land = mask.data[(v * mask.w + u) * 4] < 110;
+        const u = ((lon + 180) / 360) * mask.w;
+        const v = ((90 - lat) / 180) * mask.h;
+        const idx = (Math.floor(v) * mask.w + Math.floor(u)) * 4;
+        const lum = (mask.data[idx] + mask.data[idx + 1] + mask.data[idx + 2]) / 3;
+        isLand = lum < 128;
+      } else {
+        const a = Math.sin(lat * 0.1) * Math.cos(lon * 0.1);
+        isLand = a > 0.05;
       }
-      if (!land) continue;
+      if (!isLand && Math.random() > 0.035) continue;
+
       const p = latLonToVec3(lat, lon, R * 1.001);
       positions.push(p.x, p.y, p.z);
-      const wave = 0.5 + 0.5 * Math.sin(lon * 0.045 + lat * 0.09);
-      const mixv = THREE.MathUtils.clamp(Math.pow(wave, 2.4) * 0.85 + Math.random() * 0.28 - 0.12, 0, 1);
-      cTmp.copy(CYAN).lerp(AMBER, mixv).multiplyScalar(0.7 + Math.random() * 0.5);
-      colors.push(cTmp.r, cTmp.g, cTmp.b);
-      sizes.push(0.85 + Math.random() * 0.75 + mixv * 0.35);
+
+      if (isLand) {
+        const pick = Math.random();
+        if (pick < 0.82) c.copy(cCyan).multiplyScalar(0.75 + Math.random() * 0.35);
+        else if (pick < 0.94) c.copy(cAmber).multiplyScalar(0.9 + Math.random() * 0.3);
+        else c.set(0xffffff);
+        scales.push(1.0 + Math.random() * 0.5);
+      } else {
+        c.copy(cDim);
+        scales.push(0.45);
+      }
+      colors.push(c.r, c.g, c.b);
     }
   }
+
   const g = new THREE.BufferGeometry();
   g.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
   g.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
-  g.setAttribute('aSize', new THREE.Float32BufferAttribute(sizes, 1));
-  const m = new THREE.ShaderMaterial({
-    transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, vertexColors: true,
-    uniforms: { uScale: { value: innerHeight * 0.5 } },
+  g.setAttribute('aScale', new THREE.Float32BufferAttribute(scales, 1));
+
+  const mat = new THREE.ShaderMaterial({
+    transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
+    uniforms: { uTime: { value: 0 }, uScale: { value: 600 } },
     vertexShader: `
-      attribute float aSize; varying vec3 vC; uniform float uScale;
+      attribute float aScale; varying vec3 vC; uniform float uTime; uniform float uScale;
       void main(){
         vC = color;
         vec4 mv = modelViewMatrix * vec4(position, 1.0);
-        gl_PointSize = aSize * 0.0135 * (uScale / -mv.z);
+        float tw = 0.85 + 0.15 * sin(uTime * 2.0 + position.x * 20.0 + position.y * 30.0);
+        gl_PointSize = aScale * tw * (uScale / -mv.z) * 0.0055;
         gl_Position = projectionMatrix * mv;
       }`,
     fragmentShader: `
       varying vec3 vC;
       void main(){
         float d = length(gl_PointCoord - 0.5);
-        float a = smoothstep(0.5, 0.18, d);
-        if (a < 0.02) discard;
-        gl_FragColor = vec4(vC, a);
-      }`
+        if (d > 0.5) discard;
+        float a = smoothstep(0.5, 0.15, d);
+        gl_FragColor = vec4(vC, a * 0.9);
+      }`,
+    vertexColors: true
   });
-  spinGroup.add(new THREE.Points(g, m));
-  return m;
+  spinGroup.add(new THREE.Points(g, mat));
+  return mat;
 }
 
-/* ---------- KOTA, BUSUR, ROKET DATA ---------- */
-const CITIES = {
-  solo:      { lat: -7.57,  lon: 110.82 },
-  makkah:    { lat: 21.42,  lon: 39.83  },
-  tokyo:     { lat: 35.68,  lon: 139.69 },
-  london:    { lat: 51.50,  lon: -0.12  },
-  newyork:   { lat: 40.71,  lon: -74.00 },
-  sydney:    { lat: -33.87, lon: 151.21 },
-  sf:        { lat: 37.77,  lon: -122.42 },
-  singapore: { lat: 1.35,   lon: 103.82 }
+/* ---------- KOTA / NODE & NETWORK ARCS ---------- */
+const NODES = {
+  solo:     { lat: -7.56, lon: 110.82, col: AMBER, name: 'Darusy Syahadah / Solo' },
+  jakarta:  { lat: -6.20, lon: 106.84, col: CYAN,  name: 'Jakarta' },
+  mecca:    { lat: 21.42, lon:  39.82, col: AMBER, name: 'Mecca' },
+  tokyo:    { lat: 35.67, lon: 139.65, col: CYAN,  name: 'Tokyo' },
+  london:   { lat: 51.50, lon:  -0.12, col: CYAN,  name: 'London' },
+  newyork:  { lat: 40.71, lon: -74.00, col: CYAN,  name: 'New York' },
+  sydney:   { lat:-33.86, lon: 151.20, col: CYAN,  name: 'Sydney' },
+  cairo:    { lat: 30.04, lon:  31.23, col: AMBER, name: 'Cairo' }
 };
-const ROUTES = [
-  ['solo', 'makkah'], ['solo', 'tokyo'], ['solo', 'sydney'], ['solo', 'singapore'],
-  ['makkah', 'london'], ['london', 'newyork'], ['newyork', 'sf'],
-  ['sf', 'tokyo'], ['tokyo', 'sydney'], ['london', 'singapore'], ['newyork', 'solo']
-];
 
 function glowTexture(inner = 'rgba(255,255,255,1)', outer = 'rgba(255,255,255,0)') {
-  const s = 64, cv = document.createElement('canvas'); cv.width = cv.height = s;
+  const cv = document.createElement('canvas'); cv.width = cv.height = 128;
   const cx = cv.getContext('2d');
-  const gr = cx.createRadialGradient(s / 2, s / 2, 0, s / 2, s / 2, s / 2);
-  gr.addColorStop(0, inner); gr.addColorStop(0.25, inner); gr.addColorStop(1, outer);
-  cx.fillStyle = gr; cx.fillRect(0, 0, s, s);
-  const t = new THREE.CanvasTexture(cv); t.colorSpace = THREE.SRGBColorSpace;
-  return t;
+  const g = cx.createRadialGradient(64, 64, 0, 64, 64, 64);
+  g.addColorStop(0, inner); g.addColorStop(0.35, inner); g.addColorStop(1, outer);
+  cx.fillStyle = g; cx.fillRect(0, 0, 128, 128);
+  const tex = new THREE.CanvasTexture(cv);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  return tex;
 }
-const glowTex = glowTexture();
+const glowTex = glowTexture('rgba(255,255,255,1)', 'rgba(56,189,248,0)');
+const amberGlowTex = glowTexture('rgba(255,255,255,1)', 'rgba(245,158,11,0)');
 
-for (const k in CITIES) {
-  const p = latLonToVec3(CITIES[k].lat, CITIES[k].lon, R * 1.004);
+const ripples = [];
+function spawnRipple(posLocal, color) {
+  const geom = new THREE.RingGeometry(0.005, 0.015, 32);
+  const mat = new THREE.MeshBasicMaterial({
+    color, transparent: true, opacity: 0.95, side: THREE.DoubleSide, depthWrite: false,
+    blending: THREE.AdditiveBlending
+  });
+  const mesh = new THREE.Mesh(geom, mat);
+  mesh.position.copy(posLocal);
+  mesh.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, 1), posLocal.clone().normalize());
+  spinGroup.add(mesh);
+  ripples.push({ mesh, t: 0, life: 1.2 });
+}
+
+function updateRipples(dt) {
+  for (let i = ripples.length - 1; i >= 0; i--) {
+    const r = ripples[i];
+    r.t += dt / r.life;
+    if (r.t >= 1) {
+      spinGroup.remove(r.mesh);
+      r.mesh.geometry.dispose(); r.mesh.material.dispose();
+      ripples.splice(i, 1);
+      continue;
+    }
+    const s = 0.02 + r.t * 0.16;
+    r.mesh.scale.setScalar(s);
+    r.mesh.material.opacity = (1 - r.t) * 0.9;
+  }
+}
+
+for (const k in NODES) {
+  const n = NODES[k];
+  const p = latLonToVec3(n.lat, n.lon, R * 1.002);
+  n.pos = p;
+
   const spr = new THREE.Sprite(new THREE.SpriteMaterial({
-    map: glowTex, color: AMBER, transparent: true, depthWrite: false,
-    blending: THREE.AdditiveBlending, opacity: 0.95
+    map: n.col === AMBER ? amberGlowTex : glowTex,
+    color: n.col, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false
   }));
   spr.position.copy(p); spr.scale.setScalar(0.055);
   spinGroup.add(spr);
@@ -270,114 +324,98 @@ for (const k in CITIES) {
   core.position.copy(p); spinGroup.add(core);
 }
 
-const ripples = [];
-const rippleGeo = new THREE.RingGeometry(0.86, 1, 48);
-function spawnRipple(posLocal, color) {
-  let r = ripples.find(r => !r.active);
-  if (!r) {
-    r = {
-      mesh: new THREE.Mesh(rippleGeo, new THREE.MeshBasicMaterial({
-        transparent: true, depthWrite: false, side: THREE.DoubleSide, blending: THREE.AdditiveBlending
-      })),
-      t: 0, active: false
-    };
-    spinGroup.add(r.mesh); ripples.push(r);
-  }
-  r.active = true; r.t = 0;
-  r.mesh.material.color.copy(color);
-  r.mesh.position.copy(posLocal).multiplyScalar(1.003);
-  r.mesh.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, 1), posLocal.clone().normalize());
-  r.mesh.visible = true;
-}
-function updateRipples(dt) {
-  for (const r of ripples) {
-    if (!r.active) continue;
-    r.t += dt / 1.1;
-    if (r.t >= 1) { r.active = false; r.mesh.visible = false; continue; }
-    const s = 0.02 + r.t * 0.16;
-    r.mesh.scale.setScalar(s);
-    r.mesh.material.opacity = (1 - r.t) * 0.9;
-  }
-}
+const ROUTES = [
+  ['solo', 'jakarta', AMBER, 0.55],
+  ['solo', 'mecca',   AMBER, 0.40],
+  ['mecca', 'cairo',  AMBER, 0.50],
+  ['cairo', 'london', CYAN,  0.45],
+  ['london', 'newyork', CYAN, 0.45],
+  ['solo', 'tokyo',   CYAN,  0.45],
+  ['tokyo', 'newyork',CYAN,  0.35],
+  ['solo', 'sydney',  CYAN,  0.45]
+];
 
 const arcs = [];
-ROUTES.forEach(([a, b], i) => {
-  const pa = latLonToVec3(CITIES[a].lat, CITIES[a].lon, R * 1.005);
-  const pb = latLonToVec3(CITIES[b].lat, CITIES[b].lon, R * 1.005);
-  const dist = pa.distanceTo(pb);
-  const mid = pa.clone().add(pb).multiplyScalar(0.5).normalize()
-    .multiplyScalar(R * (1 + 0.18 + dist * 0.28));
-  const curve = new THREE.QuadraticBezierCurve3(pa, mid, pb);
+const ARC_PTS = 64;
 
-  const SEG = 90;
-  const pts = curve.getPoints(SEG);
-  const g = new THREE.BufferGeometry().setFromPoints(pts);
-  const tArr = new Float32Array(SEG + 1);
-  for (let j = 0; j <= SEG; j++) tArr[j] = j / SEG;
-  g.setAttribute('aT', new THREE.BufferAttribute(tArr, 1));
+for (let i = 0; i < ROUTES.length; i++) {
+  const [k1, k2, col, speed] = ROUTES[i];
+  const p1 = NODES[k1].pos, p2 = NODES[k2].pos;
 
-  const color = i % 3 === 0 ? AMBER.clone() : CYAN.clone();
-  const mat = new THREE.ShaderMaterial({
-    transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
-    uniforms: {
-      uProgress: { value: -0.5 },
-      uColor: { value: color },
-      uTail: { value: 0.22 }
-    },
-    vertexShader: `
-      attribute float aT; varying float vT;
-      void main(){ vT = aT;
-        gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }`,
-    fragmentShader: `
-      uniform float uProgress; uniform vec3 uColor; uniform float uTail;
-      varying float vT;
-      void main(){
-        float d = uProgress - vT;
-        float tail = (d >= 0.0) ? smoothstep(uTail, 0.0, d) : 0.0;
-        float head = (d >= 0.0) ? smoothstep(0.02, 0.0, d) : 0.0;
-        float base = 0.09;
-        float a = base + tail * 0.85 + head * 0.6;
-        vec3 col = uColor * (0.55 + tail * 1.8) + vec3(1.0) * head * 0.8;
-        gl_FragColor = vec4(col, a);
-      }`
-  });
-  spinGroup.add(new THREE.Line(g, mat));
+  const mid = p1.clone().add(p2).multiplyScalar(0.5);
+  const d = p1.distanceTo(p2);
+  const alt = R + d * 0.34;
+  mid.normalize().multiplyScalar(alt);
+
+  const curve = new THREE.QuadraticBezierCurve3(p1, mid, p2);
+  const pts = curve.getPoints(ARC_PTS);
+
+  const geom = new THREE.BufferGeometry().setFromPoints(pts);
+  const baseLine = new THREE.Line(geom, new THREE.LineBasicMaterial({
+    color: col, transparent: true, opacity: 0.22, blending: THREE.AdditiveBlending, depthWrite: false
+  }));
+  spinGroup.add(baseLine);
+
+  const TRAIL_LEN = 12;
+  const trailGeom = new THREE.BufferGeometry();
+  const trailPositions = new Float32Array(TRAIL_LEN * 3);
+  const trailColors = new Float32Array(TRAIL_LEN * 3);
+  for (let k = 0; k < TRAIL_LEN; k++) {
+    const alpha = (k / (TRAIL_LEN - 1));
+    const c = col.clone().lerp(new THREE.Color(0xffffff), alpha * 0.8);
+    trailColors[k * 3] = c.r; trailColors[k * 3 + 1] = c.g; trailColors[k * 3 + 2] = c.b;
+  }
+  trailGeom.setAttribute('position', new THREE.BufferAttribute(trailPositions, 3));
+  trailGeom.setAttribute('color', new THREE.BufferAttribute(trailColors, 3));
+  const trailLine = new THREE.Line(trailGeom, new THREE.LineBasicMaterial({
+    vertexColors: true, transparent: true, opacity: 0.95, blending: THREE.AdditiveBlending, depthWrite: false
+  }));
+  spinGroup.add(trailLine);
 
   const head = new THREE.Sprite(new THREE.SpriteMaterial({
-    map: glowTex, color: color.clone().lerp(new THREE.Color(0xffffff), 0.5),
-    transparent: true, depthWrite: false, blending: THREE.AdditiveBlending
+    map: glowTex, color: 0xffffff, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false
   }));
   head.scale.setScalar(0.075); head.visible = false;
   spinGroup.add(head);
 
   arcs.push({
-    curve, mat, head, dest: pb, color,
-    progress: -Math.random() * 2.5,
-    speed: 0.28 + Math.random() * 0.22,
-    pause: 0
+    curve, trailLine, head, targetPos: p2, col,
+    progress: (i / ROUTES.length),
+    speed: speed * 0.22,
+    trailLen: TRAIL_LEN
   });
-});
+}
 
 function updateArcs(dt) {
   for (const a of arcs) {
-    if (a.pause > 0) { a.pause -= dt; a.head.visible = false; a.mat.uniforms.uProgress.value = -1; continue; }
+    const prev = a.progress;
     a.progress += dt * a.speed;
-    if (a.progress >= 1) {
-      spawnRipple(a.dest, a.color);
-      a.progress = 0; a.pause = 0.6 + Math.random() * 2.2;
+    if (prev < 1 && a.progress >= 1) {
+      spawnRipple(a.targetPos, a.col);
     }
-    a.mat.uniforms.uProgress.value = a.progress;
+    if (a.progress > 1.25) {
+      a.progress = 0;
+    }
     if (a.progress >= 0 && a.progress <= 1) {
       a.head.visible = true;
-      a.head.position.copy(a.curve.getPoint(a.progress));
+      const cur = a.curve.getPoint(a.progress);
+      a.head.position.copy(cur);
+      const pos = a.trailLine.geometry.attributes.position.array;
+      for (let k = 0; k < a.trailLen; k++) {
+        const t = Math.max(0, a.progress - (a.trailLen - 1 - k) * 0.012);
+        const p = a.curve.getPoint(t);
+        pos[k * 3] = p.x; pos[k * 3 + 1] = p.y; pos[k * 3 + 2] = p.z;
+      }
+      a.trailLine.geometry.attributes.position.needsUpdate = true;
+      a.trailLine.visible = true;
       const s = 0.06 + 0.025 * Math.sin(a.progress * Math.PI);
       a.head.scale.setScalar(s);
     } else a.head.visible = false;
   }
 }
 
-/* ---------- TEKS 3D "DS FOR ALL" ---------- */
-const TEXT_R = R * 1.34;
+/* ---------- TEKS 3D "DARUSY SYAHADAH FOR ALL" (ORBIT RING) ---------- */
+const TEXT_R = R * 1.35;
 const frontMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.28, metalness: 0.15 });
 const bevelMat = new THREE.MeshStandardMaterial({ color: 0xf59e0b, roughness: 0.22, metalness: 0.95, emissive: 0xb45309, emissiveIntensity: 0.12 });
 
@@ -388,19 +426,20 @@ function placeOnArc(mesh, theta) {
 
 function buildText(font) {
   const chars = BANNER_TEXT.split('');
-  const size = 0.30, gap = 0.055;
+  // Ukuran font tebal besar melingkari globe seperti orbit
+  const size = 0.28, gap = 0.045;
   const items = [];
   let totalW = 0;
   for (const ch of chars) {
     if (ch === ' ') { items.push({ w: size * 0.5 }); totalW += size * 0.5 + gap; continue; }
     const geo = new TextGeometry(ch, {
-      font, size, height: 0.075, curveSegments: 8,
-      bevelEnabled: true, bevelThickness: 0.018, bevelSize: 0.011, bevelSegments: 3
+      font, size, height: 0.07, curveSegments: 8,
+      bevelEnabled: true, bevelThickness: 0.016, bevelSize: 0.010, bevelSegments: 3
     });
     geo.computeBoundingBox();
     const bb = geo.boundingBox;
     const w = bb.max.x - bb.min.x, h = bb.max.y - bb.min.y;
-    geo.translate(-bb.min.x - w / 2, -bb.min.y - h / 2, -0.0375);
+    geo.translate(-bb.min.x - w / 2, -bb.min.y - h / 2, -0.035);
     items.push({ mesh: new THREE.Mesh(geo, [frontMat, bevelMat]), w });
     totalW += w + gap;
   }
@@ -415,7 +454,7 @@ function buildText(font) {
 
 function buildTextFallback() {
   const chars = BANNER_TEXT.split('');
-  const wUnit = 0.26, gap = 0.03;
+  const wUnit = 0.24, gap = 0.035;
   const total = chars.length * (wUnit + gap) - gap;
   let cursor = -total / 2;
   for (const ch of chars) {
@@ -496,7 +535,6 @@ addEventListener('touchmove', e => {
   const d = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
   zoomTarget = THREE.MathUtils.clamp(pinchStart.zoom * (d / Math.max(pinchStart.dist, 1)), 0.45, 2.2);
 }, { passive: true });
-addEventListener('touchend', e => { if (e.touches.length < 2) pinchStart = null; }, { passive: true });
 
 /* ---------- LAYOUT ---------- */
 let dotsMat = null;
@@ -517,14 +555,14 @@ function layout() {
   const desktop = w >= 900 && w > h;
 
   if (desktop) {
-    // pojok kanan atas card
+    // pojok kanan atas card; diperbesar (Zoom In) agar terlihat megah dan bulat sempurna
     const rect = wrapper
       ? wrapper.getBoundingClientRect()
       : { top: h * 0.5 - 300, right: w * 0.5 + 390 };
-    const targetX = Math.min(rect.right + 20, w - 120);
+    const targetX = Math.min(rect.right + 60, w - 160);
     const targetY = Math.max(rect.top + 120, 120);
     globeRoot.position.set((targetX - w / 2) * pxToWorld, -(targetY - h / 2) * pxToWorld, 0);
-    baseScale = Math.min(0.72, Math.max(0.42, Math.min(w, h) / 1500));
+    baseScale = Math.min(1.05, Math.max(0.72, Math.min(w, h) / 950));
     bannerTilt.rotation.z = -0.18;
   } else {
     // setengah atas layar; banner dimiringkan 45°
@@ -545,17 +583,29 @@ function animate() {
   const dt = Math.min(clock.getDelta(), 0.05);
   elapsed += dt;
 
+  // 1. Bumi berputar dari kiri ke kanan
   spinGroup.rotation.y -= dt * 0.055;
-  textGroup.rotation.y += dt * 0.14;
+
+  // 2. Teks berputar dari kanan ke kiri sehingga huruf kiri (DARUSY) terbaca terlebih dahulu
+  textGroup.rotation.y -= dt * 0.11;
 
   // inersia drag
   if (!dragging) {
-    dragRotY += velY; velY *= 0.94;
-    dragRotX = THREE.MathUtils.clamp(dragRotX + velX, -0.5, 0.5); velX *= 0.9;
+    dragRotY += velY;
+    dragRotX += velX;
+    velY *= 0.94;
+    velX *= 0.94;
   }
-  globeRoot.rotation.y += (dragRotY - globeRoot.rotation.y) * 0.12;
-  globeRoot.rotation.x += (dragRotX - globeRoot.rotation.x) * 0.12;
+  tiltGroup.rotation.y = dragRotY;
+  tiltGroup.rotation.x = dragRotX;
 
+  // bintang twinkling & rotasi lembut
+  if (starGroup.userData.mat) starGroup.userData.mat.uniforms.uTime.value = elapsed;
+  starGroup.rotation.y = elapsed * 0.005;
+
+  if (dotsMat) dotsMat.uniforms.uTime.value = elapsed;
+
+  // zoom smoothing
   zoom += (zoomTarget - zoom) * 0.12;
   globeRoot.scale.setScalar(baseScale * zoom);
 
@@ -566,14 +616,12 @@ function animate() {
 
   updateArcs(dt);
   updateRipples(dt);
-  starGroup.rotation.y += dt * 0.004;
-  starGroup.userData.mat.uniforms.uTime.value = elapsed;
 
   renderer.render(scene, camera);
 }
 
 /* ---------- BOOT ---------- */
-(async () => {
+(async function init() {
   dotsMat = buildDots(await loadMask());
   layout();
   animate();
