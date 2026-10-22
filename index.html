@@ -3,22 +3,20 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>mads.guru.darsya.com</title>
+  <title>mads.guru.darsya.com — Ma'had 'Aly Darusy Syahadah</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,600;0,700;0,800;1,700;1,800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg: #070a13;
-      --card-bg: rgba(11, 17, 32, 0.88);
-      --card-border: rgba(99, 102, 241, 0.22);
+      --bg: #07090e;
+      --card-bg: #0d121d;
+      --card-border: #1e293b;
       --lime: #a3e635;
       --cyan: #38bdf8;
       --purple: #c084fc;
       --pink: #f472b6;
       --blue: #60a5fa;
-      --danger: #f87171;
-      --danger-soft: rgba(248, 113, 113, 0.15);
       --text: #f1f5f9;
       --text-muted: #94a3b8;
     }
@@ -26,36 +24,22 @@
     * { box-sizing: border-box; margin: 0; padding: 0; }
     html, body {
       width: 100%;
-      height: 100%;
-      overflow-x: hidden;
+      min-height: 100%;
     }
     body {
       font-family: "Plus Jakarta Sans", system-ui, sans-serif;
-      background-color: var(--bg);
+      background: var(--bg);
       color: var(--text);
       min-height: 100vh;
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 40px 20px;
-      position: relative;
-    }
-
-    /* Interactive Neural Canvas */
-    #neural-canvas {
-      position: fixed;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      pointer-events: none;
-      z-index: 0;
+      padding: 36px 20px;
     }
 
     .wrapper {
-      position: relative;
-      z-index: 1;
       width: 100%;
-      max-width: 760px;
+      max-width: 780px;
       margin: 0 auto;
     }
 
@@ -91,38 +75,33 @@
       user-select: none;
     }
 
-    /* Headline */
-    h1.hero-title {
-      font-size: clamp(2.3rem, 5.5vw, 3.4rem);
-      font-weight: 800;
-      line-height: 1.12;
-      letter-spacing: -0.03em;
-      color: #ffffff;
-      margin-bottom: 30px;
+    /* Interactive Particle Text Title */
+    .title-canvas-container {
+      width: 100%;
+      margin-bottom: 26px;
+      position: relative;
+      cursor: crosshair;
+    }
+    #particle-title-canvas {
+      display: block;
+      width: 100%;
+      height: 150px;
     }
 
-    .gradient-text {
-      background: linear-gradient(90deg, var(--cyan) 0%, var(--blue) 35%, var(--purple) 70%, var(--pink) 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-
-    /* Code Terminal Box */
+    /* Code Terminal Box: Muncul Setelah Judul */
     .code-box {
       background: var(--card-bg);
-      backdrop-filter: blur(18px);
-      -webkit-backdrop-filter: blur(18px);
       border: 1px solid var(--card-border);
       border-radius: 18px;
-      box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.75), 0 0 40px rgba(56, 189, 248, 0.05);
+      box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.75);
       overflow: hidden;
       margin-bottom: 24px;
     }
 
     .box-header {
       padding: 14px 18px;
-      background: rgba(15, 23, 42, 0.7);
-      border-bottom: 1px solid rgba(99, 102, 241, 0.15);
+      background: rgba(15, 23, 42, 0.85);
+      border-bottom: 1px solid var(--card-border);
       display: flex;
       align-items: center;
       gap: 12px;
@@ -157,7 +136,6 @@
       color: #cbd5e1;
     }
 
-    /* Quote paragraph */
     .guide-quote {
       margin-bottom: 20px;
       color: #cbd5e1;
@@ -171,7 +149,7 @@
 
     /* Tree View */
     .tree-wrapper {
-      background: rgba(8, 12, 22, 0.7);
+      background: rgba(8, 12, 22, 0.8);
       border: 1px solid rgba(255, 255, 255, 0.06);
       border-radius: 12px;
       padding: 16px 18px;
@@ -191,14 +169,6 @@
     }
     .tree-file {
       color: #e2e8f0;
-    }
-    .tree-link {
-      color: #93c5fd;
-      text-decoration: none;
-    }
-    .tree-link:hover {
-      text-decoration: underline;
-      color: var(--cyan);
     }
     .tree-arrow-notice {
       display: inline-flex;
@@ -245,6 +215,7 @@
     }
 
     @media (max-width: 640px) {
+      #particle-title-canvas { height: 125px; }
       .box-body { font-size: 0.82rem; padding: 18px 14px; }
       .tree-wrapper { font-size: 0.76rem; padding: 12px; }
       .badge-number { font-size: 2.2rem; }
@@ -254,8 +225,6 @@
 </head>
 <body>
 
-<canvas id="neural-canvas"></canvas>
-
 <div class="wrapper">
   <!-- Top Bar -->
   <div class="top-bar">
@@ -263,13 +232,12 @@
     <div class="badge-number">#01</div>
   </div>
 
-  <!-- Headline -->
-  <h1 class="hero-title">
-    Hapus halaman ini<br>
-    agar web <span class="gradient-text">tampil di sini</span>
-  </h1>
+  <!-- Judul: Interactive Particle Text (CodePen Style) -->
+  <div class="title-canvas-container" title="Arahkan mouse untuk melihat efek partikel">
+    <canvas id="particle-title-canvas"></canvas>
+  </div>
 
-  <!-- Code / Terminal Card -->
+  <!-- Code / Terminal Card: Muncul Setelah Judul -->
   <div class="code-box">
     <div class="box-header">
       <div class="window-dots">
@@ -355,33 +323,151 @@
 </div>
 
 <script>
-  // Interactive Neural / Neutron Constellation Network
+  // High-Density Particle Text: "Website Internal Ma'had 'Aly Darusy Syahadah"
   (function () {
-    const canvas = document.getElementById('neural-canvas');
+    const canvas = document.getElementById('particle-title-canvas');
     const ctx = canvas.getContext('2d');
 
-    let width = 0, height = 0;
     let particles = [];
-    const count = 75;
-    const maxDistance = 140;
-    const mouseRadius = 150;
+    let mouse = { x: null, y: null, radius: 75 };
 
-    const mouse = { x: null, y: null };
+    function getDPR() {
+      return Math.min(window.devicePixelRatio || 1, 2);
+    }
+
+    function init() {
+      const rect = canvas.getBoundingClientRect();
+      const dpr = getDPR();
+      canvas.width = rect.width * dpr;
+      canvas.height = rect.height * dpr;
+      ctx.scale(dpr, dpr);
+
+      const w = rect.width;
+      const h = rect.height;
+
+      // Offscreen canvas for crisp text sampling
+      const offCanvas = document.createElement('canvas');
+      offCanvas.width = canvas.width;
+      offCanvas.height = canvas.height;
+      const offCtx = offCanvas.getContext('2d');
+      offCtx.scale(dpr, dpr);
+
+      const isMobile = w < 540;
+      const fontSub = isMobile ? '600 17px "Plus Jakarta Sans"' : '600 23px "Plus Jakarta Sans"';
+      const fontMain = isMobile ? 'italic 800 25px "Plus Jakarta Sans"' : 'italic 800 39px "Plus Jakarta Sans"';
+
+      offCtx.fillStyle = '#ffffff';
+      offCtx.textBaseline = 'top';
+
+      // Line 1: "Website Internal"
+      offCtx.font = fontSub;
+      offCtx.fillText('Website Internal', 2, isMobile ? 8 : 12);
+
+      // Line 2: "Ma'had 'Aly Darusy Syahadah"
+      offCtx.font = fontMain;
+      offCtx.fillText("Ma'had 'Aly Darusy Syahadah", 2, isMobile ? 44 : 54);
+
+      // Sample pixels
+      const imgData = offCtx.getImageData(0, 0, canvas.width, canvas.height);
+      const data = imgData.data;
+
+      particles = [];
+      const step = isMobile ? (2.2 * dpr) : (1.8 * dpr);
+
+      for (let y = 0; y < canvas.height; y += step) {
+        for (let x = 0; x < canvas.width; x += step) {
+          const index = (Math.floor(y) * canvas.width + Math.floor(x)) * 4;
+          const alpha = data[index + 3];
+
+          if (alpha > 120) {
+            const posX = x / dpr;
+            const posY = y / dpr;
+
+            // Smooth multi-stop gradient calculation
+            let color = '#ffffff';
+            if (posY > (isMobile ? 38 : 46)) {
+              const ratio = Math.min(Math.max((posX - 2) / (w * 0.9), 0), 1);
+              if (ratio < 0.25) color = '#38bdf8'; // cyan
+              else if (ratio < 0.52) color = '#818cf8'; // indigo
+              else if (ratio < 0.78) color = '#c084fc'; // purple
+              else color = '#f472b6'; // pink
+            }
+
+            particles.push({
+              x: Math.random() * w,
+              y: Math.random() * h,
+              baseX: posX,
+              baseY: posY,
+              color: color,
+              size: isMobile ? 1.15 : 1.35,
+              density: Math.random() * 22 + 4
+            });
+          }
+        }
+      }
+    }
+
+    function animate() {
+      const rect = canvas.getBoundingClientRect();
+      ctx.clearRect(0, 0, rect.width, rect.height);
+
+      for (let i = 0; i < particles.length; i++) {
+        const p = particles[i];
+
+        let dx = (mouse.x !== null) ? (mouse.x - p.x) : 9999;
+        let dy = (mouse.y !== null) ? (mouse.y - p.y) : 9999;
+        let distance = Math.hypot(dx, dy);
+
+        if (distance < mouse.radius) {
+          let force = (mouse.radius - distance) / mouse.radius;
+          let forceDirectionX = dx / distance;
+          let forceDirectionY = dy / distance;
+          let directionX = forceDirectionX * force * p.density;
+          let directionY = forceDirectionY * force * p.density;
+
+          p.x -= directionX;
+          p.y -= directionY;
+        } else {
+          if (p.x !== p.baseX) {
+            p.x -= (p.x - p.baseX) / 7;
+          }
+          if (p.y !== p.baseY) {
+            p.y -= (p.y - p.baseY) / 7;
+          }
+        }
+
+        ctx.fillStyle = p.color;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.closePath();
+        ctx.fill();
+      }
+
+      requestAnimationFrame(animate);
+    }
 
     window.addEventListener('mousemove', (e) => {
-      mouse.x = e.clientX;
-      mouse.y = e.clientY;
-    });
-
-    window.addEventListener('mouseleave', () => {
-      mouse.x = null;
-      mouse.y = null;
+      const rect = canvas.getBoundingClientRect();
+      if (
+        e.clientX >= rect.left - 30 &&
+        e.clientX <= rect.right + 30 &&
+        e.clientY >= rect.top - 30 &&
+        e.clientY <= rect.bottom + 30
+      ) {
+        mouse.x = e.clientX - rect.left;
+        mouse.y = e.clientY - rect.top;
+      } else {
+        mouse.x = null;
+        mouse.y = null;
+      }
     });
 
     window.addEventListener('touchmove', (e) => {
       if (e.touches.length > 0) {
-        mouse.x = e.touches[0].clientX;
-        mouse.y = e.touches[0].clientY;
+        const touch = e.touches[0];
+        const rect = canvas.getBoundingClientRect();
+        mouse.x = touch.clientX - rect.left;
+        mouse.y = touch.clientY - rect.top;
       }
     }, { passive: true });
 
@@ -390,94 +476,19 @@
       mouse.y = null;
     });
 
-    function resize() {
-      width = canvas.width = window.innerWidth;
-      height = canvas.height = window.innerHeight;
-    }
-
-    function initParticles() {
-      particles = [];
-      for (let i = 0; i < count; i++) {
-        particles.push({
-          x: Math.random() * width,
-          y: Math.random() * height,
-          vx: (Math.random() - 0.5) * 0.9,
-          vy: (Math.random() - 0.5) * 0.9,
-          radius: Math.random() * 1.8 + 1.2,
-          color: Math.random() > 0.4 ? '#38bdf8' : (Math.random() > 0.5 ? '#a3e635' : '#c084fc')
-        });
-      }
-    }
-
-    function animate() {
-      ctx.clearRect(0, 0, width, height);
-
-      // Update and draw particles
-      for (let i = 0; i < particles.length; i++) {
-        const p = particles[i];
-
-        // Natural movement
-        p.x += p.vx;
-        p.y += p.vy;
-
-        // Bounce on edges
-        if (p.x < 0 || p.x > width) p.vx *= -1;
-        if (p.y < 0 || p.y > height) p.vy *= -1;
-
-        // Mouse avoidance / repel effect
-        if (mouse.x !== null && mouse.y !== null) {
-          const dx = p.x - mouse.x;
-          const dy = p.y - mouse.y;
-          const dist = Math.hypot(dx, dy);
-
-          if (dist < mouseRadius && dist > 0) {
-            const force = (mouseRadius - dist) / mouseRadius;
-            const angle = Math.atan2(dy, dx);
-            const repelStrength = 4.5;
-            p.x += Math.cos(angle) * force * repelStrength;
-            p.y += Math.sin(angle) * force * repelStrength;
-          }
-        }
-
-        // Draw node
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-        ctx.fillStyle = p.color;
-        ctx.shadowBlur = 8;
-        ctx.shadowColor = p.color;
-        ctx.fill();
-        ctx.shadowBlur = 0;
-
-        // Connect nearby nodes (neutron / neural network)
-        for (let j = i + 1; j < particles.length; j++) {
-          const p2 = particles[j];
-          const dx = p.x - p2.x;
-          const dy = p.y - p2.y;
-          const dist = Math.hypot(dx, dy);
-
-          if (dist < maxDistance) {
-            const alpha = 1 - (dist / maxDistance);
-            ctx.beginPath();
-            ctx.moveTo(p.x, p.y);
-            ctx.lineTo(p2.x, p2.y);
-            ctx.strokeStyle = `rgba(56, 189, 248, ${alpha * 0.25})`;
-            ctx.lineWidth = 0.8;
-            ctx.stroke();
-          }
-        }
-      }
-
-      requestAnimationFrame(animate);
-    }
-
     window.addEventListener('resize', () => {
-      resize();
-      initParticles();
+      init();
     });
 
-    resize();
-    initParticles();
-    animate();
+    if (document.fonts) {
+      document.fonts.ready.then(() => {
+        init();
+        animate();
+      });
+    } else {
+      init();
+      animate();
+    }
   })();
 </script>
 
