@@ -9,9 +9,9 @@
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,600;0,700;0,800;1,700;1,800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg: #07090e;
-      --card-bg: #0d121d;
-      --card-border: #1e293b;
+      --bg: #060810;
+      --card-bg: rgba(13, 18, 29, 0.88);
+      --card-border: rgba(99, 102, 241, 0.22);
       --lime: #a3e635;
       --cyan: #38bdf8;
       --purple: #c084fc;
@@ -25,6 +25,7 @@
     html, body {
       width: 100%;
       min-height: 100%;
+      overflow-x: hidden;
     }
     body {
       font-family: "Plus Jakarta Sans", system-ui, sans-serif;
@@ -35,9 +36,23 @@
       align-items: center;
       justify-content: center;
       padding: 36px 20px;
+      position: relative;
     }
 
+    /* Background Three.js WebGL Canvas */
+    #bg-canvas-container {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    /* Foreground Content Wrapper */
     .wrapper {
+      position: relative;
+      z-index: 10;
       width: 100%;
       max-width: 780px;
       margin: 0 auto;
@@ -62,6 +77,7 @@
       padding: 6px 14px;
       border-radius: 4px;
       display: inline-block;
+      box-shadow: 0 0 15px rgba(163, 230, 53, 0.3);
     }
 
     .badge-number {
@@ -70,7 +86,7 @@
       font-weight: 800;
       line-height: 1;
       color: transparent;
-      -webkit-text-stroke: 1.5px rgba(148, 163, 184, 0.35);
+      -webkit-text-stroke: 1.5px rgba(148, 163, 184, 0.45);
       letter-spacing: -0.05em;
       user-select: none;
     }
@@ -85,6 +101,7 @@
       color: #94a3b8;
       letter-spacing: -0.01em;
       margin-bottom: 6px;
+      text-shadow: 0 2px 10px rgba(0,0,0,0.8);
     }
 
     /* Interactive Particle Text Title */
@@ -102,9 +119,11 @@
     /* Code Terminal Box: Muncul Setelah Judul */
     .code-box {
       background: var(--card-bg);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
       border: 1px solid var(--card-border);
       border-radius: 18px;
-      box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.75);
+      box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.85), 0 0 40px rgba(56, 189, 248, 0.05);
       overflow: hidden;
       margin-bottom: 24px;
     }
@@ -160,7 +179,7 @@
 
     /* Tree View */
     .tree-wrapper {
-      background: rgba(8, 12, 22, 0.8);
+      background: rgba(8, 12, 22, 0.85);
       border: 1px solid rgba(255, 255, 255, 0.06);
       border-radius: 12px;
       padding: 16px 18px;
@@ -217,12 +236,12 @@
       border-radius: 6px;
       text-decoration: none;
       transition: all 0.2s ease;
-      box-shadow: 0 4px 14px rgba(163, 230, 53, 0.25);
+      box-shadow: 0 4px 14px rgba(163, 230, 53, 0.3);
     }
     .btn-demo-link:hover {
       background: #bef264;
       transform: translateY(-1px);
-      box-shadow: 0 6px 20px rgba(163, 230, 53, 0.45);
+      box-shadow: 0 6px 22px rgba(163, 230, 53, 0.5);
     }
 
     @media (max-width: 640px) {
@@ -233,8 +252,15 @@
       .btn-demo-link { width: 100%; justify-content: center; }
     }
   </style>
+
+  <!-- Three.js & Lensflare -->
+  <script src="js/three.min.js"></script>
+  <script src="js/Lensflare.js"></script>
 </head>
 <body>
+
+<!-- Three.js Background Canvas Container -->
+<div id="bg-canvas-container"></div>
 
 <div class="wrapper">
   <!-- Top Bar -->
@@ -337,7 +363,170 @@
 </div>
 
 <script>
-  // Fully Responsive Interactive Particle Text
+  // 1. Three.js Lensflare & Cosmic Space Particles Background
+  (function () {
+    const container = document.getElementById('bg-canvas-container');
+
+    function createFlareTexture(size = 256) {
+      const c = document.createElement('canvas');
+      c.width = size; c.height = size;
+      const ctx = c.getContext('2d');
+      const half = size / 2;
+      const grad = ctx.createRadialGradient(half, half, 0, half, half, half);
+      grad.addColorStop(0, 'rgba(255, 255, 255, 1)');
+      grad.addColorStop(0.12, 'rgba(255, 245, 210, 0.85)');
+      grad.addColorStop(0.35, 'rgba(255, 170, 70, 0.35)');
+      grad.addColorStop(0.65, 'rgba(140, 70, 255, 0.12)');
+      grad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, size, size);
+
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.45)';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(0, half); ctx.lineTo(size, half);
+      ctx.moveTo(half, 0); ctx.lineTo(half, size);
+      ctx.stroke();
+
+      ctx.strokeStyle = 'rgba(255, 220, 160, 0.2)';
+      ctx.beginPath();
+      ctx.moveTo(half * 0.3, half * 0.3); ctx.lineTo(half * 1.7, half * 1.7);
+      ctx.moveTo(half * 0.3, half * 1.7); ctx.lineTo(half * 1.7, half * 0.3);
+      ctx.stroke();
+      return new THREE.CanvasTexture(c);
+    }
+
+    function createGhostTexture(size = 128, color = 'rgba(56, 189, 248, 0.4)') {
+      const c = document.createElement('canvas');
+      c.width = size; c.height = size;
+      const ctx = c.getContext('2d');
+      const half = size / 2;
+      const grad = ctx.createRadialGradient(half, half, half * 0.2, half, half, half * 0.9);
+      grad.addColorStop(0, color);
+      grad.addColorStop(0.6, color);
+      grad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+      ctx.fillStyle = grad;
+      ctx.beginPath();
+      ctx.arc(half, half, half * 0.9, 0, Math.PI * 2);
+      ctx.fill();
+      return new THREE.CanvasTexture(c);
+    }
+
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x060810);
+    scene.fog = new THREE.FogExp2(0x060810, 0.0004);
+
+    const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 1, 3500);
+    camera.position.z = 1000;
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    container.appendChild(renderer.domElement);
+
+    // Lights
+    const dirLight = new THREE.DirectionalLight(0xffffff, 0.4);
+    dirLight.position.set(0, 0, 1).normalize();
+    scene.add(dirLight);
+
+    const light = new THREE.PointLight(0xffeedd, 2.0, 3000);
+    light.position.set(380, 260, -250);
+    scene.add(light);
+
+    // Lensflare elements
+    const flareTex = createFlareTexture(256);
+    const ghostCyan = createGhostTexture(128, 'rgba(56, 189, 248, 0.35)');
+    const ghostPurple = createGhostTexture(128, 'rgba(192, 132, 252, 0.25)');
+    const ghostGold = createGhostTexture(128, 'rgba(251, 191, 36, 0.3)');
+
+    const lensflare = new THREE.Lensflare();
+    lensflare.addElement(new THREE.LensflareElement(flareTex, 450, 0, new THREE.Color(0xffffff)));
+    lensflare.addElement(new THREE.LensflareElement(ghostCyan, 75, 0.25));
+    lensflare.addElement(new THREE.LensflareElement(ghostPurple, 120, 0.45));
+    lensflare.addElement(new THREE.LensflareElement(ghostGold, 60, 0.65));
+    lensflare.addElement(new THREE.LensflareElement(ghostCyan, 90, 0.85));
+    light.add(lensflare);
+
+    // Cosmic Space Particles (replacing cubes)
+    const particleCount = 2800;
+    const geometry = new THREE.BufferGeometry();
+    const positions = new Float32Array(particleCount * 3);
+    const colors = new Float32Array(particleCount * 3);
+
+    for (let i = 0; i < particleCount; i++) {
+      positions[i * 3] = (Math.random() - 0.5) * 2600;
+      positions[i * 3 + 1] = (Math.random() - 0.5) * 2600;
+      positions[i * 3 + 2] = (Math.random() - 0.5) * 2200;
+
+      const r = Math.random();
+      if (r < 0.45) {
+        colors[i * 3] = 0.35; colors[i * 3 + 1] = 0.82; colors[i * 3 + 2] = 1.0;
+      } else if (r < 0.75) {
+        colors[i * 3] = 0.95; colors[i * 3 + 1] = 0.95; colors[i * 3 + 2] = 1.0;
+      } else {
+        colors[i * 3] = 0.98; colors[i * 3 + 1] = 0.72; colors[i * 3 + 2] = 0.95;
+      }
+    }
+
+    geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+
+    const spriteCanvas = document.createElement('canvas');
+    spriteCanvas.width = 32; spriteCanvas.height = 32;
+    const sCtx = spriteCanvas.getContext('2d');
+    const sGrad = sCtx.createRadialGradient(16, 16, 0, 16, 16, 16);
+    sGrad.addColorStop(0, 'rgba(255,255,255,1)');
+    sGrad.addColorStop(0.25, 'rgba(255,255,255,0.75)');
+    sGrad.addColorStop(1, 'rgba(255,255,255,0)');
+    sCtx.fillStyle = sGrad;
+    sCtx.fillRect(0, 0, 32, 32);
+    const spriteTex = new THREE.CanvasTexture(spriteCanvas);
+
+    const mat = new THREE.PointsMaterial({
+      size: 5,
+      map: spriteTex,
+      vertexColors: true,
+      transparent: true,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false
+    });
+
+    const particlesMesh = new THREE.Points(geometry, mat);
+    scene.add(particlesMesh);
+
+    // Dynamic Camera and Flare Drift
+    let targetX = 0, targetY = 0;
+    window.addEventListener('mousemove', (e) => {
+      targetX = (e.clientX - window.innerWidth / 2) * 0.35;
+      targetY = (e.clientY - window.innerHeight / 2) * 0.35;
+    });
+
+    let clock = 0;
+    function renderThree() {
+      clock += 0.005;
+      camera.position.x += (targetX - camera.position.x) * 0.035;
+      camera.position.y += (-targetY - camera.position.y) * 0.035;
+      camera.lookAt(scene.position);
+
+      particlesMesh.rotation.y += 0.0003;
+      particlesMesh.rotation.x += 0.00015;
+
+      light.position.x = 380 + Math.sin(clock) * 60;
+      light.position.y = 260 + Math.cos(clock * 0.8) * 40;
+
+      renderer.render(scene, camera);
+      requestAnimationFrame(renderThree);
+    }
+    renderThree();
+
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+  })();
+
+  // 2. Responsive Interactive Particle Text Title
   (function () {
     const canvas = document.getElementById('particle-title-canvas');
     const ctx = canvas.getContext('2d');
@@ -361,7 +550,6 @@
       canvas.style.height = h + 'px';
       ctx.scale(dpr, dpr);
 
-      // Offscreen high-res buffer
       const off = document.createElement('canvas');
       off.width = canvas.width;
       off.height = canvas.height;
@@ -381,7 +569,6 @@
         offCtx.fillText("Ma'had 'Aly Darusy Syahadah", 0, 8);
       }
 
-      // Sample pixels
       const imgData = offCtx.getImageData(0, 0, canvas.width, canvas.height);
       const data = imgData.data;
       particles = [];
