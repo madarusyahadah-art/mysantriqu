@@ -6,7 +6,7 @@
   <title>mads.guru.darsya.com — Ma'had 'Aly Darusy Syahadah</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,600;0,700;0,800;1,700;1,800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@700;800&family=Plus+Jakarta+Sans:wght@600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
       --bg: #060810;
@@ -48,6 +48,11 @@
       z-index: 0;
       pointer-events: none;
     }
+    #bg-canvas-container canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
 
     /* Foreground Content Wrapper */
     .wrapper {
@@ -77,7 +82,7 @@
       padding: 6px 14px;
       border-radius: 4px;
       display: inline-block;
-      box-shadow: 0 0 15px rgba(163, 230, 53, 0.3);
+      box-shadow: 0 0 15px rgba(163, 230, 53, 0.35);
     }
 
     .badge-number {
@@ -116,16 +121,27 @@
       width: 100%;
     }
 
-    /* Code Terminal Box: Muncul Setelah Judul */
+    /* Code Terminal Box dengan Efek Neon Hover */
     .code-box {
       background: var(--card-bg);
       backdrop-filter: blur(20px);
       -webkit-backdrop-filter: blur(20px);
       border: 1px solid var(--card-border);
       border-radius: 18px;
-      box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.85), 0 0 40px rgba(56, 189, 248, 0.05);
+      box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.85), 0 0 30px rgba(56, 189, 248, 0.05);
       overflow: hidden;
       margin-bottom: 24px;
+      transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.35s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.35s ease;
+    }
+
+    /* Neon Hover State */
+    .code-box:hover {
+      transform: translateY(-4px) scale(1.004);
+      border-color: rgba(56, 189, 248, 0.65);
+      box-shadow: 
+        0 0 35px rgba(56, 189, 248, 0.35),
+        0 0 70px rgba(192, 132, 252, 0.2),
+        0 30px 60px rgba(0, 0, 0, 0.95);
     }
 
     .box-header {
@@ -135,6 +151,10 @@
       display: flex;
       align-items: center;
       gap: 12px;
+      transition: border-color 0.35s ease;
+    }
+    .code-box:hover .box-header {
+      border-bottom-color: rgba(56, 189, 248, 0.3);
     }
 
     .window-dots {
@@ -253,9 +273,15 @@
     }
   </style>
 
-  <!-- Three.js & Lensflare -->
-  <script src="js/three.min.js"></script>
-  <script src="js/Lensflare.js"></script>
+  <!-- Three.js (modul) untuk background globe -->
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+    }
+  }
+  </script>
 </head>
 <body>
 
@@ -277,7 +303,7 @@
     </div>
   </div>
 
-  <!-- Code / Terminal Card: Muncul Setelah Judul -->
+  <!-- Code / Terminal Card: Muncul Setelah Judul (dengan Neon Hover) -->
   <div class="code-box">
     <div class="box-header">
       <div class="window-dots">
@@ -363,176 +389,13 @@
 </div>
 
 <script>
-  // 1. Three.js Lensflare & Cosmic Space Particles Background
-  (function () {
-    const container = document.getElementById('bg-canvas-container');
-
-    function createFlareTexture(size = 256) {
-      const c = document.createElement('canvas');
-      c.width = size; c.height = size;
-      const ctx = c.getContext('2d');
-      const half = size / 2;
-      const grad = ctx.createRadialGradient(half, half, 0, half, half, half);
-      grad.addColorStop(0, 'rgba(255, 255, 255, 1)');
-      grad.addColorStop(0.12, 'rgba(255, 245, 210, 0.85)');
-      grad.addColorStop(0.35, 'rgba(255, 170, 70, 0.35)');
-      grad.addColorStop(0.65, 'rgba(140, 70, 255, 0.12)');
-      grad.addColorStop(1, 'rgba(0, 0, 0, 0)');
-      ctx.fillStyle = grad;
-      ctx.fillRect(0, 0, size, size);
-
-      ctx.strokeStyle = 'rgba(255, 255, 255, 0.45)';
-      ctx.lineWidth = 1.5;
-      ctx.beginPath();
-      ctx.moveTo(0, half); ctx.lineTo(size, half);
-      ctx.moveTo(half, 0); ctx.lineTo(half, size);
-      ctx.stroke();
-
-      ctx.strokeStyle = 'rgba(255, 220, 160, 0.2)';
-      ctx.beginPath();
-      ctx.moveTo(half * 0.3, half * 0.3); ctx.lineTo(half * 1.7, half * 1.7);
-      ctx.moveTo(half * 0.3, half * 1.7); ctx.lineTo(half * 1.7, half * 0.3);
-      ctx.stroke();
-      return new THREE.CanvasTexture(c);
-    }
-
-    function createGhostTexture(size = 128, color = 'rgba(56, 189, 248, 0.4)') {
-      const c = document.createElement('canvas');
-      c.width = size; c.height = size;
-      const ctx = c.getContext('2d');
-      const half = size / 2;
-      const grad = ctx.createRadialGradient(half, half, half * 0.2, half, half, half * 0.9);
-      grad.addColorStop(0, color);
-      grad.addColorStop(0.6, color);
-      grad.addColorStop(1, 'rgba(0, 0, 0, 0)');
-      ctx.fillStyle = grad;
-      ctx.beginPath();
-      ctx.arc(half, half, half * 0.9, 0, Math.PI * 2);
-      ctx.fill();
-      return new THREE.CanvasTexture(c);
-    }
-
-    const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x060810);
-    scene.fog = new THREE.FogExp2(0x060810, 0.0004);
-
-    const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 1, 3500);
-    camera.position.z = 1000;
-
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    container.appendChild(renderer.domElement);
-
-    // Lights
-    const dirLight = new THREE.DirectionalLight(0xffffff, 0.4);
-    dirLight.position.set(0, 0, 1).normalize();
-    scene.add(dirLight);
-
-    const light = new THREE.PointLight(0xffeedd, 2.0, 3000);
-    light.position.set(380, 260, -250);
-    scene.add(light);
-
-    // Lensflare elements
-    const flareTex = createFlareTexture(256);
-    const ghostCyan = createGhostTexture(128, 'rgba(56, 189, 248, 0.35)');
-    const ghostPurple = createGhostTexture(128, 'rgba(192, 132, 252, 0.25)');
-    const ghostGold = createGhostTexture(128, 'rgba(251, 191, 36, 0.3)');
-
-    const lensflare = new THREE.Lensflare();
-    lensflare.addElement(new THREE.LensflareElement(flareTex, 450, 0, new THREE.Color(0xffffff)));
-    lensflare.addElement(new THREE.LensflareElement(ghostCyan, 75, 0.25));
-    lensflare.addElement(new THREE.LensflareElement(ghostPurple, 120, 0.45));
-    lensflare.addElement(new THREE.LensflareElement(ghostGold, 60, 0.65));
-    lensflare.addElement(new THREE.LensflareElement(ghostCyan, 90, 0.85));
-    light.add(lensflare);
-
-    // Cosmic Space Particles (replacing cubes)
-    const particleCount = 2800;
-    const geometry = new THREE.BufferGeometry();
-    const positions = new Float32Array(particleCount * 3);
-    const colors = new Float32Array(particleCount * 3);
-
-    for (let i = 0; i < particleCount; i++) {
-      positions[i * 3] = (Math.random() - 0.5) * 2600;
-      positions[i * 3 + 1] = (Math.random() - 0.5) * 2600;
-      positions[i * 3 + 2] = (Math.random() - 0.5) * 2200;
-
-      const r = Math.random();
-      if (r < 0.45) {
-        colors[i * 3] = 0.35; colors[i * 3 + 1] = 0.82; colors[i * 3 + 2] = 1.0;
-      } else if (r < 0.75) {
-        colors[i * 3] = 0.95; colors[i * 3 + 1] = 0.95; colors[i * 3 + 2] = 1.0;
-      } else {
-        colors[i * 3] = 0.98; colors[i * 3 + 1] = 0.72; colors[i * 3 + 2] = 0.95;
-      }
-    }
-
-    geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-    geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
-
-    const spriteCanvas = document.createElement('canvas');
-    spriteCanvas.width = 32; spriteCanvas.height = 32;
-    const sCtx = spriteCanvas.getContext('2d');
-    const sGrad = sCtx.createRadialGradient(16, 16, 0, 16, 16, 16);
-    sGrad.addColorStop(0, 'rgba(255,255,255,1)');
-    sGrad.addColorStop(0.25, 'rgba(255,255,255,0.75)');
-    sGrad.addColorStop(1, 'rgba(255,255,255,0)');
-    sCtx.fillStyle = sGrad;
-    sCtx.fillRect(0, 0, 32, 32);
-    const spriteTex = new THREE.CanvasTexture(spriteCanvas);
-
-    const mat = new THREE.PointsMaterial({
-      size: 5,
-      map: spriteTex,
-      vertexColors: true,
-      transparent: true,
-      blending: THREE.AdditiveBlending,
-      depthWrite: false
-    });
-
-    const particlesMesh = new THREE.Points(geometry, mat);
-    scene.add(particlesMesh);
-
-    // Dynamic Camera and Flare Drift
-    let targetX = 0, targetY = 0;
-    window.addEventListener('mousemove', (e) => {
-      targetX = (e.clientX - window.innerWidth / 2) * 0.35;
-      targetY = (e.clientY - window.innerHeight / 2) * 0.35;
-    });
-
-    let clock = 0;
-    function renderThree() {
-      clock += 0.005;
-      camera.position.x += (targetX - camera.position.x) * 0.035;
-      camera.position.y += (-targetY - camera.position.y) * 0.035;
-      camera.lookAt(scene.position);
-
-      particlesMesh.rotation.y += 0.0003;
-      particlesMesh.rotation.x += 0.00015;
-
-      light.position.x = 380 + Math.sin(clock) * 60;
-      light.position.y = 260 + Math.cos(clock * 0.8) * 40;
-
-      renderer.render(scene, camera);
-      requestAnimationFrame(renderThree);
-    }
-    renderThree();
-
-    window.addEventListener('resize', () => {
-      camera.aspect = window.innerWidth / window.innerHeight;
-      camera.updateProjectionMatrix();
-      renderer.setSize(window.innerWidth, window.innerHeight);
-    });
-  })();
-
-  // 2. Responsive Interactive Particle Text Title
+  // 2. High-Legibility Geometric Particle Text Title (Outfit 800)
   (function () {
     const canvas = document.getElementById('particle-title-canvas');
     const ctx = canvas.getContext('2d');
 
     let particles = [];
-    let mouse = { x: null, y: null, radius: 80 };
+    let mouse = { x: null, y: null, radius: 85 };
 
     function getDPR() {
       return Math.min(window.devicePixelRatio || 1, 2);
@@ -559,12 +422,12 @@
       offCtx.fillStyle = '#ffffff';
       offCtx.textBaseline = 'top';
       
-      const fontSize = isMobile ? 32 : 42;
-      offCtx.font = 'italic 800 ' + fontSize + 'px "Plus Jakarta Sans"';
+      const fontSize = isMobile ? 32 : 40;
+      offCtx.font = '800 ' + fontSize + 'px "Outfit"';
 
       if (isMobile) {
         offCtx.fillText("Ma'had 'Aly", 0, 4);
-        offCtx.fillText("Darusy Syahadah", 0, 44);
+        offCtx.fillText("Darusy Syahadah", 0, 46);
       } else {
         offCtx.fillText("Ma'had 'Aly Darusy Syahadah", 0, 8);
       }
@@ -572,7 +435,7 @@
       const imgData = offCtx.getImageData(0, 0, canvas.width, canvas.height);
       const data = imgData.data;
       particles = [];
-      const step = isMobile ? (1.6 * dpr) : (1.8 * dpr);
+      const step = isMobile ? (1.5 * dpr) : (1.6 * dpr);
 
       for (let y = 0; y < canvas.height; y += step) {
         for (let x = 0; x < canvas.width; x += step) {
@@ -595,7 +458,7 @@
               baseX: posX,
               baseY: posY,
               color: color,
-              size: isMobile ? 1.3 : 1.5,
+              size: isMobile ? 1.25 : 1.4,
               density: Math.random() * 22 + 4
             });
           }
@@ -671,6 +534,8 @@
     window.addEventListener('resize', resize);
   })();
 </script>
+
+<script type="module" src="js/globe-bg.js"></script>
 
 </body>
 </html>
