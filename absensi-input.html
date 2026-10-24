@@ -1,0 +1,1090 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#114d35">
+    <link rel="manifest" href="manifest.webmanifest">
+    <link rel="apple-touch-icon" href="assets/app-icon-192.png">
+    <title>Input Ketidakhadiran - Recording Mahasantri</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f5f5; }
+        .navbar {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 1rem 2rem; background: #2d5016; color: white;
+        }
+        .nav-brand { display: flex; align-items: center; gap: 10px; font-size: 1.2rem; font-weight: bold; }
+        .nav-logo { width: 40px; height: 40px; }
+        .nav-user { display: flex; align-items: center; gap: 15px; }
+        .user-photo { width: 35px; height: 35px; border-radius: 50%; }
+        .btn-logout { padding: 8px 16px; background: #dc3545; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        .container { max-width: 1200px; margin: 2rem auto; padding: 0 2rem; }
+        h1 { margin-bottom: 1.5rem; color: #2d5016; }
+        .btn-back {
+            display: inline-block; margin-bottom: 1rem; padding: 10px 20px;
+            background: #2d5016; color: white; text-decoration: none; border-radius: 5px;
+        }
+        .btn { padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-size: 14px; margin-right: 5px; }
+        .btn-primary { background: #28a745; color: white; }
+        .btn-secondary { background: #6c757d; color: white; }
+        .btn-danger { background: #dc3545; color: white; }
+        .btn-warning { background: #ffc107; color: #000; }
+        .card {
+            background: white; border-radius: 10px; padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 20px;
+        }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: bold; color: #333; }
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px;
+        }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .search-box {
+            position: relative; margin-bottom: 20px;
+        }
+        .search-box input {
+            width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 5px; font-size: 14px;
+        }
+        .search-results {
+            position: absolute; top: 100%; left: 0; right: 0; background: white;
+            border: 1px solid #ddd; border-radius: 5px; max-height: 300px; overflow-y: auto;
+            z-index: 100; display: none;
+        }
+        .search-result-item {
+            padding: 10px; cursor: pointer; border-bottom: 1px solid #eee;
+        }
+        .search-result-item:hover { background: #f8f9fa; }
+        .search-result-item.selected { background: #d4edda; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { padding: 10px; text-align: left; border-bottom: 1px solid #eee; }
+        th { background: #f8f9fa; font-weight: bold; color: #2d5016; }
+        .badge { padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; }
+        .badge-izin { background: #fff3cd; color: #856404; }
+        .badge-sakit { background: #fff3cd; color: #856404; }
+        .badge-alpha { background: #f8d7da; color: #721c24; }
+        .badge-izin_menginap { background: #d1ecf1; color: #0c5460; }
+        .btn-hapus { padding: 5px 10px; background: #dc3545; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 12px; }
+        .btn-edit { padding: 5px 10px; background: #ffc107; color: #000; border: none; border-radius: 5px; cursor: pointer; font-size: 12px; }
+        .info-box {
+            background: #e7f3ff; border-left: 4px solid #2196F3; padding: 15px; margin-bottom: 20px;
+        }
+        .info-box h4 { color: #2196F3; margin-bottom: 5px; }
+        .stats-mini { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 15px; }
+        .stat-mini { background: #f8f9fa; padding: 10px; border-radius: 5px; text-align: center; }
+        .stat-mini h5 { font-size: 12px; color: #666; margin-bottom: 5px; }
+        .stat-mini p { font-size: 20px; font-weight: bold; color: #2d5016; }
+        .badge-berhalangan { background: #f8d7da; color: #721c24; }
+        .badge-lainnya { background: #d1ecf1; color: #0c5460; }
+    </style>
+    <link rel="stylesheet" href="style.css?v=20261023-4">
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+</head>
+<body data-access="supervisor">
+    <nav class="navbar">
+        <div class="nav-brand">
+            <img src="assets/Logo.png" alt="Logo" class="nav-logo">
+            <ion-icon name="school-outline" aria-hidden="true"></ion-icon>
+            <span>Recording Mahasantri</span>
+        </div>
+        <div class="nav-user">
+            <img id="user-photo" src="" alt="User" class="user-photo">
+            <span id="user-name">Loading...</span>
+            <button id="btn-logout" class="btn-logout"><ion-icon name="log-out-outline" aria-hidden="true"></ion-icon> Logout</button>
+        </div>
+    </nav>
+
+    <div class="container">
+        <a href="dashboard.html" class="btn-back"><ion-icon name="arrow-back-outline" aria-hidden="true"></ion-icon> Kembali ke Dashboard</a>
+        <h1><span class="page-heading-icon"><ion-icon name="clipboard-outline" aria-hidden="true"></ion-icon></span> Input Ketidakhadiran</h1>
+        
+        <div class="card">
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Tanggal *</label>
+                    <input type="date" id="inputTanggal" required onchange="loadDataKegiatan()">
+                </div>
+                <div class="form-group">
+                    <label>Pilih Kegiatan *</label>
+                    <select id="inputKegiatan" onchange="loadDataKegiatan()">
+                        <option value="">-- Pilih Kegiatan --</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="card attendance-panel" id="section-input" style="display: none;">
+            <div class="info-box" id="session-info">
+                <h4 id="session-info-title">Absensi belum disiapkan</h4>
+                <p id="session-info-text">Siapkan sesi terlebih dahulu agar status hadir dan tidak hadir tercatat lengkap. Gunakan alur ini mulai tanggal penerapan, bukan untuk menebak kehadiran historis.</p>
+                <button type="button" class="btn btn-primary" id="prepare-session-button" onclick="prepareAttendanceSession()">Mulai Absensi Lengkap</button>
+                <button type="button" class="btn btn-secondary" id="not-held-button" onclick="markActivityNotHeld()" style="display:none;">Kegiatan Tidak Berlangsung</button>
+                <button type="button" class="btn btn-primary" id="complete-report-button" onclick="completeActivityReport()" style="display:none;">Kirim Laporan Kegiatan</button>
+            </div>
+
+            <div class="info-box">
+                <h4>ðŸ“‹ Instruksi</h4>
+                <p>Cari nama santri yang <strong>tidak hadir</strong>, lalu isi keterangan dan tindak lanjut (opsional).</p>
+            </div>
+
+            <div class="search-box">
+                <input type="text" id="searchSantri" placeholder="Ketik nama santri..." onkeyup="searchSantri()">
+                <div class="search-results" id="searchResults"></div>
+            </div>
+
+            <div id="form-santri" style="display: none;">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Nama Santri</label>
+                        <input type="text" id="selectedSantriNama" readonly>
+                        <input type="hidden" id="selectedSantriId">
+                    </div>
+                    <div class="form-group">
+                        <label>Angkatan</label>
+                        <input type="text" id="selectedSantriAngkatan" readonly>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Status Ketidakhadiran *</label>
+                        <select id="inputStatus">
+                            <option value="izin">Izin</option>
+                            <option value="sakit">Sakit</option>
+                            <option value="alpha">Alpha</option>
+                            <option value="izin_menginap">Izin Menginap</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Keterangan</label>
+                        <input type="text" id="inputKeterangan" placeholder="Contoh: Sakit perut, Izin pulang, dll">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Tindak Lanjut (untuk BK)</label>
+                    <textarea id="inputTindakLanjut" rows="2" placeholder="Contoh: Titipan tugas bab 5, Sudah dihubungi wali, dll"></textarea>
+                </div>
+                <div style="text-align: right;">
+                    <button class="btn btn-secondary" onclick="resetForm()">Batal</button>
+                    <button type="button" class="btn btn-warning" id="btn-tambah-batch" onclick="tambahSantriKeBatch()">Tambahkan ke Daftar dengan Keterangan Ini</button>
+                    <button class="btn btn-primary" onclick="simpanKetidakhadiran()">Simpan</button>
+                </div>
+            </div>
+
+            <div id="batch-absensi" style="display: none; margin-top: 24px;">
+                <h3 style="color: #2d5016; margin-bottom: 8px;">Daftar yang Akan Disimpan (<span id="batch-count">0</span>)</h3>
+                <p style="margin-bottom: 10px;">Status, keterangan, dan tindak lanjut dari form disalin untuk setiap santri yang ditambahkan. Sesuaikan dulu jika berbeda.</p>
+                <div style="overflow-x: auto;">
+                    <table>
+                        <thead>
+                            <tr><th>No</th><th>Nama Santri</th><th>Status</th><th>Keterangan</th><th>Tindak Lanjut</th><th>Aksi</th></tr>
+                        </thead>
+                        <tbody id="batch-absensi-body"></tbody>
+                    </table>
+                </div>
+                <div style="text-align: right; margin-top: 12px;">
+                    <button type="button" class="btn btn-secondary" id="btn-kosongkan-batch" onclick="kosongkanBatch()">Kosongkan Daftar</button>
+                    <button class="btn btn-primary" id="btn-simpan-batch" onclick="simpanSemuaBatch()">Simpan Semua</button>
+                </div>
+            </div>
+
+            <div style="margin-top: 30px;">
+                <h3 style="color: #2d5016; margin-bottom: 15px;">Daftar Santri Tidak Hadir Hari Ini</h3>
+                <div class="stats-mini" id="stats-mini">
+                    <div class="stat-mini">
+                        <h5>Total Santri</h5>
+                        <p id="stat-total">0</p>
+                    </div>
+                    <div class="stat-mini">
+                        <h5>Hadir</h5>
+                        <p id="stat-hadir" style="color: #28a745;">0</p>
+                    </div>
+                    <div class="stat-mini">
+                        <h5>Tidak Hadir</h5>
+                        <p id="stat-tidak-hadir" style="color: #dc3545;">0</p>
+                    </div>
+                    <div class="stat-mini">
+                        <h5>Persentase Hadir</h5>
+                        <p id="stat-persentase">0%</p>
+                    </div>
+                </div>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>Nama Santri</th>
+                            <th>Angkatan</th>
+                            <th>Status</th>
+                            <th>Keterangan</th>
+                            <th>Tindak Lanjut</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="daftar-tidak-hadir-body">
+                        <tr><td colspan="7" class="text-center">Belum ada data</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    <!-- Section Input Ketidakhadiran Ustadz -->
+    <div class="card attendance-panel" id="section-asatidz" style="display: none;">
+        <h2 style="color: #2d5016; margin-bottom: 15px;">ðŸ‘¨ðŸ« Input Ketidakhadiran Ustadz/Asatidz</h2>
+        <div class="info-box">
+            <h4> Instruksi</h4>
+            <p>Isi data asatidz terdaftar yang <strong>tidak hadir</strong> pada kegiatan ini. Penugasan dan peran mengikuti Manajemen Asatidz.</p>
+        </div>
+
+        <div class="search-box">
+            <input type="text" id="searchAsatidz" placeholder="Ketik nama ustadz/asatidz..." onkeyup="searchAsatidz()">
+            <div class="search-results" id="searchResultsAsatidz"></div>
+        </div>
+
+        <div id="form-asatidz" style="display: none;">
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Nama Asatidz</label>
+                    <input type="text" id="selectedAsatidzNama" readonly>
+                    <input type="hidden" id="selectedAsatidzId">
+                </div>
+                <div class="form-group">
+                    <label>Mata Pelajaran / Jabatan</label>
+                    <input type="text" id="selectedAsatidzMapel" readonly>
+                </div>
+                <div class="form-group">
+                    <label>Peran pada kegiatan</label>
+                    <input type="text" id="selectedAsatidzPeran" readonly>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Status Ketidakhadiran *</label>
+                    <select id="inputStatusAsatidz">
+                        <option value="izin">Izin</option>
+                        <option value="sakit">Sakit</option>
+                        <option value="berhalangan">Berhalangan</option>
+                        <option value="lainnya">Lainnya</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Keterangan</label>
+                    <input type="text" id="inputKeteranganAsatidz" placeholder="Contoh: Ada urusan keluarga">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Tindak Lanjut (untuk BK/Koordinator)</label>
+                <textarea id="inputTindakLanjutAsatidz" rows="2" placeholder="Contoh: Titipan tugas bab 5, Sudah digantikan Ustadz X, dll"></textarea>
+            </div>
+            <div style="text-align: right;">
+                <button class="btn btn-secondary" onclick="resetFormAsatidz()">Batal</button>
+                <button class="btn btn-primary" onclick="simpanKetidakhadiranAsatidz()">Simpan</button>
+            </div>
+        </div>
+
+        <div style="margin-top: 30px;">
+            <h3 style="color: #2d5016; margin-bottom: 15px;">Daftar Ustadz/Asatidz Tidak Hadir Hari Ini</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>No</th>
+                        <th>Nama</th>
+                        <th>Mata Pelajaran</th>
+                        <th>Peran</th>
+                        <th>Status</th>
+                        <th>Keterangan</th>
+                        <th>Tindak Lanjut</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody id="daftar-asatidz-tidak-hadir-body">
+                    <tr><td colspan="8" class="text-center">Belum ada data</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    </div>
+
+    <script>
+        console.log("Absensi Input page loaded");
+
+        function escapeHtml(value) {
+            return String(value == null ? '' : value).replace(/[&<>"']/g, function(character) {
+                return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[character];
+            });
+        }
+        
+        var user_id = localStorage.getItem("user_id");
+        
+        if (!user_id) {
+            window.location.href = "index.html";
+        }
+        
+        
+        var localToday = new Date();
+        localToday.setMinutes(localToday.getMinutes() - localToday.getTimezoneOffset());
+        var today = localToday.toISOString().split('T')[0];
+        document.getElementById("inputTanggal").value = today;
+        
+        // Load daftar kegiatan
+        function loadKegiatan() {
+            fetch('api/get-kegiatan.php')
+                .then(function(res) { return res.json(); })
+                .then(function(data) {
+                    if (data.success) {
+                        var select = document.getElementById("inputKegiatan");
+                        data.kegiatan.forEach(function(k) {
+                            if (k.is_active == 1) {
+                                var option = document.createElement("option");
+                                option.value = k.id;
+                                option.textContent = k.nama_kegiatan + ' (' + k.frekuensi + ')';
+                                select.appendChild(option);
+                            }
+                        });
+                    }
+                })
+                .catch(function(error) { console.error('Error:', error); });
+        }
+        
+        loadKegiatan();
+        
+        // Load data saat kegiatan dipilih
+        function loadDataKegiatan() {
+            var kegiatanId = document.getElementById("inputKegiatan").value;
+            var tanggal = document.getElementById("inputTanggal").value;
+            
+            if (!kegiatanId || !tanggal) {
+                document.getElementById("section-input").style.display = 'none';
+                return;
+            }
+            
+            document.getElementById("searchSantri").disabled = true;
+            document.getElementById("form-santri").style.display = 'none';
+            document.getElementById("section-input").style.display = 'block';
+            loadDaftarTidakHadir();
+        }
+        
+        // Search santri
+        var allSantri = [];
+        var rosterSantriIds = [];
+        var attendanceSessionActive = false;
+        var canEditCurrentReport = true;
+        var batchAbsensi = [];
+        var batchSaving = false;
+        function searchSantri() {
+            var keyword = document.getElementById("searchSantri").value.toLowerCase();
+            
+            if (keyword.length < 2) {
+                document.getElementById("searchResults").style.display = 'none';
+                return;
+            }
+            
+            if (allSantri.length === 0) {
+                fetch('api/get-santri.php')
+                    .then(function(res) { return res.json(); })
+                    .then(function(data) {
+                        if (data.success) {
+                            allSantri = data.santri;
+                            filterSantri(keyword);
+                        }
+                    });
+            } else {
+                filterSantri(keyword);
+            }
+        }
+        
+        function filterSantri(keyword) {
+            var filtered = allSantri.filter(function(s) {
+                return s.nama.toLowerCase().includes(keyword) &&
+                    (!attendanceSessionActive || rosterSantriIds.includes(Number(s.id)));
+            });
+            
+            var resultsDiv = document.getElementById("searchResults");
+            resultsDiv.replaceChildren();
+            if (filtered.length === 0) {
+                var emptyResult = document.createElement("div");
+                emptyResult.className = "search-result-item";
+                emptyResult.textContent = "Tidak ada santri ditemukan";
+                resultsDiv.appendChild(emptyResult);
+            } else {
+                filtered.forEach(function(s) {
+                    var result = document.createElement("div");
+                    result.className = "search-result-item";
+                    result.addEventListener("click", function() {
+                        pilihSantri(Number(s.id), s.nama, s.angkatan || "");
+                    });
+                    var name = document.createTextNode(s.nama + " ");
+                    var detail = document.createElement("small");
+                    detail.style.color = "#666";
+                    detail.textContent = "(" + (s.angkatan || "-") + ")";
+                    result.append(name, detail);
+                    resultsDiv.appendChild(result);
+                });
+            }
+            resultsDiv.style.display = 'block';
+        }
+        
+        function pilihSantri(id, nama, angkatan) {
+            document.getElementById("selectedSantriId").value = id;
+            document.getElementById("selectedSantriNama").value = nama;
+            document.getElementById("selectedSantriAngkatan").value = angkatan;
+            document.getElementById("searchSantri").value = '';
+            document.getElementById("searchResults").style.display = 'none';
+            document.getElementById("form-santri").style.display = 'block';
+        }
+
+        function tambahSantriKeBatch() {
+            var kegiatanId = document.getElementById("inputKegiatan").value;
+            var tanggal = document.getElementById("inputTanggal").value;
+            var santriId = document.getElementById("selectedSantriId").value;
+
+            if (!kegiatanId || !tanggal || !santriId) {
+                alert('Pilih kegiatan, tanggal, dan santri terlebih dahulu.');
+                return;
+            }
+
+            if (batchAbsensi.some(function(item) { return String(item.santri_id) === String(santriId); })) {
+                alert('Santri ini sudah ada di daftar yang akan disimpan.');
+                return;
+            }
+
+            batchAbsensi.push({
+                kegiatan_id: kegiatanId,
+                tanggal: tanggal,
+                santri_id: santriId,
+                nama: document.getElementById("selectedSantriNama").value,
+                status: document.getElementById("inputStatus").value,
+                keterangan: document.getElementById("inputKeterangan").value,
+                tindak_lanjut: document.getElementById("inputTindakLanjut").value
+            });
+            renderBatchAbsensi();
+
+            document.getElementById("selectedSantriId").value = '';
+            document.getElementById("selectedSantriNama").value = '';
+            document.getElementById("selectedSantriAngkatan").value = '';
+            document.getElementById("searchSantri").value = '';
+            document.getElementById("form-santri").style.display = 'block';
+            document.getElementById("searchSantri").focus();
+        }
+
+        function renderBatchAbsensi() {
+            var batchSection = document.getElementById("batch-absensi");
+            var tbody = document.getElementById("batch-absensi-body");
+            document.getElementById("batch-count").textContent = batchAbsensi.length;
+            batchSection.style.display = batchAbsensi.length ? 'block' : 'none';
+            document.getElementById("inputKegiatan").disabled = batchAbsensi.length > 0;
+            document.getElementById("inputTanggal").disabled = batchAbsensi.length > 0;
+            document.getElementById("btn-tambah-batch").disabled = batchSaving;
+            document.getElementById("btn-kosongkan-batch").disabled = batchSaving;
+            document.getElementById("btn-simpan-batch").disabled = batchSaving;
+
+            tbody.textContent = '';
+            batchAbsensi.forEach(function(item, index) {
+                var row = document.createElement('tr');
+                [index + 1, item.nama, item.status, item.keterangan || '-', item.tindak_lanjut || '-'].forEach(function(value) {
+                    var cell = document.createElement('td');
+                    cell.textContent = value;
+                    row.appendChild(cell);
+                });
+
+                var actionCell = document.createElement('td');
+                var removeButton = document.createElement('button');
+                removeButton.type = 'button';
+                removeButton.className = 'btn-hapus';
+                removeButton.textContent = 'Hapus';
+                removeButton.disabled = batchSaving;
+                removeButton.onclick = function() { hapusDariBatch(index); };
+                actionCell.appendChild(removeButton);
+                row.appendChild(actionCell);
+                tbody.appendChild(row);
+            });
+        }
+
+        function hapusDariBatch(index) {
+            if (batchSaving) return;
+            batchAbsensi.splice(index, 1);
+            renderBatchAbsensi();
+        }
+
+        function kosongkanBatch() {
+            if (batchSaving) return;
+            if (!batchAbsensi.length || !confirm('Kosongkan semua santri yang belum disimpan?')) return;
+            batchAbsensi = [];
+            renderBatchAbsensi();
+        }
+
+        async function simpanSemuaBatch() {
+            if (!batchAbsensi.length) return;
+
+            var berhasil = [];
+            var gagal = [];
+            batchSaving = true;
+            renderBatchAbsensi();
+
+            try {
+                for (var i = 0; i < batchAbsensi.length; i++) {
+                    var item = batchAbsensi[i];
+                    try {
+                        var response = await fetch('api/save-absensi-input.php', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                kegiatan_id: item.kegiatan_id,
+                                tanggal: item.tanggal,
+                                santri_id: item.santri_id,
+                                status: item.status,
+                                keterangan: item.keterangan,
+                                tindak_lanjut: item.tindak_lanjut,
+                                user_id: user_id
+                            })
+                        });
+                        var data = await response.json();
+                        if (!response.ok || !data.success) {
+                            throw new Error(data.error || 'Gagal menyimpan data.');
+                        }
+                        berhasil.push(item.santri_id);
+                    } catch (error) {
+                        console.error('Gagal menyimpan absensi santri ' + item.nama + ':', error);
+                        gagal.push(item.nama + ': ' + error.message);
+                    }
+                }
+            } finally {
+                batchAbsensi = batchAbsensi.filter(function(item) {
+                    return berhasil.indexOf(item.santri_id) === -1;
+                });
+                batchSaving = false;
+                renderBatchAbsensi();
+            }
+
+            if (berhasil.length) loadDaftarTidakHadir();
+            if (gagal.length) {
+                alert(berhasil.length + ' data berhasil disimpan.\nData berikut belum tersimpan:\n' + gagal.join('\n'));
+            } else {
+                alert(berhasil.length + ' data berhasil disimpan.');
+            }
+        }
+        
+        // Load daftar tidak hadir
+        function loadDaftarTidakHadir() {
+            var kegiatanId = document.getElementById("inputKegiatan").value;
+            var tanggal = document.getElementById("inputTanggal").value;
+            
+            if (!kegiatanId || !tanggal) return;
+            
+            return fetch('api/get-absensi-hari-ini.php?kegiatan_id=' + kegiatanId + '&tanggal=' + tanggal)
+                .then(function(res) { return res.json(); })
+                .then(function(data) {
+                    if (data.success) {
+                        var sessionButton = document.getElementById("prepare-session-button");
+                        var notHeldButton = document.getElementById("not-held-button");
+                        var completeButton = document.getElementById("complete-report-button");
+                        var sessionTitle = document.getElementById("session-info-title");
+                        var sessionText = document.getElementById("session-info-text");
+                        var searchInput = document.getElementById("searchSantri");
+                        attendanceSessionActive = data.session_active;
+                        rosterSantriIds = data.roster_santri_ids || [];
+                        canEditCurrentReport = data.can_edit_report;
+                        sessionButton.style.display = data.session_active ? 'none' : 'inline-block';
+                        sessionButton.disabled = data.report && !data.can_edit_report;
+                        notHeldButton.style.display = data.session_active || data.report ? 'none' : 'inline-block';
+                        completeButton.style.display = data.session_active ? 'inline-block' : 'none';
+                        completeButton.disabled = data.report && !data.can_edit_report;
+                        if (data.report) {
+                            sessionTitle.textContent = data.report.status === 'tidak_berlangsung'
+                                ? 'Kegiatan ditandai tidak berlangsung'
+                                : 'Laporan kegiatan sudah dikirim';
+                            sessionText.textContent = data.can_edit_report
+                                ? 'Anda dapat memperbarui laporan ini.'
+                                : 'Laporan dikirim Supervisor lain; hanya Admin atau pengirimnya yang dapat mengubahnya.';
+                        }
+                        searchInput.disabled = !data.session_active || !data.can_edit_report;
+                        if (data.session_active) {
+                            sessionTitle.textContent = 'Sesi absensi lengkap sudah aktif';
+                            sessionText.textContent = 'Semua santri sudah tercatat hadir. Tambahkan santri yang tidak hadir; status kehadiran mereka akan diperbarui.';
+                        } else {
+                            sessionTitle.textContent = 'Sesi absensi belum disiapkan';
+                            sessionText.textContent = 'Status hadir untuk data lama tidak dapat ditebak. Gunakan tombol ini hanya untuk sesi sejak alur absensi lengkap diterapkan; catatan lama tidak akan diubah.';
+                        }
+                        if (data.report) {
+                            sessionTitle.textContent = data.report.status === 'tidak_berlangsung'
+                                ? 'Kegiatan ditandai tidak berlangsung'
+                                : 'Laporan kegiatan sudah dikirim';
+                            sessionText.textContent = data.can_edit_report
+                                ? 'Anda dapat memperbarui laporan ini.'
+                                : 'Laporan dikirim Supervisor lain; hanya Admin atau pengirimnya yang dapat mengubahnya.';
+                        }
+
+                        // Update stats
+                        document.getElementById("stat-total").textContent = data.total_santri;
+                        document.getElementById("stat-tidak-hadir").textContent = data.tidak_hadir.length;
+                        document.getElementById("stat-hadir").textContent = data.session_active ? data.hadir : '-';
+                        var persentase = data.session_active && data.total_santri > 0 ?
+                            Math.round((data.hadir / data.total_santri) * 100) : null;
+                        document.getElementById("stat-persentase").textContent = persentase === null ? '-' : persentase + '%';
+                        
+                        // Tampilkan daftar
+                        var tbody = document.getElementById("daftar-tidak-hadir-body");
+                        if (data.tidak_hadir.length === 0) {
+                            tbody.innerHTML = data.session_active
+                                ? '<tr><td colspan="7" class="text-center">Semua santri hadir! ðŸŽ‰</td></tr>'
+                                : '<tr><td colspan="7" class="text-center">Data ketidakhadiran lama belum cukup untuk menyimpulkan siapa yang hadir.</td></tr>';
+                        } else {
+                            var html = '';
+                            data.tidak_hadir.forEach(function(item, index) {
+                                var recordId = Number(item.id);
+                                var status = ['izin', 'sakit', 'alpha', 'izin_menginap'].includes(item.status) ? item.status : 'lainnya';
+                                html += '<tr>';
+                                html += '<td>' + (index + 1) + '</td>';
+                                html += '<td>' + escapeHtml(item.nama) + '</td>';
+                                html += '<td>' + escapeHtml(item.angkatan || '-') + '</td>';
+                                html += '<td><span class="badge badge-' + status + '">' + escapeHtml(item.status) + '</span></td>';
+                                html += '<td>' + escapeHtml(item.keterangan || '-') + '</td>';
+                                html += '<td>' + escapeHtml(item.tindak_lanjut || '-') + '</td>';
+                                html += '<td>';
+                                html += '<button class="btn-edit" data-edit-index="' + index + '" ' + (data.can_edit_report ? '' : 'disabled') + '>Edit</button> ';
+                                var actionLabel = data.session_active ? 'Tandai Hadir' : 'Hapus Data Lama';
+                                var actionClass = data.session_active ? 'btn-edit' : 'btn-hapus';
+                                html += '<button class="' + actionClass + '" data-delete-id="' + recordId + '" ' + (data.can_edit_report ? '' : 'disabled') + '>' + actionLabel + '</button>';
+                                html += '</td>';
+                                html += '</tr>';
+                            });
+                            tbody.innerHTML = html;
+                            tbody.querySelectorAll("[data-edit-index]").forEach(function(button) {
+                                button.addEventListener("click", function() {
+                                    var item = data.tidak_hadir[Number(button.dataset.editIndex)];
+                                    editAbsensi(Number(item.id), Number(item.santri_id), item.nama, item.angkatan || '',
+                                        item.status, item.keterangan || '', item.tindak_lanjut || '');
+                                });
+                            });
+                            tbody.querySelectorAll("[data-delete-id]").forEach(function(button) {
+                                button.addEventListener("click", function() {
+                                    hapusAbsensi(Number(button.dataset.deleteId), data.session_active);
+                                });
+                            });
+                        }
+                        loadDaftarAsatidzTidakHadir();
+                    }
+                })
+                .catch(function(error) { console.error('Error:', error); });
+        }
+
+        async function prepareAttendanceSession() {
+            var kegiatanId = document.getElementById("inputKegiatan").value;
+            var tanggal = document.getElementById("inputTanggal").value;
+            if (!kegiatanId || !tanggal) return;
+            if (!confirm('Tandai semua santri sebagai hadir untuk kegiatan dan tanggal ini? Gunakan hanya untuk sesi sejak alur absensi lengkap diterapkan, bukan untuk merekonstruksi riwayat lama. Catatan ketidakhadiran yang sudah ada akan dipertahankan.')) return;
+
+            var button = document.getElementById("prepare-session-button");
+            button.disabled = true;
+            try {
+                var response = await fetch('api/prepare-absensi.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ kegiatan_id: kegiatanId, tanggal: tanggal })
+                });
+                var data = await response.json();
+                if (!response.ok || !data.success) {
+                    throw new Error(data.error || 'Gagal menyiapkan sesi absensi.');
+                }
+
+                loadDaftarTidakHadir();
+            } catch (error) {
+                console.error('Gagal menyiapkan sesi absensi:', error);
+                alert(error.message);
+            } finally {
+                button.disabled = false;
+            }
+        }
+
+        async function completeActivityReport() {
+            if (!confirm('Kirim laporan lengkap untuk kegiatan dan tanggal ini?')) return;
+            await submitActivityReport('dilaporkan', '');
+        }
+
+        async function markActivityNotHeld() {
+            var note = prompt('Catatan kegiatan tidak berlangsung (opsional):', '');
+            if (note === null) return;
+            await submitActivityReport('tidak_berlangsung', note);
+        }
+
+        async function submitActivityReport(status, note) {
+            var button = document.getElementById(status === 'dilaporkan' ? 'complete-report-button' : 'not-held-button');
+            button.disabled = true;
+            try {
+                var response = await fetch('api/complete-activity-report.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        kegiatan_id: document.getElementById("inputKegiatan").value,
+                        tanggal: document.getElementById("inputTanggal").value,
+                        status: status,
+                        catatan: note
+                    })
+                });
+                var data = await response.json();
+                if (!response.ok || !data.success) throw new Error(data.error || 'Laporan gagal dikirim.');
+                await loadDaftarTidakHadir();
+                alert(status === 'dilaporkan' ? 'Laporan kegiatan berhasil dikirim.' : 'Kegiatan ditandai tidak berlangsung.');
+            } catch (error) {
+                alert(error.message);
+            } finally {
+                button.disabled = false;
+            }
+        }
+        
+        // Simpan ketidakhadiran
+        function simpanKetidakhadiran() {
+            if (!canEditCurrentReport) {
+                alert('Laporan dikirim Supervisor lain dan hanya dapat diubah Admin atau pengirimnya.');
+                return;
+            }
+            var kegiatanId = document.getElementById("inputKegiatan").value;
+            var tanggal = document.getElementById("inputTanggal").value;
+            var santriId = document.getElementById("selectedSantriId").value;
+            var status = document.getElementById("inputStatus").value;
+            var keterangan = document.getElementById("inputKeterangan").value;
+            var tindakLanjut = document.getElementById("inputTindakLanjut").value;
+            
+            if (!kegiatanId || !tanggal || !santriId) {
+                alert('Data tidak lengkap!');
+                return;
+            }
+            
+            fetch('api/save-absensi-input.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    kegiatan_id: kegiatanId,
+                    tanggal: tanggal,
+                    santri_id: santriId,
+                    status: status,
+                    keterangan: keterangan,
+                    tindak_lanjut: tindakLanjut,
+                    user_id: user_id
+                })
+            })
+            .then(function(res) { return res.json(); })
+            .then(function(data) {
+                if (data.success) {
+                    alert('Data berhasil disimpan!');
+                    resetForm();
+                    loadDaftarTidakHadir();
+                } else {
+                    alert('Error: ' + data.error);
+                }
+            })
+            .catch(function(error) {
+                console.error('Error:', error);
+                alert('Terjadi kesalahan');
+            });
+        }
+        
+        // Edit absensi
+        function editAbsensi(id, santriId, nama, angkatan, status, keterangan, tindakLanjut) {
+            document.getElementById("selectedSantriId").value = santriId;
+            document.getElementById("selectedSantriNama").value = nama;
+            document.getElementById("selectedSantriAngkatan").value = angkatan;
+            document.getElementById("inputStatus").value = status;
+            document.getElementById("inputKeterangan").value = keterangan;
+            document.getElementById("inputTindakLanjut").value = tindakLanjut;
+            document.getElementById("form-santri").style.display = 'block';
+            
+            // Simpan ID untuk update
+            document.getElementById("selectedSantriId").dataset.editId = id;
+            document.getElementById("btn-tambah-batch").style.display = 'none';
+        }
+        
+        // Hapus absensi
+        function hapusAbsensi(id, sessionActive) {
+            var confirmation = sessionActive
+                ? 'Tandai santri ini hadir? Keterangan ketidakhadiran akan dihapus.'
+                : 'Hapus catatan ketidakhadiran lama ini?';
+            if (confirm(confirmation)) {
+                fetch('api/delete-absensi.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id: id })
+                })
+                .then(function(res) { return res.json(); })
+                .then(function(data) {
+                    if (data.success) {
+                        alert(data.action === 'marked_present' ? 'Status berhasil diubah menjadi hadir.' : 'Catatan lama berhasil dihapus.');
+                        loadDaftarTidakHadir();
+                    } else {
+                        alert('Error: ' + data.error);
+                    }
+                })
+                .catch(function(error) {
+                    console.error('Error:', error);
+                    alert('Terjadi kesalahan');
+                });
+            }
+        }
+        
+        // Reset form
+        function resetForm() {
+            document.getElementById("selectedSantriId").value = '';
+            document.getElementById("selectedSantriNama").value = '';
+            document.getElementById("selectedSantriAngkatan").value = '';
+            document.getElementById("inputStatus").value = 'izin';
+            document.getElementById("inputKeterangan").value = '';
+            document.getElementById("inputTindakLanjut").value = '';
+            document.getElementById("form-santri").style.display = 'none';
+            document.getElementById("searchSantri").value = '';
+            delete document.getElementById("selectedSantriId").dataset.editId;
+            document.getElementById("btn-tambah-batch").style.display = '';
+        }
+        
+        // Logout
+        document.getElementById("btn-logout").addEventListener("click", function() {
+            localStorage.removeItem("user_data");
+            localStorage.removeItem("user_id");
+            localStorage.removeItem("user_role");
+            window.location.href = "index.html";
+        });
+        // ===== FITUR ASATIDZ =====
+
+        var allAsatidz = [];
+        var asatidzActivityId = '';
+
+        function loadAsatidzList() {
+            var kegiatanId = document.getElementById("inputKegiatan").value;
+            if (!kegiatanId) return Promise.resolve([]);
+            if (asatidzActivityId === kegiatanId && allAsatidz.length) return Promise.resolve(allAsatidz);
+            return fetch('api/get-asatidz.php?kegiatan_id=' + encodeURIComponent(kegiatanId))
+                .then(function(res) { return res.json(); })
+                .then(function(data) {
+                    if (!data.success) throw new Error(data.error || 'Daftar asatidz gagal dimuat.');
+                    allAsatidz = data.asatidz;
+                    asatidzActivityId = kegiatanId;
+                    return allAsatidz;
+                });
+        }
+
+        // Search asatidz
+        function searchAsatidz() {
+            var keyword = document.getElementById("searchAsatidz").value.toLowerCase();
+            if (keyword.length < 2) {
+                document.getElementById("searchResultsAsatidz").style.display = 'none';
+                return;
+            }
+            loadAsatidzList().then(function(asatidz) {
+                var filtered = asatidz.filter(function(person) {
+                    return person.nama.toLowerCase().includes(keyword);
+                });
+                var resultsDiv = document.getElementById("searchResultsAsatidz");
+                resultsDiv.textContent = '';
+                if (!filtered.length) {
+                    var empty = document.createElement('div');
+                    empty.className = 'search-result-item';
+                    empty.textContent = 'Asatidz belum terdaftar atau belum ditugaskan ke kegiatan ini. Kelola melalui Manajemen Asatidz.';
+                    resultsDiv.appendChild(empty);
+                } else {
+                    filtered.forEach(function(person) {
+                        var item = document.createElement('div');
+                        item.className = 'search-result-item';
+                        item.tabIndex = 0;
+                        var details = [person.mata_pelajaran, person.jabatan].filter(Boolean).join(' / ') || 'Tidak ada mata pelajaran atau jabatan';
+                        var roleLabels = { masul: "Mas'ul", musyrif: 'Musyrif', pengampu: 'Pengampu' };
+                        item.textContent = person.nama + ' â€” ' + details + (person.peran ? ' Â· ' + (roleLabels[person.peran] || person.peran) : '');
+                        item.addEventListener('click', function() { pilihAsatidz(person); });
+                        item.addEventListener('keydown', function(event) {
+                            if (event.key === 'Enter' || event.key === ' ') pilihAsatidz(person);
+                        });
+                        resultsDiv.appendChild(item);
+                    });
+                }
+                resultsDiv.style.display = 'block';
+            }).catch(function(error) {
+                console.error('Gagal memuat asatidz:', error);
+                alert(error.message);
+            });
+        }
+
+        function pilihAsatidz(person) {
+            document.getElementById("selectedAsatidzId").value = person.id;
+            document.getElementById("selectedAsatidzNama").value = person.nama;
+            document.getElementById("selectedAsatidzMapel").value =
+                [person.mata_pelajaran, person.jabatan].filter(Boolean).join(' / ') || '-';
+            var roleLabels = { masul: "Mas'ul", musyrif: 'Musyrif', pengampu: 'Pengampu' };
+            document.getElementById("selectedAsatidzPeran").value = person.peran ? (roleLabels[person.peran] || person.peran) : 'Belum ditentukan';
+            document.getElementById("searchAsatidz").value = '';
+            document.getElementById("searchResultsAsatidz").style.display = 'none';
+            document.getElementById("form-asatidz").style.display = 'block';
+        }
+
+        // Simpan ketidakhadiran asatidz
+        function simpanKetidakhadiranAsatidz() {
+            if (!canEditCurrentReport) {
+                alert('Laporan dikirim Supervisor lain dan hanya dapat diubah Admin atau pengirimnya.');
+                return;
+            }
+            var kegiatanId = document.getElementById("inputKegiatan").value;
+            var tanggal = document.getElementById("inputTanggal").value;
+            var asatidzId = document.getElementById("selectedAsatidzId").value;
+            var status = document.getElementById("inputStatusAsatidz").value;
+            var keterangan = document.getElementById("inputKeteranganAsatidz").value;
+            var tindakLanjut = document.getElementById("inputTindakLanjutAsatidz").value;
+            
+            if (!kegiatanId || !tanggal || !asatidzId) {
+                alert('Data tidak lengkap!');
+                return;
+            }
+            
+            fetch('api/save-absensi-asatidz.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    kegiatan_id: kegiatanId,
+                    tanggal: tanggal,
+                    asatidz_id: asatidzId,
+                    status: status,
+                    keterangan: keterangan,
+                    tindak_lanjut: tindakLanjut
+                })
+            })
+            .then(async function(res) {
+                var data = await res.json();
+                if (!res.ok) throw new Error(data.error || 'Data ustadz gagal disimpan.');
+                return data;
+            })
+            .then(function(data) {
+                if (data.success) {
+                    alert('Data asatidz berhasil disimpan!');
+                    resetFormAsatidz();
+                    loadDaftarAsatidzTidakHadir();
+                } else {
+                    alert('Error: ' + data.error);
+                }
+            })
+            .catch(function(error) {
+                console.error('Error:', error);
+                alert(error.message || 'Terjadi kesalahan');
+            });
+        }
+
+        // Load daftar asatidz tidak hadir
+        function loadDaftarAsatidzTidakHadir() {
+            var kegiatanId = document.getElementById("inputKegiatan").value;
+            var tanggal = document.getElementById("inputTanggal").value;
+            
+            if (!kegiatanId || !tanggal) return;
+            
+            fetch('api/get-absensi-asatidz-hari-ini.php?kegiatan_id=' + kegiatanId + '&tanggal=' + tanggal)
+                .then(function(res) { return res.json(); })
+                .then(function(data) {
+                    if (data.success) {
+                        var tbody = document.getElementById("daftar-asatidz-tidak-hadir-body");
+                        tbody.textContent = '';
+                        if (data.asatidz.length === 0) {
+                            var emptyRow = tbody.insertRow();
+                            var emptyCell = emptyRow.insertCell();
+                            emptyCell.colSpan = 8;
+                            emptyCell.className = 'text-center';
+                            emptyCell.textContent = 'Belum ada catatan ketidakhadiran asatidz untuk kegiatan dan tanggal ini.';
+                        } else {
+                            data.asatidz.forEach(function(item, index) {
+                                var row = tbody.insertRow();
+                                [
+                                    index + 1,
+                                    item.nama_asatidz,
+                                    item.mata_pelajaran || '-',
+                                    item.peran ? ({ masul: "Mas'ul", musyrif: 'Musyrif', pengampu: 'Pengampu' }[item.peran] || item.peran) : '-'
+                                ].forEach(function(value) {
+                                    row.insertCell().textContent = value;
+                                });
+                                var statusCell = row.insertCell();
+                                var badge = document.createElement('span');
+                                badge.className = 'badge badge-' + item.status;
+                                badge.textContent = item.status;
+                                statusCell.appendChild(badge);
+                                row.insertCell().textContent = item.keterangan || '-';
+                                row.insertCell().textContent = item.tindak_lanjut || '-';
+                                var actionCell = row.insertCell();
+                                var deleteButton = document.createElement('button');
+                                deleteButton.type = 'button';
+                                deleteButton.className = 'btn-hapus';
+                                deleteButton.textContent = 'Hapus';
+                                deleteButton.disabled = !canEditCurrentReport;
+                                deleteButton.addEventListener('click', function() { hapusAbsensiAsatidz(item.id); });
+                                actionCell.appendChild(deleteButton);
+                            });
+                        }
+                    } else {
+                        throw new Error(data.error || 'Catatan absensi asatidz gagal dimuat.');
+                    }
+                })
+                .catch(function(error) {
+                    console.error('Error:', error);
+                    alert(error.message || 'Catatan absensi asatidz gagal dimuat.');
+                });
+        }
+
+        // Hapus absensi asatidz
+        function hapusAbsensiAsatidz(id) {
+            if (confirm('Yakin ingin menghapus data ini?')) {
+                fetch('api/delete-absensi-asatidz.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id: id })
+                })
+                .then(function(res) { return res.json(); })
+                .then(function(data) {
+                    if (data.success) {
+                        alert('Data berhasil dihapus!');
+                        loadDaftarAsatidzTidakHadir();
+                    } else {
+                        alert('Error: ' + data.error);
+                    }
+                })
+                .catch(function(error) {
+                    console.error('Error:', error);
+                    alert('Terjadi kesalahan');
+                });
+            }
+        }
+
+        // Reset form asatidz
+        function resetFormAsatidz() {
+            document.getElementById("selectedAsatidzId").value = '';
+            document.getElementById("selectedAsatidzNama").value = '';
+            document.getElementById("selectedAsatidzMapel").value = '';
+            document.getElementById("selectedAsatidzPeran").value = '';
+            document.getElementById("inputStatusAsatidz").value = 'izin';
+            document.getElementById("inputKeteranganAsatidz").value = '';
+            document.getElementById("inputTindakLanjutAsatidz").value = '';
+            document.getElementById("form-asatidz").style.display = 'none';
+            document.getElementById("searchAsatidz").value = '';
+        }
+
+        // Tampilkan section asatidz saat kegiatan dipilih
+        function checkAsatidzSection() {
+            var kegiatanId = document.getElementById("inputKegiatan").value;
+            var sectionAsatidz = document.getElementById("section-asatidz");
+            
+            if (kegiatanId) {
+                if (asatidzActivityId !== kegiatanId) {
+                    asatidzActivityId = '';
+                    allAsatidz = [];
+                }
+                sectionAsatidz.style.display = 'block';
+                loadAsatidzList().catch(function(error) {
+                    console.error('Gagal memuat daftar asatidz:', error);
+                });
+                loadDaftarAsatidzTidakHadir();
+            } else {
+                sectionAsatidz.style.display = 'none';
+            }
+        }
+
+        // Update fungsi loadDataKegiatan untuk panggil checkAsatidzSection
+        var originalLoadDataKegiatan = loadDataKegiatan;
+        loadDataKegiatan = function() {
+            originalLoadDataKegiatan();
+            checkAsatidzSection();
+        };
+    </script>
+    <script src="js/auth.js?v=20261023-4"></script>
+  <script src="js/role-guard.js?v=20261023-4"></script>
+  <script src="js/theme.js?v=20261023-9"></script>
+</body>
+</html>

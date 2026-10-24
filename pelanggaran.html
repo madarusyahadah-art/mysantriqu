@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#114d35">
+    <link rel="manifest" href="manifest.webmanifest">
+    <link rel="apple-touch-icon" href="assets/app-icon-192.png">
+    <title>Input Pelanggaran - Recording Mahasantri</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f5f5; }
+        .navbar {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 1rem 2rem; background: #2d5016; color: white;
+        }
+        .nav-brand { display: flex; align-items: center; gap: 10px; font-size: 1.2rem; font-weight: bold; }
+        .nav-logo { width: 40px; height: 40px; }
+        .nav-user { display: flex; align-items: center; gap: 15px; }
+        .user-photo { width: 35px; height: 35px; border-radius: 50%; }
+        .btn-logout { padding: 8px 16px; background: #dc3545; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        .container { max-width: 1200px; margin: 2rem auto; padding: 0 2rem; }
+        h1 { margin-bottom: 1.5rem; color: #2d5016; }
+        .btn-back {
+            display: inline-block; margin-bottom: 1rem; padding: 10px 20px;
+            background: #2d5016; color: white; text-decoration: none; border-radius: 5px;
+        }
+        .btn { padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-size: 14px; }
+        .btn-primary { background: #28a745; color: white; }
+        .btn-secondary { background: #6c757d; color: white; }
+        .card {
+            background: white; border-radius: 10px; padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 20px;
+        }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: bold; color: #333; }
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px;
+        }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #eee; }
+        th { background: #f8f9fa; font-weight: bold; color: #2d5016; }
+        .poin-input { width: 100px; padding: 5px 10px; border: 1px solid #ddd; border-radius: 5px; }
+        .keterangan-input { width: 100%; padding: 5px 10px; border: 1px solid #ddd; border-radius: 5px; }
+    </style>
+    <link rel="stylesheet" href="style.css?v=20261023-4">
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+</head>
+<body data-access="supervisor">
+    <nav class="navbar">
+        <div class="nav-brand">
+            <img src="assets/Logo.png" alt="Logo" class="nav-logo">
+            <ion-icon name="school-outline" aria-hidden="true"></ion-icon>
+            <span>Recording Mahasantri</span>
+        </div>
+        <div class="nav-user">
+            <img id="user-photo" src="" alt="User" class="user-photo">
+            <span id="user-name">Loading...</span>
+            <button id="btn-logout" class="btn-logout"><ion-icon name="log-out-outline" aria-hidden="true"></ion-icon> Logout</button>
+        </div>
+    </nav>
+
+    <div class="container">
+        <a href="dashboard.html" class="btn-back"><ion-icon name="arrow-back-outline" aria-hidden="true"></ion-icon> Kembali ke Dashboard</a>
+        <h1><span class="page-heading-icon"><ion-icon name="alert-circle-outline" aria-hidden="true"></ion-icon></span> Input Pelanggaran</h1>
+        
+        <div class="card">
+            <section id="catalog-management" style="display:none; margin-bottom:1.5rem;">
+                <h2>Manajemen Jenis Pelanggaran</h2>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="catalog-name">Nama jenis pelanggaran</label>
+                        <input id="catalog-name" maxlength="150" type="text">
+                    </div>
+                    <div class="form-group">
+                        <label for="catalog-points">Poin default</label>
+                        <input id="catalog-points" type="number" min="0" max="100000" value="0">
+                    </div>
+                </div>
+                <button type="button" class="btn btn-primary" onclick="saveCatalogType()">Tambah jenis</button>
+                <div id="catalog-list"></div>
+            </section>
+            <h2>Form Pelanggaran</h2>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Tanggal *</label>
+                    <input type="date" id="pelanggaranTanggal" required>
+                </div>
+                <div class="form-group">
+                    <label>Filter Angkatan</label>
+                    <select id="filterAngkatan" onchange="loadSantri()">
+                        <option value="">Semua Angkatan</option>
+                        <option value="2024">2024</option>
+                        <option value="2025">2025</option>
+                        <option value="2026">2026</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Daftar Santri</h2>
+            <p>Total: <strong id="totalSantri">0</strong> santri</p>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>No</th>
+                        <th>Nama Santri</th>
+                        <th>Angkatan</th>
+                        <th>Jenis Pelanggaran</th>
+                        <th>Poin</th>
+                        <th>Keterangan</th>
+                    </tr>
+                </thead>
+                <tbody id="santri-table-body">
+                    <tr><td colspan="6">Memuat data...</td></tr>
+                </tbody>
+            </table>
+            
+            <div style="margin-top: 20px; text-align: right;">
+                <button class="btn btn-secondary" onclick="resetForm()">Reset</button>
+                <button class="btn btn-primary" onclick="simpanPelanggaran()">Simpan Pelanggaran</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        console.log("Pelanggaran page loaded");
+        
+        const user_id = localStorage.getItem("user_id");
+        let catalogTypes = [];
+        
+        if (!user_id) {
+            window.location.href = "index.html";
+        }
+        
+        
+        // Set tanggal default hari ini
+        var today = new Date().toISOString().split('T')[0];
+        document.getElementById("pelanggaranTanggal").value = today;
+        
+        function escapeHtml(value) {
+            return String(value).replace(/[&<>"']/g, function(character) {
+                return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[character];
+            });
+        }
+
+        async function loadCatalog() {
+            const response = await fetch("api/get-jenis-pelanggaran.php");
+            const data = await response.json();
+            if (!response.ok || !data.success) throw new Error(data.error || "Daftar jenis pelanggaran gagal dimuat.");
+            catalogTypes = data.jenis_pelanggaran;
+            const list = document.getElementById("catalog-list");
+            if (list) {
+                list.innerHTML = catalogTypes.map(function(type) {
+                    return '<p>' + escapeHtml(type.nama) + ' Â· ' + Number(type.poin_default) + ' poin ' +
+                        '<button type="button" onclick="editCatalogType(' + Number(type.id) + ')">Ubah</button> ' +
+                        '<button type="button" onclick="deactivateCatalogType(' + Number(type.id) + ')">Nonaktifkan</button></p>';
+                }).join("") || "<p>Belum ada jenis pelanggaran.</p>";
+            }
+        }
+
+        async function saveCatalogType() {
+            const nama = document.getElementById("catalog-name").value.trim();
+            const poin_default = Number(document.getElementById("catalog-points").value);
+            try {
+                const response = await fetch("api/manage-jenis-pelanggaran.php", {
+                    method: "POST", headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ nama: nama, poin_default: poin_default })
+                });
+                const data = await response.json();
+                if (!response.ok || !data.success) throw new Error(data.error || "Jenis pelanggaran gagal disimpan.");
+                document.getElementById("catalog-name").value = "";
+                await loadCatalog();
+                await loadSantri();
+            } catch (error) { alert(error.message); }
+        }
+
+        async function deactivateCatalogType(id) {
+            if (!confirm("Nonaktifkan jenis pelanggaran ini? Catatan lama tetap dipertahankan.")) return;
+            try {
+                const response = await fetch("api/manage-jenis-pelanggaran.php", {
+                    method: "POST", headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ action: "deactivate", id: id })
+                });
+                const data = await response.json();
+                if (!response.ok || !data.success) throw new Error(data.error || "Jenis pelanggaran gagal dinonaktifkan.");
+                await loadCatalog();
+                await loadSantri();
+            } catch (error) { alert(error.message); }
+        }
+
+        async function editCatalogType(id) {
+            const type = catalogTypes.find(function(item) { return item.id === id; });
+            if (!type) return;
+            const nama = prompt("Nama jenis pelanggaran:", type.nama);
+            if (nama === null) return;
+            const pointsText = prompt("Poin default:", String(type.poin_default));
+            if (pointsText === null) return;
+            try {
+                const response = await fetch("api/manage-jenis-pelanggaran.php", {
+                    method: "POST", headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ id: id, nama: nama.trim(), poin_default: Number(pointsText) })
+                });
+                const data = await response.json();
+                if (!response.ok || !data.success) throw new Error(data.error || "Jenis pelanggaran gagal diperbarui.");
+                await loadCatalog();
+                await loadSantri();
+            } catch (error) { alert(error.message); }
+        }
+
+        // Load santri
+        function loadSantri() {
+            var filterAngkatan = document.getElementById("filterAngkatan").value;
+            var url = 'api/get-santri.php';
+            if (filterAngkatan) {
+                url += '?angkatan=' + filterAngkatan;
+            }
+            
+            Promise.all([fetch(url), loadCatalog()])
+                .then(function(responses) { return responses[0].json(); })
+                .then(function(data) {
+                    if (data.success) {
+                        var tbody = document.getElementById("santri-table-body");
+                        document.getElementById("totalSantri").textContent = data.santri.length;
+                        
+                        if (data.santri.length === 0) {
+                            tbody.innerHTML = '<tr><td colspan="6">Tidak ada santri</td></tr>';
+                        } else {
+                            var html = '';
+                            data.santri.forEach(function(s, index) {
+                                html += '<tr>';
+                                html += '<td>' + (index + 1) + '</td>';
+                                html += '<td>' + escapeHtml(s.nama) + '</td>';
+                                html += '<td>' + escapeHtml(s.angkatan || '-') + '</td>';
+                                html += '<td>';
+                                html += '<select class="jenis-select" data-santri-id="' + Number(s.id) + '">';
+                                html += '<option value="">-- Pilih Jenis --</option>';
+                                catalogTypes.forEach(function(type) {
+                                    html += '<option value="' + Number(type.id) + '" data-points="' + Number(type.poin_default) + '">' + escapeHtml(type.nama) + '</option>';
+                                });
+                                html += '</select>';
+                                html += '</td>';
+                                html += '<td><input type="number" class="poin-input" data-santri-id="' + Number(s.id) + '" placeholder="0" min="0"></td>';
+                                html += '<td><input type="text" class="keterangan-input" data-santri-id="' + Number(s.id) + '" placeholder="Keterangan (opsional)"></td>';
+                                html += '</tr>';
+                            });
+                            tbody.innerHTML = html;
+                            tbody.querySelectorAll(".jenis-select").forEach(function(select) {
+                                select.addEventListener("change", function() {
+                                    const selected = select.options[select.selectedIndex];
+                                    const points = tbody.querySelector('.poin-input[data-santri-id="' + select.dataset.santriId + '"]');
+                                    if (selected.dataset.points) points.value = selected.dataset.points;
+                                });
+                            });
+                        }
+                    }
+                })
+                .catch(function(error) {
+                    console.error('Error:', error);
+                    alert(error.message || "Data gagal dimuat.");
+                });
+        }
+        
+        // Simpan pelanggaran
+        function simpanPelanggaran() {
+            var tanggal = document.getElementById("pelanggaranTanggal").value;
+            
+            if (!tanggal) {
+                alert('Tanggal wajib diisi!');
+                return;
+            }
+            
+            // Ambil data pelanggaran dari tabel
+            var pelanggaranData = [];
+            document.querySelectorAll('.jenis-select').forEach(function(select) {
+                var santriId = select.dataset.santriId;
+                var jenis = select.value;
+                var poin = document.querySelector('.poin-input[data-santri-id="' + santriId + '"]').value;
+                var keterangan = document.querySelector('.keterangan-input[data-santri-id="' + santriId + '"]').value;
+                
+                if (jenis && poin > 0) {
+                    pelanggaranData.push({
+                        santri_id: santriId,
+                        tanggal: tanggal,
+                        jenis_pelanggaran_id: parseInt(jenis, 10),
+                        poin: parseInt(poin),
+                        keterangan: keterangan
+                    });
+                }
+            });
+            
+            if (pelanggaranData.length === 0) {
+                alert('Tidak ada data pelanggaran yang diisi!');
+                return;
+            }
+            
+            // Kirim ke API
+            fetch('api/save-pelanggaran.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    user_id: user_id,
+                    pelanggaran: pelanggaranData
+                })
+            })
+            .then(function(res) { return res.json(); })
+            .then(function(data) {
+                if (data.success) {
+                    alert('Pelanggaran berhasil disimpan! Total: ' + data.total + ' data');
+                    resetForm();
+                } else {
+                    alert('Error: ' + data.error);
+                }
+            })
+            .catch(function(error) {
+                console.error('Error:', error);
+                alert('Terjadi kesalahan');
+            });
+        }
+        
+        // Reset form
+        function resetForm() {
+            document.getElementById("pelanggaranTanggal").value = new Date().toISOString().split('T')[0];
+            document.getElementById("filterAngkatan").value = "";
+            Promise.all([loadCatalog(), loadSantri()]).catch(function(error) { alert(error.message); });
+        }
+        
+        // Load data saat halaman dibuka
+        loadSantri();
+        
+        // Logout
+        document.getElementById("btn-logout").addEventListener("click", function() {
+            localStorage.removeItem("user_data");
+            localStorage.removeItem("user_id");
+            localStorage.removeItem("user_role");
+            window.location.href = "index.html";
+        });
+    </script>
+    <script src="js/role-guard.js?v=20261023-4"></script>
+    <script src="js/auth.js?v=20261023-4"></script>
+    <script src="js/theme.js?v=20261023-9"></script>
+</body>
+</html>

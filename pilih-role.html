@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#114d35">
+  <title>Menunggu Penetapan Role - MySantriQu</title>
+  <link rel="stylesheet" href="style.css?v=20261023-4">
+  <style>
+    body { min-height: 100vh; display: grid; place-items: center; padding: 24px; }
+    .role-card { width: min(100%, 620px); padding: clamp(24px, 5vw, 40px); color: #f1fff5; background: rgba(5, 25, 16, 0.91); border: 1px solid rgba(154, 230, 180, 0.28); border-radius: 20px; box-shadow: 0 24px 65px rgba(0, 0, 0, 0.4); backdrop-filter: blur(18px); }
+    .role-card h1 { color: #f1fff5; }
+    .role-card p { color: #c6e6d0; line-height: 1.65; }
+    #role-email { color: #a7f3c0; overflow-wrap: anywhere; }
+    #role-error { color: #fecaca; }
+    html[data-theme="light"] .role-card { color: #153728; background: rgba(250, 255, 251, 0.94); border-color: rgba(17, 77, 53, 0.2); }
+    html[data-theme="light"] .role-card h1 { color: #123526; }
+    html[data-theme="light"] .role-card p { color: #456657; }
+    html[data-theme="light"] #role-email { color: #176a43; }
+    html[data-theme="light"] #role-error { color: #b42318; }
+  </style>
+</head>
+<body>
+  <main class="role-card">
+    <h1>Akun menunggu penetapan role</h1>
+    <p>Role akun ditentukan oleh admin. Hubungi admin agar akun Anda dapat diaktifkan. Anda tidak dapat memilih atau mengubah role sendiri.</p>
+    <p id="role-email"></p>
+    <p id="role-error" role="alert"></p>
+    <button class="btn btn-secondary" type="button" id="logout">Keluar</button>
+  </main>
+  <script>
+    const errorBox = document.getElementById("role-error");
+    fetch("api/session.php", { credentials: "same-origin" })
+      .then(async (response) => {
+        const data = await response.json();
+        if (!response.ok || !data.success) throw new Error(data.error || "Sesi login tidak ditemukan.");
+        if (data.user.role_selected) {
+          window.location.replace("dashboard.html");
+          return;
+        }
+        document.getElementById("role-email").textContent = data.user.email || "";
+      })
+      .catch((error) => { errorBox.textContent = error.message; });
+
+    document.getElementById("logout").addEventListener("click", async () => {
+      try {
+        const response = await fetch("api/logout.php", { method: "POST", credentials: "same-origin" });
+        const data = await response.json();
+        if (!response.ok || !data.success) throw new Error(data.error || "Logout gagal.");
+        window.location.href = "index.html";
+      } catch (error) {
+        errorBox.textContent = error.message;
+      }
+    });
+  </script>
+  <script src="js/theme.js?v=20261023-9"></script>
+</body>
+</html>

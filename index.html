@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#114d35" />
+    <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="apple-touch-icon" href="assets/app-icon-192.png" />
+    <title>Login</title>
+    <link rel="stylesheet" href="style.css?v=20261023-4" />
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+  </head>
+
+  <body>
+    <div class="login-box">
+      <div class="brand-logo">
+        <img src="assets/Logo.png" alt="Ahlan para Musyrif Sejati logo" />
+      </div>
+      <div class="brand-badge"><ion-icon name="leaf-outline"></ion-icon> Sistem Pendidikan</div>
+      <form class="login-form" id="auth-form" action="#" method="POST" novalidate>
+        <h2 class="brand-title">Ahlan Wa Sahlan</h2>
+        <h2 id="auth-title">Login</h2>
+        <p id="auth-help" class="register-text" hidden></p>
+
+        <div class="input-box">
+          <span class="icon"><ion-icon name="mail-outline"></ion-icon></span>
+          <input type="email" id="email" name="email" placeholder="Email" autocomplete="email" required />
+          <label for="email">Email</label>
+        </div>
+
+        <div class="input-box" id="name-field" hidden>
+          <span class="icon"><ion-icon name="person-outline"></ion-icon></span>
+          <input type="text" id="name" name="name" placeholder="Nama lengkap" autocomplete="name" />
+          <label for="name">Nama lengkap</label>
+        </div>
+
+        <div class="input-box" id="password-field">
+          <span class="icon"><ion-icon name="lock-closed-outline"></ion-icon></span>
+          <input type="password" id="password" name="password" placeholder="Password" autocomplete="current-password" maxlength="72" required />
+          <label for="password">Password</label>
+        </div>
+
+        <div class="input-box" id="confirm-password-field" hidden>
+          <span class="icon"><ion-icon name="lock-closed-outline"></ion-icon></span>
+          <input type="password" id="confirm-password" name="confirm_password" placeholder="Ulangi password" autocomplete="new-password" maxlength="72" />
+          <label for="confirm-password">Ulangi password</label>
+        </div>
+
+        <div class="remember-forgot" id="remember-options">
+          <label><input type="checkbox" id="remember-me" /> Ingat akun ini di perangkat</label>
+          <a href="#" id="forgot-link">Lupa Password?</a>
+        </div>
+
+        <div class="remembered-accounts" id="remembered-accounts" hidden>
+          <label for="remembered-account">Akun yang pernah diingat</label>
+          <div class="remembered-account-row">
+            <select id="remembered-account">
+              <option value="">Pilih akun</option>
+            </select>
+            <button type="button" id="forget-account" class="text-button" aria-label="Hapus akun terpilih dari daftar">Hapus</button>
+          </div>
+        </div>
+
+        <p id="auth-message" class="auth-message" role="status" aria-live="polite" hidden></p>
+        <button type="submit" id="submit-button">Login</button>
+        <button type="button" class="text-button back-button" id="back-to-login" hidden>Kembali ke Login</button>
+
+        <div class="divider" id="login-divider"><span>atau</span></div>
+
+        <button type="button" class="google-btn" id="google-button">
+          <span class="google-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" role="img" aria-label="Google logo">
+              <path fill="#EA4335" d="M12 10.2v3.9h5.5c-.2 1.3-1.6 3.9-5.5 3.9-3.3 0-6-2.7-6-6s2.7-6 6-6c1.9 0 3.2.8 3.9 1.5l2.7-2.6C16.9 3.2 14.7 2.2 12 2.2 6.9 2.2 2.7 6.4 2.7 11.5S6.9 20.8 12 20.8c6.9 0 11.4-4.8 11.4-11.6 0-.8-.1-1.4-.2-2H12v3.9z"/>
+              <path fill="#34A853" d="M3.8 7.2l3.7 2.7c1-.9 2.3-1.4 4.5-1.4 1.9 0 3.2.8 3.9 1.5l2.7-2.6C16.9 3.2 14.7 2.2 12 2.2c-3.4 0-6.3 1.9-8.2 4.9z"/>
+              <path fill="#FBBC05" d="M12 20.8c2.5 0 4.5-.8 6-2.3l-2.8-2.3c-.8.6-1.9 1.1-3.2 1.1-3.9 0-5.3-2.6-5.5-3.9l-3.1 2.4C2.5 18.5 6.7 20.8 12 20.8z"/>
+              <path fill="#4285F4" d="M3.8 7.2A9.5 9.5 0 0 0 3.2 11.5c0 .8.1 1.5.3 2.2l3.8-2.8c-.2-.5-.3-1-.3-1.4 0-.5.1-1 .3-1.5l-3.5-2.8z"/>
+            </svg>
+          </span>
+          Lanjutkan dengan Google
+        </button>
+
+        <p class="register-text">
+          <span id="register-prompt">Belum punya akun?</span>
+          <a href="#" id="register-link">Buat Akun</a>
+        </p>
+      </form>
+    </div>
+    <script src="js/login.js?v=20261023-4"></script>
+    <script src="js/theme.js?v=20261023-9"></script>
+  </body>
+</html>

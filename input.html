@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#114d35">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" href="assets/app-icon-192.png">
+  <title>Input Ketidakhadiran - Recording Mahasantri</title>
+  <link rel="stylesheet" href="style.css?v=20261023-4">
+  <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+  <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="nav-brand">
+      <img src="assets/Logo.png" alt="Logo" class="nav-logo">
+      <ion-icon name="school-outline" aria-hidden="true"></ion-icon>
+      <span>Recording Mahasantri</span>
+    </div>
+    <a class="btn-back" href="dashboard.html"><ion-icon name="arrow-back-outline" aria-hidden="true"></ion-icon> Kembali ke Dashboard</a>
+  </nav>
+  <main class="container">
+    <h1><span class="page-heading-icon"><ion-icon name="clipboard-outline" aria-hidden="true"></ion-icon></span> Input Ketidakhadiran</h1>
+    <div class="card" style="max-width: 640px; margin: auto">
+      <h2><ion-icon name="calendar-outline" aria-hidden="true"></ion-icon> Pilih Kegiatan dan Tanggal</h2>
+      <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 12px; margin-top: 12px">
+        <div><label for="kegiatan">Pilih Kegiatan</label>
+          <select id="kegiatan"><option>Tahfidz Pagi</option><option>Shalat Jamaah</option><option>KBM</option></select></div>
+        <div><label for="tanggal">Tanggal</label><input type="date" id="tanggal"></div>
+      </div>
+
+      <h3 style="margin-top: 16px"><ion-icon name="person-add-outline" aria-hidden="true"></ion-icon> Tambah Santri yang Tidak Hadir</h3>
+      <input id="cari" placeholder="Ketik nama atau NIS santri..." oninput="cariSantri(this.value)">
+      <div id="hasil"></div>
+
+      <label for="alasan">Alasan Ketidakhadiran</label>
+      <div style="display: flex; gap: 10px">
+        <select id="alasan"><option>Sakit</option><option>Izin Orang Tua</option><option>Tanpa Keterangan</option></select>
+        <button class="btn btn-primary" onclick="tambah()"><ion-icon name="add-outline" aria-hidden="true"></ion-icon> Tambah ke Daftar</button>
+      </div>
+
+      <h3 style="margin-top: 16px"><ion-icon name="list-outline" aria-hidden="true"></ion-icon> Daftar Santri (<span id="jml">0</span>)</h3>
+      <table><thead><tr><th>No</th><th>Nama Santri</th><th>Alasan</th><th>Aksi</th></tr></thead>
+             <tbody id="daftar"></tbody></table>
+
+      <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 10px; margin-top: 16px">
+        <button class="btn btn-outline" onclick="batal()"><ion-icon name="close-outline" aria-hidden="true"></ion-icon> Batal</button>
+        <button class="btn btn-green" onclick="simpan()"><ion-icon name="save-outline" aria-hidden="true"></ion-icon> Simpan Semua</button>
+      </div>
+    </div>
+  </main>
+    <script src="js/theme.js?v=20261023-9"></script>
+</body>
+</html>

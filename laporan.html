@@ -1,0 +1,923 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#114d35">
+    <link rel="manifest" href="manifest.webmanifest">
+    <link rel="apple-touch-icon" href="assets/app-icon-192.png">
+    <title>Laporan - Recording Mahasantri</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f5f5; }
+        .navbar {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 1rem 2rem; background: #2d5016; color: white;
+        }
+        .nav-brand { display: flex; align-items: center; gap: 10px; font-size: 1.2rem; font-weight: bold; }
+        .nav-logo { width: 40px; height: 40px; }
+        .nav-user { display: flex; align-items: center; gap: 15px; }
+        .user-photo { width: 35px; height: 35px; border-radius: 50%; }
+        .btn-logout { padding: 8px 16px; background: #dc3545; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        .container { max-width: 1400px; margin: 2rem auto; padding: 0 2rem; }
+        h1 { margin-bottom: 1.5rem; color: #2d5016; }
+        .btn-back {
+            display: inline-block; margin-bottom: 1rem; padding: 10px 20px;
+            background: #2d5016; color: white; text-decoration: none; border-radius: 5px;
+        }
+        .btn { padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-size: 14px; margin-right: 5px; }
+        .btn-primary { background: #28a745; color: white; }
+        .btn-secondary { background: #6c757d; color: white; }
+        .btn-excel { background: #217346; color: white; }
+        .card {
+            background: white; border-radius: 10px; padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 20px;
+        }
+        .filter-section {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px; margin-bottom: 20px;
+        }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: bold; color: #333; font-size: 14px; }
+        .form-group input, .form-group select {
+            width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px;
+        }
+        .preset-buttons { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
+        .preset-btn {
+            padding: 8px 15px; background: #f8f9fa; border: 1px solid #ddd;
+            border-radius: 5px; cursor: pointer; font-size: 13px;
+        }
+        .preset-btn:hover { background: #2d5016; color: white; border-color: #2d5016; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { padding: 10px; text-align: left; border-bottom: 1px solid #eee; font-size: 14px; }
+        th { background: #f8f9fa; font-weight: bold; color: #2d5016; position: sticky; top: 0; }
+        .table-container { max-height: 500px; overflow-y: auto; }
+        .text-center { text-align: center; }
+        .text-right { text-align: right; }
+        .total-row { background: #f8f9fa; font-weight: bold; }
+        .alpha-high { color: #dc3545; font-weight: bold; }
+        .tab-container { display: flex; gap: 10px; margin-bottom: 20px; }
+        .tab {
+            padding: 10px 20px; background: #f8f9fa; border: 2px solid #ddd;
+            border-radius: 5px 5px 0 0; cursor: pointer; font-weight: bold;
+        }
+        .tab.active { background: #2d5016; color: white; border-color: #2d5016; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .badge-izin { background: #fff3cd; color: #856404; }
+        .badge-sakit { background: #fff3cd; color: #856404; }
+        .badge-berhalangan { background: #f8d7da; color: #721c24; }
+        .badge-lainnya { background: #d1ecf1; color: #0c5460; }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; }
+        .modal.active { display: flex; }
+        .badge-status-belum { background: #f8d7da; color: #721c24; }
+        .badge-status-diproses { background: #fff3cd; color: #856404; }
+        .badge-status-selesai { background: #d4edda; color: #155724; }
+        .bar-chart { background: #2d5016; height: 20px; border-radius: 3px; }
+        .trend-chart {
+            display: flex; align-items: flex-end; gap: 10px; min-height: 220px;
+            padding: 18px 8px 0; overflow-x: auto; border-bottom: 1px solid #ddd;
+        }
+        .trend-column {
+            display: flex; flex: 1 0 46px; min-width: 46px; height: 200px;
+            flex-direction: column; align-items: center; justify-content: flex-end; gap: 5px;
+        }
+        .trend-count { color: #444; font-size: 12px; }
+        .trend-bar { width: 70%; max-height: 150px; min-height: 2px; flex-shrink: 0; background: #2d5016; border-radius: 4px 4px 0 0; }
+        .trend-label { color: #666; font-size: 11px; white-space: nowrap; padding-bottom: 7px; }
+        .rank-1 { background: #ffd700; font-weight: bold; }
+        .rank-2 { background: #c0c0c0; font-weight: bold; }
+        .rank-3 { background: #cd7f32; font-weight: bold; color: white; }
+        .btn-edit-tindak { padding: 5px 10px; background: #17a2b8; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 12px; }
+    </style>
+    <link rel="stylesheet" href="style.css?v=20261023-4">
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+</head>
+<body data-access="reports">
+    <nav class="navbar">
+        <div class="nav-brand">
+            <img src="assets/Logo.png" alt="Logo" class="nav-logo">
+            <ion-icon name="school-outline" aria-hidden="true"></ion-icon>
+            <span>Recording Mahasantri</span>
+        </div>
+        <div class="nav-user">
+            <img id="user-photo" src="" alt="User" class="user-photo">
+            <span id="user-name">Loading...</span>
+            <button id="btn-logout" class="btn-logout"><ion-icon name="log-out-outline" aria-hidden="true"></ion-icon> Logout</button>
+        </div>
+    </nav>
+
+    <div class="container">
+        <a href="dashboard.html" class="btn-back"><ion-icon name="arrow-back-outline" aria-hidden="true"></ion-icon> Kembali ke Dashboard</a>
+        <h1><span class="page-heading-icon"><ion-icon name="stats-chart-outline" aria-hidden="true"></ion-icon></span> Laporan & Rekap</h1>
+        
+        <div class="tab-container">
+            <div class="tab active" onclick="switchTab('absensi')">ðŸ“‹ Laporan Absensi</div>
+            <div class="tab" onclick="switchTab('pelanggaran')">âš ï¸ Laporan Pelanggaran</div>
+        </div>
+
+        <!-- TAB ABSENSI -->
+        <div id="tab-absensi" class="tab-content active">
+            <div class="card">
+                <h2 style="margin-bottom: 15px; color: #2d5016;">Filter Laporan Absensi</h2>
+                
+                <div class="preset-buttons">
+                    <span style="font-weight: bold; margin-right: 10px;">Preset:</span>
+                    <button class="preset-btn" onclick="setPreset('week')"> Pekan Ini</button>
+                    <button class="preset-btn" onclick="setPreset('month')">ðŸ“† Bulan Ini</button>
+                    <button class="preset-btn" onclick="setPreset('mid')">ðŸ“š Mid Semester</button>
+                    <button class="preset-btn" onclick="setPreset('semester')">ðŸŽ“ Semester</button>
+                    <button class="preset-btn" onclick="setPreset('year')">ðŸ—“ï¸ Tahunan</button>
+                </div>
+                
+                <div class="filter-section">
+                    <div class="form-group">
+                        <label>Tanggal Mulai *</label>
+                        <input type="date" id="filterTanggalMulai">
+                    </div>
+                    <div class="form-group">
+                        <label>Tanggal Selesai *</label>
+                        <input type="date" id="filterTanggalSelesai">
+                    </div>
+                    <div class="form-group">
+                        <label>Kegiatan</label>
+                        <select id="filterKegiatan">
+                            <option value="">Semua Kegiatan</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Angkatan</label>
+                        <select id="filterAngkatan">
+                            <option value="">Semua Angkatan</option>
+                            <option value="2024">2024</option>
+                            <option value="2025">2025</option>
+                            <option value="2026">2026</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Asatidz</label>
+                        <select id="filterAsatidz">
+                            <option value=" ">Asatidz</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div style="text-align: right;">
+                    <button class="btn btn-secondary" onclick="resetFilter()">Reset</button>
+                    <button class="btn btn-primary" onclick="loadLaporan()">ðŸ” Tampilkan Laporan</button>
+                    <button class="btn btn-excel" onclick="exportExcel()">ðŸ“Š Export Rekap</button>
+                    <button class="btn btn-excel" onclick="exportAttendance('issues')">ðŸ“‹ Export Absensi Bermasalah</button>
+                    <button class="btn btn-excel" onclick="exportAttendance('detail')">ðŸ“š Export Semua Absensi</button>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2 style="margin-bottom: 15px; color: #2d5016;">Rekap Absensi <span id="periode-label"></span></h2>
+                <p style="margin-bottom: 12px; color: #755b00; background: #fff3cd; padding: 10px; border-radius: 5px;">
+                    Status hadir hanya dihitung pada sesi absensi lengkap yang sudah disiapkan. Catatan historis sebelum perubahan ini dipertahankan, tetapi tidak ditebak sebagai hadir.
+                </p>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>No</th>
+                                <th>Nama Santri</th>
+                                <th>Angkatan</th>
+                                <th class="text-center">Total Tercatat</th>
+                                <th class="text-center">Hadir</th>
+                                <th class="text-center">Izin</th>
+                                <th class="text-center">Sakit</th>
+                                <th class="text-center">Alpha</th>
+                                <th class="text-center">Izin Menginap</th>
+                            </tr>
+                        </thead>
+                       <tbody id="laporan-body">
+                            <tr><td colspan="9" class="text-center">Klik "Tampilkan Laporan" untuk melihat data</td></tr>
+                        </tbody>
+                        <tbody id="laporan-asatidz-body" style="display: none;">
+                        </tbody>
+                        <tfoot id="laporan-footer" style="display: none;">
+                            <tr class="total-row">
+                                <td colspan="3">TOTAL TERCATAT</td>
+                                <td class="text-center" id="total-all">0</td>
+                                <td class="text-center" id="total-hadir">0</td>
+                                <td class="text-center" id="total-izin">0</td>
+                                <td class="text-center" id="total-sakit">0</td>
+                                <td class="text-center" id="total-alpha">0</td>
+                                <td class="text-center" id="total-izin-menginap">0</td>
+                            </tr>
+                        </tfoot>
+                            </table>
+                            </div>
+
+                            <!-- Section Asatidz -->
+                            <div id="section-laporan-asatidz" style="display: none; margin-top: 30px;">
+                                <h3 style="color: #2d5016; margin-bottom: 15px;">ðŸ“š Data Ketidakhadiran Asatidz</h3>
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>No</th>
+                                            <th>Tanggal</th>
+                                            <th>Kegiatan</th>
+                                            <th>Nama Asatidz</th>
+                                            <th>Mata Pelajaran</th>
+                                            <th>Status</th>
+                                            <th>Keterangan</th>
+                                            <th>Tindak Lanjut</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="laporan-asatidz-body">
+                                    </tbody>
+                                </table>
+                            </div>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB PELANGGARAN -->
+        <div id="tab-pelanggaran" class="tab-content">
+            <div class="card">
+                <h2 style="margin-bottom: 15px; color: #2d5016;">Filter Laporan Pelanggaran</h2>
+                
+                <div class="preset-buttons">
+                    <span style="font-weight: bold; margin-right: 10px;">Preset:</span>
+                    <button class="preset-btn" onclick="setPresetPelanggaran('week')">ðŸ“… Pekan Ini</button>
+                    <button class="preset-btn" onclick="setPresetPelanggaran('month')">ðŸ“† Bulan Ini</button>
+                    <button class="preset-btn" onclick="setPresetPelanggaran('mid')"> Mid Semester</button>
+                    <button class="preset-btn" onclick="setPresetPelanggaran('semester')">ðŸŽ“ Semester</button>
+                    <button class="preset-btn" onclick="setPresetPelanggaran('year')">ðŸ—“ï¸ Tahunan</button>
+                </div>
+                
+                <div class="filter-section">
+                    <div class="form-group">
+                        <label>Tanggal Mulai *</label>
+                        <input type="date" id="filterPelanggaranMulai">
+                    </div>
+                    <div class="form-group">
+                        <label>Tanggal Selesai *</label>
+                        <input type="date" id="filterPelanggaranSelesai">
+                    </div>
+                    <div class="form-group">
+                        <label>Jenis Pelanggaran</label>
+                        <select id="filterJenisPelanggaran">
+                            <option value="">Semua Jenis</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Santri</label>
+                        <select id="filterSantriPelanggaran">
+                            <option value="">Semua Santri</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div style="text-align: right;">
+                    <button class="btn btn-secondary" onclick="resetFilterPelanggaran()">Reset</button>
+                    <button class="btn btn-primary" onclick="loadLaporanPelanggaran()">ðŸ” Tampilkan Laporan</button>
+                    <button class="btn btn-excel" onclick="exportPelanggaranExcel(false)">ðŸ“Š Export Semua Pelanggaran</button>
+                    <button class="btn btn-excel" onclick="exportPelanggaranExcel(true)">ðŸ“ Export Pelanggaran & Catatan</button>
+                </div>
+            </div>
+
+            <!-- Ranking Santri -->
+            <div class="card">
+                <h2 style="margin-bottom: 15px; color: #2d5016;">ðŸ† Ranking Santri (Total Poin Tertinggi)</h2>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Ranking</th>
+                                <th>Nama Santri</th>
+                                <th>Angkatan</th>
+                                <th class="text-center">Total Pelanggaran</th>
+                                <th class="text-center">Total Poin</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ranking-body">
+                            <tr><td colspan="5" class="text-center">Klik "Tampilkan Laporan" untuk melihat data</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Persentase per Jenis -->
+            <div class="card">
+                <h2 style="margin-bottom: 15px; color: #2d5016;">ðŸ“Š Persentase Pelanggaran per Jenis</h2>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>No</th>
+                                <th>Jenis Pelanggaran</th>
+                                <th class="text-center">Jumlah</th>
+                                <th class="text-center">Persentase</th>
+                                <th>Visualisasi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="persentase-body">
+                            <tr><td colspan="5" class="text-center">Klik "Tampilkan Laporan" untuk melihat data</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2 style="margin-bottom: 8px; color: #2d5016;">ðŸ“ˆ Perkembangan Pelanggaran</h2>
+                <p id="trend-description" style="color: #666; margin-bottom: 15px;">Jumlah pelanggaran per periode pada rentang yang dipilih.</p>
+                <div id="violation-trend-chart" class="trend-chart" role="img" aria-label="Grafik perkembangan pelanggaran">
+                    <p class="text-center">Klik "Tampilkan Laporan" untuk melihat grafik.</p>
+                </div>
+            </div>
+
+            <!-- Detail Pelanggaran -->
+            <div class="card">
+                <h2 style="margin-bottom: 15px; color: #2d5016;">ðŸ“‹ Detail Pelanggaran</h2>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>No</th>
+                                <th>Tanggal</th>
+                                <th>Nama Santri</th>
+                                <th>Angkatan</th>
+                                <th>Jenis</th>
+                                <th class="text-center">Poin</th>
+                                <th>Keterangan</th>
+                                <th>Status Tindak Lanjut</th>
+                                <th>Catatan BK</th>
+                                <th>Dilaporkan Oleh</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="detail-pelanggaran-body">
+                            <tr><td colspan="11" class="text-center">Klik "Tampilkan Laporan" untuk melihat data</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal Tindak Lanjut BK -->
+        <div class="modal" id="modalTindakLanjut" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center;">
+            <div style="background: white; padding: 30px; border-radius: 10px; width: 90%; max-width: 500px;">
+                <h2 style="color: #2d5016; margin-bottom: 20px;">Tindak Lanjut BK</h2>
+                <input type="hidden" id="tindakLanjutId">
+                <div class="form-group">
+                    <label>Status Tindak Lanjut</label>
+                    <select id="tindakLanjutStatus" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+                        <option value="belum">Belum Ditindak</option>
+                        <option value="diproses">Diproses BK</option>
+                        <option value="selesai">Selesai</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Catatan BK</label>
+                    <textarea id="tindakLanjutCatatan" rows="4" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;" placeholder="Masukkan catatan tindak lanjut..."></textarea>
+                </div>
+                <div style="text-align: right;">
+                    <button class="btn btn-secondary" onclick="tutupModalTindakLanjut()">Batal</button>
+                    <button class="btn btn-primary" onclick="simpanTindakLanjut()">Simpan</button>
+                </div>
+            </div>
+        </div>
+
+    <script>
+        console.log("Laporan page loaded");
+
+        function escapeHtml(value) {
+            return String(value == null ? '' : value).replace(/[&<>"']/g, function(character) {
+                return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[character];
+            });
+        }
+        
+        const user_id = localStorage.getItem("user_id");
+        
+        if (!user_id) {
+            window.location.href = "index.html";
+        }
+        
+        
+        // Set default tanggal (bulan ini)
+        var today = new Date();
+        var firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
+        document.getElementById("filterTanggalMulai").value = formatDate(firstDay);
+        document.getElementById("filterTanggalSelesai").value = formatDate(today);
+        
+        function formatDate(date) {
+            var y = date.getFullYear();
+            var m = String(date.getMonth() + 1).padStart(2, '0');
+            var d = String(date.getDate()).padStart(2, '0');
+            return y + '-' + m + '-' + d;
+        }
+        
+        // Load daftar kegiatan untuk filter
+        function loadKegiatanFilter() {
+            fetch('api/get-kegiatan.php')
+                .then(function(res) { return res.json(); })
+                .then(function(data) {
+                    if (data.success) {
+                        var select = document.getElementById("filterKegiatan");
+                        data.kegiatan.forEach(function(k) {
+                            if (k.is_active == 1) {
+                                var option = document.createElement("option");
+                                option.value = k.id;
+                                option.textContent = k.nama_kegiatan;
+                                select.appendChild(option);
+                            }
+                        });
+                    }
+                })
+                .catch(function(error) { console.error('Error:', error); });
+        }
+        
+        loadKegiatanFilter();
+        
+        // Preset tanggal
+        function setPreset(type) {
+            var today = new Date();
+            var mulai, selesai;
+            
+            if (type === 'week') {
+                // Senin - Minggu minggu ini
+                var day = today.getDay();
+                var diff = today.getDate() - day + (day === 0 ? -6 : 1);
+                mulai = new Date(today.setDate(diff));
+                selesai = new Date(today.setDate(mulai.getDate() + 6));
+            } else if (type === 'month') {
+                mulai = new Date(today.getFullYear(), today.getMonth(), 1);
+                selesai = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+            } else if (type === 'mid') {
+                // Mid semester: 2 bulan
+                mulai = new Date(today.getFullYear(), today.getMonth() - 2, 1);
+                selesai = today;
+            } else if (type === 'semester') {
+                // Semester: 6 bulan
+                mulai = new Date(today.getFullYear(), today.getMonth() - 6, 1);
+                selesai = today;
+            } else if (type === 'year') {
+                // Tahunan: 12 bulan
+                mulai = new Date(today.getFullYear() - 1, today.getMonth(), 1);
+                selesai = today;
+            }
+            
+            document.getElementById("filterTanggalMulai").value = formatDate(mulai);
+            document.getElementById("filterTanggalSelesai").value = formatDate(selesai);
+            
+            // Auto load
+            loadLaporan();
+        }
+        
+        function loadLaporan() {
+            var tanggalMulai = document.getElementById("filterTanggalMulai").value;
+            var tanggalSelesai = document.getElementById("filterTanggalSelesai").value;
+            var kegiatanId = document.getElementById("filterKegiatan").value;
+            var angkatan = document.getElementById("filterAngkatan").value;
+            
+            if (!tanggalMulai || !tanggalSelesai) {
+                alert('Tanggal mulai dan selesai wajib diisi!');
+                return;
+            }
+            
+            console.log("Filter:", { tanggalMulai, tanggalSelesai, kegiatanId, angkatan });
+            
+            var url = 'api/get-laporan-absensi.php?tanggal_mulai=' + tanggalMulai + 
+                    '&tanggal_selesai=' + tanggalSelesai +
+                    '&kegiatan_id=' + kegiatanId +
+                    '&angkatan=' + angkatan;
+            
+            console.log("URL:", url);
+            
+            fetch(url)
+                .then(function(res) { 
+                    console.log("Response status:", res.status);
+                    return res.json(); 
+                })
+                .then(function(data) {
+                    console.log("Data laporan:", data);
+                    
+                    if (data.success) {
+                        var tbody = document.getElementById("laporan-body");
+                        var tfoot = document.getElementById("laporan-footer");
+                        
+                        document.getElementById("periode-label").textContent = 
+                            '(' + tanggalMulai + ' s/d ' + tanggalSelesai + ')';
+                        
+                        if (!data.laporan || data.laporan.length === 0) {
+                            tbody.innerHTML = '<tr><td colspan="9" class="text-center">Tidak ada data untuk filter ini. Coba ubah filter (misal: pilih "Semua Kegiatan" dan "Semua Angkatan")</td></tr>';
+                            tfoot.style.display = 'none';
+                            return;
+                        }
+                        
+                        var html = '';
+                        var totalAll = 0, totalHadir = 0, totalIzin = 0, totalSakit = 0, totalAlpha = 0, totalIzinMenginap = 0;
+                        
+                        data.laporan.forEach(function(l, index) {
+                            var alphaClass = Number(l.alpha) > 3 ? 'alpha-high' : '';
+                            html += '<tr>';
+                            html += '<td>' + (index + 1) + '</td>';
+                            html += '<td><a href="profil-santri.html?id=' + Number(l.santri_id) + '" style="color: #2d5016; text-decoration: none; font-weight: bold;">' + escapeHtml(l.nama) + '</a></td>';
+                            html += '<td>' + escapeHtml(l.angkatan || '-') + '</td>';
+                            html += '<td class="text-center">' + Number(l.total_absensi || 0) + '</td>';
+                            html += '<td class="text-center">' + Number(l.hadir || 0) + '</td>';
+                            html += '<td class="text-center">' + Number(l.izin || 0) + '</td>';
+                            html += '<td class="text-center">' + Number(l.sakit || 0) + '</td>';
+                            html += '<td class="text-center ' + alphaClass + '">' + Number(l.alpha || 0) + '</td>';
+                            html += '<td class="text-center">' + Number(l.izin_menginap || 0) + '</td>';
+                            html += '</tr>';
+                            
+                            totalAll += parseInt(l.total_absensi || 0);
+                            totalHadir += parseInt(l.hadir || 0);
+                            totalIzin += parseInt(l.izin || 0);
+                            totalSakit += parseInt(l.sakit || 0);
+                            totalAlpha += parseInt(l.alpha || 0);
+                            totalIzinMenginap += parseInt(l.izin_menginap || 0);
+                        });
+                        
+                        tbody.innerHTML = html;
+                        
+                        document.getElementById("total-all").textContent = totalAll;
+                        document.getElementById("total-hadir").textContent = totalHadir;
+                        document.getElementById("total-izin").textContent = totalIzin;
+                        document.getElementById("total-sakit").textContent = totalSakit;
+                        document.getElementById("total-alpha").textContent = totalAlpha;
+                        document.getElementById("total-izin-menginap").textContent = totalIzinMenginap;
+                        tfoot.style.display = 'table-footer-group';
+                    } else {
+                        alert('Error: ' + data.error);
+                    }
+                })
+                .catch(function(error) {
+                    console.error('Error:', error);
+                    alert('Terjadi kesalahan. Buka Console (F12) untuk detail.');
+                });
+        }
+        
+        // Export Excel
+        function exportExcel() {
+            exportAttendance('summary');
+        }
+
+        function exportAttendance(mode) {
+            var tanggalMulai = document.getElementById("filterTanggalMulai").value;
+            var tanggalSelesai = document.getElementById("filterTanggalSelesai").value;
+            var kegiatanId = document.getElementById("filterKegiatan").value;
+            var angkatan = document.getElementById("filterAngkatan").value;
+            
+            if (!tanggalMulai || !tanggalSelesai) {
+                alert('Pilih tanggal terlebih dahulu!');
+                return;
+            }
+            
+            var url = 'api/export-absensi.php?tanggal_mulai=' + tanggalMulai + 
+                      '&tanggal_selesai=' + tanggalSelesai +
+                      '&kegiatan_id=' + kegiatanId +
+                      '&angkatan=' + angkatan +
+                      '&mode=' + encodeURIComponent(mode);
+            
+            window.open(url, '_blank');
+        }
+        
+        // Reset filter
+        function resetFilter() {
+            var today = new Date();
+            var firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
+            document.getElementById("filterTanggalMulai").value = formatDate(firstDay);
+            document.getElementById("filterTanggalSelesai").value = formatDate(today);
+            document.getElementById("filterKegiatan").value = "";
+            document.getElementById("filterAngkatan").value = "";
+            document.getElementById("laporan-body").innerHTML = '<tr><td colspan="9" class="text-center">Klik "Tampilkan Laporan" untuk melihat data</td></tr>';
+            document.getElementById("laporan-footer").style.display = 'none';
+        }
+        
+        // Switch tab
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active'); });
+            document.querySelectorAll('.tab-content').forEach(function(t) { t.classList.remove('active'); });
+            
+            event.target.classList.add('active');
+            document.getElementById('tab-' + tabName).classList.add('active');
+        }
+        
+        // Logout
+        document.getElementById("btn-logout").addEventListener("click", function() {
+            localStorage.removeItem("user_data");
+            localStorage.removeItem("user_id");
+            localStorage.removeItem("user_role");
+            window.location.href = "index.html";
+        });
+        // ===== LAPORAN PELANGGARAN =====
+
+        // Set default tanggal pelanggaran
+        var todayPelanggaran = new Date();
+        var firstDayPelanggaran = new Date(todayPelanggaran.getFullYear(), todayPelanggaran.getMonth(), 1);
+        document.getElementById("filterPelanggaranMulai").value = formatDate(firstDayPelanggaran);
+        document.getElementById("filterPelanggaranSelesai").value = formatDate(todayPelanggaran);
+
+        // Preset tanggal pelanggaran
+        function setPresetPelanggaran(type) {
+            var today = new Date();
+            var mulai, selesai;
+            
+            if (type === 'week') {
+                var day = today.getDay();
+                var diff = today.getDate() - day + (day === 0 ? -6 : 1);
+                mulai = new Date(today.setDate(diff));
+                selesai = new Date(today.setDate(mulai.getDate() + 6));
+            } else if (type === 'month') {
+                mulai = new Date(today.getFullYear(), today.getMonth(), 1);
+                selesai = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+            } else if (type === 'mid') {
+                mulai = new Date(today.getFullYear(), today.getMonth() - 2, 1);
+                selesai = today;
+            } else if (type === 'semester') {
+                mulai = new Date(today.getFullYear(), today.getMonth() - 6, 1);
+                selesai = today;
+            } else if (type === 'year') {
+                mulai = new Date(today.getFullYear() - 1, today.getMonth(), 1);
+                selesai = today;
+            }
+            
+            document.getElementById("filterPelanggaranMulai").value = formatDate(mulai);
+            document.getElementById("filterPelanggaranSelesai").value = formatDate(selesai);
+            
+            loadLaporanPelanggaran();
+        }
+
+        // Load filter santri & jenis pelanggaran
+        function loadFilterPelanggaran() {
+            var url = 'api/get-laporan-pelanggaran.php?tanggal_mulai=2000-01-01&tanggal_selesai=2099-12-31';
+            
+            fetch(url)
+                .then(function(res) { return res.json(); })
+                .then(function(data) {
+                    if (data.success) {
+                        // Isi dropdown santri
+                        var selectSantri = document.getElementById("filterSantriPelanggaran");
+                        data.santri_list.forEach(function(s) {
+                            var option = document.createElement("option");
+                            option.value = s.id;
+                            option.textContent = s.nama;
+                            selectSantri.appendChild(option);
+                        });
+                        
+                        // Isi dropdown jenis pelanggaran
+                        var selectJenis = document.getElementById("filterJenisPelanggaran");
+                        data.jenis_list.forEach(function(j) {
+                            var option = document.createElement("option");
+                            option.value = j.jenis_pelanggaran;
+                            option.textContent = j.jenis_pelanggaran;
+                            selectJenis.appendChild(option);
+                        });
+                    }
+                })
+                .catch(function(error) { console.error('Error:', error); });
+        }
+
+        loadFilterPelanggaran();
+
+        // Load laporan pelanggaran
+        function loadLaporanPelanggaran() {
+            var tanggalMulai = document.getElementById("filterPelanggaranMulai").value;
+            var tanggalSelesai = document.getElementById("filterPelanggaranSelesai").value;
+            var jenisPelanggaran = document.getElementById("filterJenisPelanggaran").value;
+            var santriId = document.getElementById("filterSantriPelanggaran").value;
+            
+            if (!tanggalMulai || !tanggalSelesai) {
+                alert('Tanggal mulai dan selesai wajib diisi!');
+                return;
+            }
+            
+            var url = 'api/get-laporan-pelanggaran.php?tanggal_mulai=' + tanggalMulai + 
+                    '&tanggal_selesai=' + tanggalSelesai +
+                    '&jenis_pelanggaran=' + encodeURIComponent(jenisPelanggaran) +
+                    '&santri_id=' + santriId;
+            
+            fetch(url)
+                .then(function(res) { return res.json(); })
+                .then(function(data) {
+                    console.log("Data laporan pelanggaran:", data);
+                    
+                    if (data.success) {
+                        // 1. Tampilkan Ranking
+                        var tbodyRanking = document.getElementById("ranking-body");
+                        if (data.ranking.length === 0) {
+                            tbodyRanking.innerHTML = '<tr><td colspan="5" class="text-center">Tidak ada data pelanggaran</td></tr>';
+                        } else {
+                            var html = '';
+                            data.ranking.forEach(function(r, index) {
+                                var rankClass = '';
+                                var rankLabel = index + 1;
+                                if (index === 0) rankClass = 'rank-1';
+                                else if (index === 1) rankClass = 'rank-2';
+                                else if (index === 2) rankClass = 'rank-3';
+                                
+                                html += '<tr class="' + rankClass + '">';
+                                html += '<td class="text-center">' + (index < 3 ? ['ðŸ¥‡','ðŸ¥ˆ','ðŸ¥‰'][index] : rankLabel) + '</td>';
+                                html += '<td><a href="profil-santri.html?id=' + Number(r.santri_id) + '" style="color: #2d5016; text-decoration: none; font-weight: bold;">' + escapeHtml(r.nama) + '</a></td>';
+                                html += '<td>' + escapeHtml(r.angkatan || '-') + '</td>';
+                                html += '<td class="text-center">' + Number(r.total_pelanggaran) + '</td>';
+                                html += '<td class="text-center" style="font-weight: bold; color: #dc3545;">' + Number(r.total_poin) + '</td>';
+                                html += '</tr>';
+                            });
+                            tbodyRanking.innerHTML = html;
+                        }
+                        
+                        // 2. Tampilkan Persentase per Jenis
+                        var tbodyPersentase = document.getElementById("persentase-body");
+                        if (data.persentase_jenis.length === 0) {
+                            tbodyPersentase.innerHTML = '<tr><td colspan="5" class="text-center">Tidak ada data</td></tr>';
+                        } else {
+                            var html = '';
+                            data.persentase_jenis.forEach(function(p, index) {
+                                html += '<tr>';
+                                html += '<td>' + (index + 1) + '</td>';
+                                var percentage = Math.min(100, Math.max(0, Number(p.persentase) || 0));
+                                html += '<td>' + escapeHtml(p.jenis_pelanggaran) + '</td>';
+                                html += '<td class="text-center">' + Number(p.jumlah) + '</td>';
+                                html += '<td class="text-center">' + percentage + '%</td>';
+                                html += '<td><div class="bar-chart" style="width: ' + percentage + '%;"></div></td>';
+                                html += '</tr>';
+                            });
+                            tbodyPersentase.innerHTML = html;
+                        }
+
+                        renderTrendChart(data.perkembangan || [], data.trend_granularity || 'periode');
+                        
+                        // 3. Tampilkan Detail Pelanggaran
+                        var tbodyDetail = document.getElementById("detail-pelanggaran-body");
+                        if (data.detail_pelanggaran.length === 0) {
+                            tbodyDetail.innerHTML = '<tr><td colspan="11" class="text-center">Tidak ada data pelanggaran</td></tr>';
+                        } else {
+                            var html = '';
+                            data.detail_pelanggaran.forEach(function(p, index) {
+                                var statusValue = ['belum', 'diproses', 'selesai'].includes(p.status_tindak_lanjut)
+                                    ? p.status_tindak_lanjut : 'belum';
+                                var statusClass = 'badge-status-' + statusValue;
+                                var statusLabel = {
+                                    'belum': 'Belum Ditindak',
+                                    'diproses': 'Diproses BK',
+                                    'selesai': 'Selesai'
+                                }[statusValue];
+                                
+                                html += '<tr>';
+                                html += '<td>' + (index + 1) + '</td>';
+                                html += '<td>' + escapeHtml(p.tanggal) + '</td>';
+                                html += '<td><a href="profil-santri.html?id=' + Number(p.santri_id) + '" style="color: #2d5016; text-decoration: none; font-weight: bold;">' + escapeHtml(p.nama_santri) + '</a></td>';
+                                html += '<td>' + escapeHtml(p.angkatan || '-') + '</td>';
+                                html += '<td>' + escapeHtml(p.jenis_pelanggaran) + '</td>';
+                                html += '<td class="text-center" style="font-weight: bold; color: #dc3545;">' + Number(p.poin) + '</td>';
+                                html += '<td>' + escapeHtml(p.keterangan || '-') + '</td>';
+                                html += '<td><span class="badge ' + statusClass + '">' + statusLabel + '</span></td>';
+                                html += '<td>' + escapeHtml(p.catatan_bk || '-') + '</td>';
+                                html += '<td>' + escapeHtml(p.input_by_name || '-') + '</td>';
+                                html += '<td><button class="btn-edit-tindak" data-edit-index="' + index + '">Edit</button></td>';
+                                html += '</tr>';
+                            });
+                            tbodyDetail.innerHTML = html;
+                            tbodyDetail.querySelectorAll("[data-edit-index]").forEach(function(button) {
+                                button.addEventListener("click", function() {
+                                    var item = data.detail_pelanggaran[Number(button.dataset.editIndex)];
+                                    bukaModalTindakLanjut(Number(item.id), item.status_tindak_lanjut, item.catatan_bk || '');
+                                });
+                            });
+                        }
+
+                        function renderTrendChart(periods, granularity) {
+                            var chart = document.getElementById("violation-trend-chart");
+                            var description = document.getElementById("trend-description");
+                            chart.textContent = '';
+                            description.textContent = 'Jumlah pelanggaran per ' + granularity + ' pada rentang yang dipilih.';
+
+                            if (!periods.length) {
+                                chart.textContent = 'Tidak ada data pelanggaran pada rentang ini.';
+                                return;
+                            }
+
+                            var maxCount = Math.max.apply(null, periods.map(function(item) {
+                                return Number(item.jumlah) || 0;
+                            }));
+                            if (maxCount === 0) {
+                                chart.textContent = 'Tidak ada data pelanggaran pada rentang ini.';
+                                return;
+                            }
+                            periods.forEach(function(item) {
+                                var count = Number(item.jumlah) || 0;
+                                var dateParts = String(item.periode).split('-');
+                                var label = granularity === 'bulan'
+                                    ? dateParts[1] + '/' + dateParts[0]
+                                    : dateParts[2] + '/' + dateParts[1];
+                                var column = document.createElement('div');
+                                column.className = 'trend-column';
+                                column.title = item.periode + ': ' + count + ' pelanggaran';
+
+                                var countLabel = document.createElement('span');
+                                countLabel.className = 'trend-count';
+                                countLabel.textContent = count;
+
+                                var bar = document.createElement('div');
+                                bar.className = 'trend-bar';
+                                bar.style.height = maxCount > 0 ? Math.max(2, (count / maxCount) * 100) + '%' : '2px';
+
+                                var periodLabel = document.createElement('span');
+                                periodLabel.className = 'trend-label';
+                                periodLabel.textContent = label;
+
+                                column.appendChild(countLabel);
+                                column.appendChild(bar);
+                                column.appendChild(periodLabel);
+                                chart.appendChild(column);
+                            });
+                        }
+                    } else {
+                        alert('Error: ' + data.error);
+                    }
+                })
+                .catch(function(error) {
+                    console.error('Error:', error);
+                    alert('Terjadi kesalahan');
+                });
+        }
+
+        // Modal Tindak Lanjut BK
+        function bukaModalTindakLanjut(id, status, catatan) {
+            document.getElementById("tindakLanjutId").value = id;
+            document.getElementById("tindakLanjutStatus").value = status || 'belum';
+            document.getElementById("tindakLanjutCatatan").value = catatan || '';
+            document.getElementById("modalTindakLanjut").classList.add("active");
+        }
+
+        function tutupModalTindakLanjut() {
+            document.getElementById("modalTindakLanjut").classList.remove("active");
+        }
+
+        function simpanTindakLanjut() {
+            var id = document.getElementById("tindakLanjutId").value;
+            var status = document.getElementById("tindakLanjutStatus").value;
+            var catatan = document.getElementById("tindakLanjutCatatan").value;
+            
+            fetch('api/update-tindak-lanjut.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    id: id,
+                    status_tindak_lanjut: status,
+                    catatan_bk: catatan
+                })
+            })
+            .then(function(res) { return res.json(); })
+            .then(function(data) {
+                if (data.success) {
+                    alert('Tindak lanjut berhasil diupdate!');
+                    tutupModalTindakLanjut();
+                    loadLaporanPelanggaran();
+                } else {
+                    alert('Error: ' + data.error);
+                }
+            })
+            .catch(function(error) {
+                console.error('Error:', error);
+                alert('Terjadi kesalahan');
+            });
+        }
+
+        // Reset filter pelanggaran
+        function resetFilterPelanggaran() {
+            var today = new Date();
+            var firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
+            document.getElementById("filterPelanggaranMulai").value = formatDate(firstDay);
+            document.getElementById("filterPelanggaranSelesai").value = formatDate(today);
+            document.getElementById("filterJenisPelanggaran").value = "";
+            document.getElementById("filterSantriPelanggaran").value = "";
+            document.getElementById("ranking-body").innerHTML = '<tr><td colspan="5" class="text-center">Klik "Tampilkan Laporan" untuk melihat data</td></tr>';
+            document.getElementById("persentase-body").innerHTML = '<tr><td colspan="5" class="text-center">Klik "Tampilkan Laporan" untuk melihat data</td></tr>';
+            document.getElementById("detail-pelanggaran-body").innerHTML = '<tr><td colspan="11" class="text-center">Klik "Tampilkan Laporan" untuk melihat data</td></tr>';
+        }
+
+        // Export Pelanggaran ke Excel
+        function exportPelanggaranExcel(onlyWithNotes) {
+            var tanggalMulai = document.getElementById("filterPelanggaranMulai").value;
+            var tanggalSelesai = document.getElementById("filterPelanggaranSelesai").value;
+            var jenisPelanggaran = document.getElementById("filterJenisPelanggaran").value;
+            var santriId = document.getElementById("filterSantriPelanggaran").value;
+            
+            if (!tanggalMulai || !tanggalSelesai) {
+                alert('Pilih tanggal terlebih dahulu!');
+                return;
+            }
+            
+            var url = 'api/export-pelanggaran.php?tanggal_mulai=' + tanggalMulai + 
+                    '&tanggal_selesai=' + tanggalSelesai +
+                    '&jenis_pelanggaran=' + encodeURIComponent(jenisPelanggaran) +
+                    '&santri_id=' + santriId +
+                    (onlyWithNotes ? '&only_with_notes=1' : '');
+            
+            window.open(url, '_blank');
+        }
+    </script>
+    <script src="js/role-guard.js?v=20261023-4"></script>
+    <script src="js/auth.js?v=20261023-4"></script>
+    <script src="js/theme.js?v=20261023-9"></script>
+</body>
+</html>

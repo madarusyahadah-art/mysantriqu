@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#114d35">
+    <link rel="manifest" href="manifest.webmanifest">
+    <link rel="apple-touch-icon" href="assets/app-icon-192.png">
+    <title>Profil Santri - Recording Mahasantri</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f5f5; }
+        .navbar {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 1rem 2rem; background: #2d5016; color: white;
+        }
+        .nav-brand { display: flex; align-items: center; gap: 10px; font-size: 1.2rem; font-weight: bold; }
+        .nav-logo { width: 40px; height: 40px; }
+        .nav-user { display: flex; align-items: center; gap: 15px; }
+        .user-photo { width: 35px; height: 35px; border-radius: 50%; }
+        .btn-logout { padding: 8px 16px; background: #dc3545; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        .container { max-width: 1200px; margin: 2rem auto; padding: 0 2rem; }
+        h1 { margin-bottom: 1.5rem; color: #2d5016; }
+        .btn-back {
+            display: inline-block; margin-bottom: 1rem; padding: 10px 20px;
+            background: #2d5016; color: white; text-decoration: none; border-radius: 5px;
+        }
+        .card {
+            background: white; border-radius: 10px; padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 20px;
+        }
+        .profile-header {
+            display: flex; align-items: center; gap: 20px; margin-bottom: 20px;
+        }
+        .profile-icon {
+            width: 80px; height: 80px; background: #2d5016; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 40px; color: white;
+        }
+        .profile-info h2 { color: #2d5016; margin-bottom: 5px; }
+        .profile-info p { color: #666; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin: 20px 0; }
+        .stat-card {
+            background: #f8f9fa; padding: 15px; border-radius: 8px; text-align: center;
+        }
+        .stat-card h3 { font-size: 12px; color: #666; margin-bottom: 5px; }
+        .stat-card p { font-size: 24px; font-weight: bold; color: #2d5016; }
+        .stat-card.hadir p { color: #28a745; }
+        .stat-card.alpha p { color: #dc3545; }
+        .stat-card.pelanggaran p { color: #fd7e14; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { padding: 10px; text-align: left; border-bottom: 1px solid #eee; }
+        th { background: #f8f9fa; font-weight: bold; color: #2d5016; }
+        .badge { padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; }
+        .badge-hadir { background: #d4edda; color: #155724; }
+        .badge-alpha { background: #f8d7da; color: #721c24; }
+        .badge-sakit { background: #fff3cd; color: #856404; }
+        .badge-izin { background: #fff3cd; color: #856404; }
+        .badge-izin_menginap { background: #d1ecf1; color: #0c5460; }
+        .section-title { color: #2d5016; margin-bottom: 15px; }
+        .btn-print { border: 0; cursor: pointer; font: inherit; }
+        @media print {
+            @page { size: A4 landscape; margin: 12mm; }
+            nav, .btn-back, .btn-print { display: none !important; }
+            body { background: white; color: #111; font-size: 10pt; }
+            .container { max-width: none; margin: 0; padding: 0; }
+            h1 { margin-bottom: 12px; }
+            .card { box-shadow: none; border: 1px solid #ddd; break-inside: auto; padding: 12px; }
+            .profile-icon { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+            table { font-size: 9pt; }
+            th, td { padding: 6px; }
+            thead { display: table-header-group; }
+            tr, .profile-header { break-inside: avoid; }
+            h3 { break-after: avoid; }
+        }
+    </style>
+    <link rel="stylesheet" href="style.css?v=20261023-4">
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+</head>
+<body data-access="profile">
+    <nav class="navbar">
+        <div class="nav-brand">
+            <img src="assets/Logo.png" alt="Logo" class="nav-logo">
+            <ion-icon name="school-outline" aria-hidden="true"></ion-icon>
+            <span>Recording Mahasantri</span>
+        </div>
+        <div class="nav-user">
+            <img id="user-photo" src="" alt="User" class="user-photo">
+            <span id="user-name">Loading...</span>
+            <button id="btn-logout" class="btn-logout"><ion-icon name="log-out-outline" aria-hidden="true"></ion-icon> Logout</button>
+        </div>
+    </nav>
+
+    <div class="container">
+        <a href="santri.html" id="profile-back" class="btn-back"><ion-icon name="arrow-back-outline" aria-hidden="true"></ion-icon> Kembali</a>
+        <h1><span class="page-heading-icon"><ion-icon name="person-circle-outline" aria-hidden="true"></ion-icon></span> Profil Santri</h1>
+        <button class="btn-back btn-print" type="button" onclick="window.print()">Unduh / Cetak Profil (PDF)</button>
+        
+        <div class="card">
+            <div class="profile-header">
+                <div class="profile-icon">ðŸ‘¤</div>
+                <div class="profile-info">
+                    <h2 id="santri-nama">Memuat...</h2>
+                    <p id="santri-detail">-</p>
+                </div>
+            </div>
+            
+            <h3 class="section-title">Statistik Absensi</h3>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3>Total Status Tercatat</h3>
+                    <p id="total-absensi">0</p>
+                </div>
+                <div class="stat-card hadir">
+                    <h3>Hadir</h3>
+                    <p id="total-hadir">0</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Izin</h3>
+                    <p id="total-izin">0</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Sakit</h3>
+                    <p id="total-sakit">0</p>
+                </div>
+                <div class="stat-card alpha">
+                    <h3>Alpha</h3>
+                    <p id="total-alpha">0</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Izin Menginap</h3>
+                    <p id="total-izin-menginap">0</p>
+                </div>
+            </div>
+            <p id="legacy-attendance-note" style="display: none; margin-top: 12px; color: #755b00; background: #fff3cd; padding: 10px; border-radius: 5px;">
+                Sebagian catatan absensi berasal dari periode sebelum sesi lengkap digunakan. Status hadir historis tidak ditebak.
+            </p>
+            
+            <h3 class="section-title">Statistik Pelanggaran</h3>
+            <div class="stats-grid">
+                <div class="stat-card pelanggaran">
+                    <h3>Total Pelanggaran</h3>
+                    <p id="total-pelanggaran">0</p>
+                </div>
+                <div class="stat-card pelanggaran">
+                    <h3>Total Poin</h3>
+                    <p id="total-poin">0</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3 class="section-title">Riwayat Absensi Lengkap</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Tanggal</th>
+                        <th>Kegiatan</th>
+                        <th>Status</th>
+                        <th>Keterangan / Tindak Lanjut</th>
+                    </tr>
+                </thead>
+                <tbody id="riwayat-absensi-body">
+                    <tr><td colspan="4">Memuat data...</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="card">
+            <h3 class="section-title">Riwayat Pelanggaran dan Catatan BK Lengkap</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Tanggal</th>
+                        <th>Jenis Pelanggaran</th>
+                        <th>Poin</th>
+                        <th>Keterangan</th>
+                        <th>Status Tindak Lanjut</th>
+                        <th>Catatan BK</th>
+                        <th>Dilaporkan Oleh</th>
+                    </tr>
+                </thead>
+                <tbody id="riwayat-pelanggaran-body">
+                    <tr><td colspan="7">Memuat data...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        console.log("Profil Santri page loaded");
+        
+        async function initializeProfile() {
+        const sessionResponse = await fetch("api/session.php", { credentials: "same-origin" });
+        const sessionData = await sessionResponse.json();
+        if (!sessionResponse.ok || !sessionData.success || !sessionData.user) {
+            window.location.href = "index.html";
+            return;
+        }
+        const userData = sessionData.user;
+
+        function escapeHtml(value) {
+            return String(value == null ? '' : value).replace(/[&<>"']/g, function(character) {
+                return {
+                    '&': '&amp;',
+                    '<': '&lt;',
+                    '>': '&gt;',
+                    '"': '&quot;',
+                    "'": '&#39;'
+                }[character];
+            });
+        }
+        
+        if (userData) {
+            document.getElementById("user-name").textContent = userData.name;
+            var fotoUrl = userData.picture || userData.photo || 'assets/Logo.png';
+            document.getElementById("user-photo").src = fotoUrl;
+            if (userData.role !== 'admin') {
+                document.getElementById("profile-back").href = "dashboard.html";
+            }
+        }
+        
+        // Ambil santri_id dari URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const requestedSantriId = urlParams.get('id');
+        const santri_id = requestedSantriId || userData.santri_id;
+
+        if (!santri_id) {
+            if (userData && userData.role === 'admin') {
+                alert('Pilih santri dari halaman Data Santri.');
+                window.location.href = "santri.html";
+            } else {
+                alert('Profil santri Anda belum dihubungkan oleh admin.');
+                window.location.href = "dashboard.html";
+            }
+            return;
+        }
+        
+        // Load data profil
+        fetch('api/get-profil-santri.php' + (userData.role === 'admin' && requestedSantriId
+            ? '?santri_id=' + encodeURIComponent(requestedSantriId)
+            : ''))
+            .then(function(res) { return res.json(); })
+            .then(function(data) {
+                console.log("Data profil:", data);
+                
+                if (data.success) {
+                    // Tampilkan info santri
+                    document.getElementById("santri-nama").textContent = data.santri.nama;
+                    document.title = 'Profil Santri - ' + data.santri.nama;
+                    document.getElementById("santri-detail").textContent = 
+                        'No. KTM: ' + (data.santri.no_ktm || '-') +
+                        ' | Asal: ' + (data.santri.asal || '-') +
+                        ' | Semester: ' + (data.santri.semester_aktif || 1) +
+                        ' | Angkatan: ' + (data.santri.angkatan || '-');
+                    
+                    // Tampilkan statistik absensi
+                    document.getElementById("total-absensi").textContent = data.absensi_stats.total_absensi || 0;
+                    document.getElementById("total-hadir").textContent = data.absensi_stats.hadir || 0;
+                    document.getElementById("total-izin").textContent = data.absensi_stats.izin || 0;
+                    document.getElementById("total-sakit").textContent = data.absensi_stats.sakit || 0;
+                    document.getElementById("total-alpha").textContent = data.absensi_stats.alpha || 0;
+                    document.getElementById("total-izin-menginap").textContent = data.absensi_stats.izin_menginap || 0;
+                    document.getElementById("legacy-attendance-note").style.display =
+                        Number(data.absensi_stats.legacy_count || 0) > 0 ? 'block' : 'none';
+                    
+                    // Tampilkan statistik pelanggaran
+                    document.getElementById("total-pelanggaran").textContent = data.pelanggaran_stats.total_pelanggaran || 0;
+                    document.getElementById("total-poin").textContent = data.pelanggaran_stats.total_poin || 0;
+                    
+                    // Tampilkan riwayat absensi
+                    var tbodyAbsensi = document.getElementById("riwayat-absensi-body");
+                    if (data.riwayat_absensi.length === 0) {
+                        tbodyAbsensi.innerHTML = '<tr><td colspan="4">Belum ada data absensi</td></tr>';
+                    } else {
+                        var html = '';
+                        data.riwayat_absensi.forEach(function(r) {
+                            html += '<tr>';
+                            html += '<td>' + escapeHtml(r.tanggal) + '</td>';
+                            html += '<td>' + escapeHtml(r.nama_kegiatan || '-') + '</td>';
+                            html += '<td><span class="badge badge-' + escapeHtml(r.status) + '">' + escapeHtml(r.status) + '</span></td>';
+                            var absensiNotes = [r.keterangan, r.tindak_lanjut].filter(Boolean).map(escapeHtml).join(' | ');
+                            html += '<td>' + (absensiNotes || '-') + '</td>';
+                            html += '</tr>';
+                        });
+                        tbodyAbsensi.innerHTML = html;
+                    }
+                    
+                    // Tampilkan riwayat pelanggaran
+                    var tbodyPelanggaran = document.getElementById("riwayat-pelanggaran-body");
+                    if (data.riwayat_pelanggaran.length === 0) {
+                        tbodyPelanggaran.innerHTML = '<tr><td colspan="7">Belum ada data pelanggaran</td></tr>';
+                    } else {
+                        var html = '';
+                        data.riwayat_pelanggaran.forEach(function(p) {
+                            html += '<tr>';
+                            html += '<td>' + escapeHtml(p.tanggal) + '</td>';
+                            html += '<td>' + escapeHtml(p.jenis_pelanggaran) + '</td>';
+                            html += '<td>' + escapeHtml(p.poin) + '</td>';
+                            html += '<td>' + escapeHtml(p.keterangan || '-') + '</td>';
+                            html += '<td>' + escapeHtml(p.status_tindak_lanjut || 'belum') + '</td>';
+                            html += '<td>' + escapeHtml(p.catatan_bk || '-') + '</td>';
+                            html += '<td>' + escapeHtml(p.input_by_name || '-') + '</td>';
+                            html += '</tr>';
+                        });
+                        tbodyPelanggaran.innerHTML = html;
+                    }
+                } else {
+                    alert('Error: ' + data.error);
+                }
+            })
+            .catch(function(error) {
+                console.error('Error:', error);
+                alert('Terjadi kesalahan saat memuat data');
+            });
+        
+        // Logout
+        document.getElementById("btn-logout").addEventListener("click", function() {
+            localStorage.removeItem("user_id");
+            localStorage.removeItem("user_role");
+            window.location.href = "index.html";
+        });
+        }
+
+        initializeProfile().catch(function(error) {
+        console.error("Profil santri gagal dimuat:", error);
+        alert("Terjadi kesalahan saat memuat profil santri.");
+        });
+    </script>
+    <script src="js/role-guard.js?v=20261023-4"></script>
+    <script src="js/auth.js?v=20261023-4"></script>
+    <script src="js/theme.js?v=20261023-9"></script>
+</body>
+</html>
