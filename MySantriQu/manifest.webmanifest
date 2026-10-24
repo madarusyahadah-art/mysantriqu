@@ -1,0 +1,27 @@
+{
+  "id": "./",
+  "name": "MySantriQu - Recording Mahasantri",
+  "short_name": "MySantriQu",
+  "description": "Pencatatan kegiatan, kehadiran, dan laporan mahasantri.",
+  "lang": "id-ID",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#061d12",
+  "theme_color": "#114d35",
+  "icons": [
+    {
+      "src": "./assets/app-icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./assets/app-icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

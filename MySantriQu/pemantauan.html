@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#114d35">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" href="assets/app-icon-192.png">
+  <title>Pemantauan Ketidakhadiran - MySantriQu</title>
+  <link rel="stylesheet" href="app-theme.css?v=20261015">
+  <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+  <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+  <style>
+    .filter-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 1rem; align-items: end; }
+    .filter-grid label { display: grid; gap: 0.4rem; }
+    .activity-list { display: grid; gap: 0.7rem; }
+    .activity-item {
+      width: 100%;
+      padding: 0.9rem 1rem;
+      border: 1px solid var(--app-border);
+      border-radius: 12px;
+      color: var(--app-text);
+      background: rgba(255,255,255,0.045);
+      text-align: left;
+      cursor: pointer;
+    }
+    .activity-item:hover,
+    .activity-item[aria-current="true"] {
+      border-color: rgba(154,230,180,0.6);
+      background: rgba(45,211,111,0.14);
+    }
+    .activity-status { display: inline-flex; margin-left: 0.45rem; color: var(--app-green-300); font-weight: 700; }
+    .absence-counts { display: block; margin-top: 0.35rem; color: var(--app-muted); font-size: 0.9rem; }
+    .detail-meta { min-height: 1.5rem; color: var(--app-muted); }
+    .detail-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
+    .detail-grid h3 { margin: 0 0 0.65rem; }
+    .table-wrap { overflow-x: auto; }
+    .error-message {
+      padding: 0.75rem 1rem;
+      border: 1px solid rgba(248,113,113,0.34);
+      border-radius: 12px;
+      color: #fecaca;
+      background: rgba(127,29,29,0.22);
+    }
+    .error-message:empty { display: none; }
+    html[data-theme="light"] .activity-item { color: #123526; background: rgba(255,255,255,0.74); }
+    html[data-theme="light"] .activity-status { color: #176a43; }
+    html[data-theme="light"] .absence-counts,
+    html[data-theme="light"] .detail-meta { color: #456657; }
+    html[data-theme="light"] .error-message {
+      border-color: rgba(190,24,93,0.22);
+      color: #9f1239;
+      background: rgba(255,241,242,0.95);
+    }
+    @media (max-width: 700px) {
+      .detail-grid { grid-template-columns: minmax(0, 1fr); }
+    }
+  </style>
+</head>
+<body data-access="supervisor">
+  <nav class="navbar">
+    <div class="nav-brand">
+      <img src="assets/Logo.png" alt="Logo" class="nav-logo">
+      <ion-icon name="school-outline" aria-hidden="true"></ion-icon>
+      <span>Recording Mahasantri</span>
+    </div>
+    <div class="nav-user">
+      <img id="user-photo" src="assets/Logo.png" alt="" class="user-photo">
+      <span id="user-name">Loading...</span>
+      <button id="btn-logout" class="btn-logout" type="button">Logout</button>
+    </div>
+  </nav>
+  <main class="container">
+    <a class="btn-back" href="dashboard.html"><ion-icon name="arrow-back-outline" aria-hidden="true"></ion-icon> Kembali ke Dashboard</a>
+    <h1><span class="page-heading-icon"><ion-icon name="eye-outline" aria-hidden="true"></ion-icon></span> Pemantauan Ketidakhadiran</h1>
+    <section class="card filter-grid">
+      <label>Tanggal <input type="date" id="date"></label>
+      <label>Kegiatan <select id="activity"><option value="">Semua kegiatan</option></select></label>
+      <button class="btn btn-primary" id="refresh" type="button"><ion-icon name="refresh-outline" aria-hidden="true"></ion-icon> Muat pemantauan</button>
+    </section>
+    <p class="error-message" id="error" role="alert"></p>
+    <section class="card">
+      <h2>Status laporan kegiatan</h2>
+      <div class="activity-list" id="activities"></div>
+    </section>
+    <section class="card">
+      <h2 id="detail-title">Pilih kegiatan untuk melihat rincian</h2>
+      <p class="detail-meta" id="report-meta"></p>
+      <div class="detail-grid">
+        <div><h3>Santri tidak hadir</h3><div class="table-wrap"><table><thead><tr><th>Nama</th><th>Status</th><th>Keterangan</th></tr></thead><tbody id="santri"><tr><td colspan="3">Belum dipilih</td></tr></tbody></table></div></div>
+        <div><h3>Asatidz tidak hadir</h3><div class="table-wrap"><table><thead><tr><th>Nama</th><th>Peran</th><th>Status</th><th>Keterangan</th></tr></thead><tbody id="asatidz"><tr><td colspan="4">Belum dipilih</td></tr></tbody></table></div></div>
+      </div>
+    </section>
+  </main>
+  <script>
+    const dateInput = document.getElementById("date");
+    const activitySelect = document.getElementById("activity");
+    const params = new URLSearchParams(location.search);
+    const requestedActivityId = params.get("kegiatan_id") || "";
+    dateInput.value = params.get("tanggal") || new Date().toLocaleDateString("en-CA");
+
+    function textCell(value) {
+      const cell = document.createElement("td");
+      cell.textContent = value || "-";
+      return cell;
+    }
+
+    function renderRows(target, rows, columns, emptyText) {
+      target.textContent = "";
+      if (!rows || !rows.length) {
+        const tr = document.createElement("tr");
+        const td = document.createElement("td");
+        td.colSpan = columns.length;
+        td.textContent = emptyText;
+        tr.appendChild(td);
+        target.appendChild(tr);
+        return;
+      }
+      rows.forEach((row) => {
+        const tr = document.createElement("tr");
+        columns.forEach((column) => tr.appendChild(textCell(column(row))));
+        target.appendChild(tr);
+      });
+    }
+
+    function attendanceLabel(value) {
+      const labels = {
+        hadir: "Hadir",
+        izin: "Izin",
+        sakit: "Sakit",
+        alpha: "Alpha",
+        izin_menginap: "Izin menginap",
+        berhalangan: "Berhalangan",
+        lainnya: "Lainnya",
+        masul: "Mas'ul",
+        musyrif: "Musyrif",
+        pengampu: "Pengampu"
+      };
+      return labels[value] || value;
+    }
+
+    async function loadMonitor() {
+      const query = new URLSearchParams({ tanggal: dateInput.value });
+      const selectedActivityId = activitySelect.value || requestedActivityId;
+      if (selectedActivityId) query.set("kegiatan_id", selectedActivityId);
+      const response = await fetch("api/get-activity-monitor.php?" + query);
+      const data = await response.json();
+      if (!response.ok || !data.success) throw new Error(data.error || "Pemantauan gagal dimuat.");
+      const previousValue = selectedActivityId;
+      if (!activitySelect.options.length || activitySelect.options.length === 1) {
+        const allResponse = await fetch("api/get-kegiatan.php");
+        const allData = await allResponse.json();
+        if (!allResponse.ok || !allData.success || !Array.isArray(allData.kegiatan)) {
+          throw new Error(allData.error || "Daftar kegiatan gagal dimuat.");
+        }
+        allData.kegiatan.forEach((activity) => {
+          const option = document.createElement("option");
+          option.value = activity.id;
+          option.textContent = activity.nama_kegiatan;
+          activitySelect.appendChild(option);
+        });
+      }
+      activitySelect.value = previousValue;
+      const list = document.getElementById("activities");
+      list.textContent = "";
+      data.kegiatan.forEach((item) => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "activity-item";
+        button.setAttribute("aria-current", String(String(item.id) === activitySelect.value));
+        const title = document.createElement("strong");
+        title.textContent = item.nama_kegiatan;
+        const status = document.createElement("span");
+        status.className = "activity-status";
+        status.textContent = item.status_laporan === "dilaporkan" ? "Laporan masuk"
+          : item.status_laporan === "tidak_berlangsung" ? "Tidak berlangsung" : "Belum input";
+        button.append(title, status);
+        if (item.status_laporan === "dilaporkan") {
+          const counts = document.createElement("span");
+          counts.className = "absence-counts";
+          counts.textContent = "Tidak hadir: santri " + item.santri_tidak_hadir + ", asatidz " + item.asatidz_tidak_hadir;
+          button.appendChild(counts);
+        }
+        button.addEventListener("click", () => {
+          activitySelect.value = item.id;
+          loadMonitor().catch(showError);
+        });
+        list.appendChild(button);
+      });
+      if (activitySelect.value) {
+        const item = data.kegiatan.find((activity) => String(activity.id) === activitySelect.value);
+        document.getElementById("detail-title").textContent = item ? item.nama_kegiatan : "Kegiatan";
+        document.getElementById("report-meta").textContent = item
+          ? (item.status_laporan === "dilaporkan" ? "Dilaporkan oleh " + (item.nama_pelapor || "-")
+            : item.status_laporan === "tidak_berlangsung" ? "Kegiatan tidak berlangsung" : "Laporan belum diinput")
+          : "";
+        renderRows(document.getElementById("santri"), data.ketidakhadiran.santri,
+          [(row) => row.nama, (row) => attendanceLabel(row.status), (row) => row.keterangan],
+          "Tidak ada ketidakhadiran tercatat.");
+        renderRows(document.getElementById("asatidz"), data.ketidakhadiran.asatidz,
+          [(row) => row.nama, (row) => attendanceLabel(row.peran), (row) => attendanceLabel(row.status), (row) => row.keterangan],
+          "Tidak ada ketidakhadiran tercatat.");
+      } else {
+        document.getElementById("detail-title").textContent = "Pilih kegiatan untuk melihat rincian";
+        document.getElementById("report-meta").textContent = "";
+        renderRows(document.getElementById("santri"), [], [(row) => row.nama, (row) => row.status, (row) => row.keterangan], "Pilih kegiatan.");
+        renderRows(document.getElementById("asatidz"), [], [(row) => row.nama, (row) => row.peran, (row) => row.status, (row) => row.keterangan], "Pilih kegiatan.");
+      }
+    }
+
+    function showError(error) {
+      document.getElementById("error").textContent = error.message;
+    }
+
+    document.getElementById("refresh").addEventListener("click", () => loadMonitor().catch(showError));
+    activitySelect.addEventListener("change", () => loadMonitor().catch(showError));
+    dateInput.addEventListener("change", () => loadMonitor().catch(showError));
+    loadMonitor().catch(showError);
+  </script>
+  <script src="js/role-guard.js?v=20261014"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/theme.js?v=20261015"></script>
+  <script>
+    const monitorUser = JSON.parse(localStorage.getItem("user_data") || "{}");
+    document.getElementById("user-name").textContent = monitorUser.name || "Pengguna";
+    document.getElementById("user-photo").src = monitorUser.picture || monitorUser.photo || "assets/Logo.png";
+    document.getElementById("btn-logout").addEventListener("click", function() {
+      localStorage.removeItem("user_data");
+      localStorage.removeItem("user_id");
+      localStorage.removeItem("user_role");
+      window.location.href = "index.html";
+    });
+  </script>
+</body>
+</html>
