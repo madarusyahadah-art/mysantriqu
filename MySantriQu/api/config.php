@@ -1,7 +1,7 @@
 <?php
-$db_host = getenv('DB_HOST') ?: 'localhost';
-$db_user = getenv('DB_USER') ?: 'root';
-$db_pass = getenv('DB_PASS') ?: '';
+$db_host = getenv('DB_HOST') ?: 'srv-captain--mariadb';
+$db_user = getenv('DB_USER') ?: 'mysantriqu_user';
+$db_pass = getenv('DB_PASS') ?: 'ee42a59a2eca1d51f51f9e952458f9be';
 $db_name = getenv('DB_NAME') ?: 'mysantriqu';
 
 // Create database connection

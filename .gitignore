@@ -2,7 +2,11 @@
 .env
 .env.*
 *.local
+*.local.*
+*.local.php
 local/
+*credential*
+!*.example*
 
 # Backups and temporary files
 backups/

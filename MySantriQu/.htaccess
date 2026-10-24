@@ -1,9 +1,12 @@
+# Custom Error Document
+ErrorDocument 404 /404.html
+
 <IfModule mod_headers.c>
     Header always set Access-Control-Allow-Methods "GET, POST, OPTIONS"
     Header always set Access-Control-Allow-Headers "Content-Type, Authorization, X-Requested-With"
 </IfModule>
 
-<FilesMatch "\.sql$">
+<FilesMatch "\.(sql|env|json|bak|config)$">
     <IfModule mod_authz_core.c>
         Require all denied
     </IfModule>
