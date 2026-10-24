@@ -1,5 +1,4 @@
 <?php
-header("Access-Control-Allow-Origin: *");
 
 require_once __DIR__ . '/config.php';
 $currentUser = require_role(['admin', 'kepala', 'santri', 'supervisor']);

@@ -74,7 +74,7 @@
             h3 { break-after: avoid; }
         }
     </style>
-    <link rel="stylesheet" href="app-theme.css?v=20261013">
+    <link rel="stylesheet" href="style.css?v=20261023-4">
     <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
     <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
 </head>
@@ -99,7 +99,7 @@
         
         <div class="card">
             <div class="profile-header">
-                <div class="profile-icon">👤</div>
+                <div class="profile-icon">ðŸ‘¤</div>
                 <div class="profile-info">
                     <h2 id="santri-nama">Memuat...</h2>
                     <p id="santri-detail">-</p>
@@ -191,8 +191,14 @@
     <script>
         console.log("Profil Santri page loaded");
         
-        const user_id = localStorage.getItem("user_id");
-        const userData = JSON.parse(localStorage.getItem("user_data"));
+        async function initializeProfile() {
+        const sessionResponse = await fetch("api/session.php", { credentials: "same-origin" });
+        const sessionData = await sessionResponse.json();
+        if (!sessionResponse.ok || !sessionData.success || !sessionData.user) {
+            window.location.href = "index.html";
+            return;
+        }
+        const userData = sessionData.user;
 
         function escapeHtml(value) {
             return String(value == null ? '' : value).replace(/[&<>"']/g, function(character) {
@@ -206,10 +212,6 @@
             });
         }
         
-        if (!user_id) {
-            window.location.href = "index.html";
-        }
-        
         if (userData) {
             document.getElementById("user-name").textContent = userData.name;
             var fotoUrl = userData.picture || userData.photo || 'assets/Logo.png';
@@ -221,7 +223,8 @@
         
         // Ambil santri_id dari URL
         const urlParams = new URLSearchParams(window.location.search);
-        const santri_id = urlParams.get('id') || (userData && userData.santri_id);
+        const requestedSantriId = urlParams.get('id');
+        const santri_id = requestedSantriId || userData.santri_id;
 
         if (!santri_id) {
             if (userData && userData.role === 'admin') {
@@ -231,10 +234,13 @@
                 alert('Profil santri Anda belum dihubungkan oleh admin.');
                 window.location.href = "dashboard.html";
             }
+            return;
         }
         
         // Load data profil
-        fetch('api/get-profil-santri.php?santri_id=' + santri_id)
+        fetch('api/get-profil-santri.php' + (userData.role === 'admin' && requestedSantriId
+            ? '?santri_id=' + encodeURIComponent(requestedSantriId)
+            : ''))
             .then(function(res) { return res.json(); })
             .then(function(data) {
                 console.log("Data profil:", data);
@@ -244,7 +250,10 @@
                     document.getElementById("santri-nama").textContent = data.santri.nama;
                     document.title = 'Profil Santri - ' + data.santri.nama;
                     document.getElementById("santri-detail").textContent = 
-                        'Asal: ' + (data.santri.asal || '-') + ' | Angkatan: ' + (data.santri.angkatan || '-');
+                        'No. KTM: ' + (data.santri.no_ktm || '-') +
+                        ' | Asal: ' + (data.santri.asal || '-') +
+                        ' | Semester: ' + (data.santri.semester_aktif || 1) +
+                        ' | Angkatan: ' + (data.santri.angkatan || '-');
                     
                     // Tampilkan statistik absensi
                     document.getElementById("total-absensi").textContent = data.absensi_stats.total_absensi || 0;
@@ -308,14 +317,19 @@
         
         // Logout
         document.getElementById("btn-logout").addEventListener("click", function() {
-            localStorage.removeItem("user_data");
             localStorage.removeItem("user_id");
             localStorage.removeItem("user_role");
             window.location.href = "index.html";
         });
+        }
+
+        initializeProfile().catch(function(error) {
+        console.error("Profil santri gagal dimuat:", error);
+        alert("Terjadi kesalahan saat memuat profil santri.");
+        });
     </script>
-    <script src="js/role-guard.js?v=20261012"></script>
-    <script src="js/auth.js"></script>
-    <script src="js/theme.js?v=20261012-3"></script>
+    <script src="js/role-guard.js?v=20261023-4"></script>
+    <script src="js/auth.js?v=20261023-4"></script>
+    <script src="js/theme.js?v=20261023-9"></script>
 </body>
 </html>

@@ -6,7 +6,7 @@ ErrorDocument 404 /404.html
     Header always set Access-Control-Allow-Headers "Content-Type, Authorization, X-Requested-With"
 </IfModule>
 
-<FilesMatch "\.(sql|env|json|bak|config)$">
+<FilesMatch "\.(sql|env|json|bak|config|local)$">
     <IfModule mod_authz_core.c>
         Require all denied
     </IfModule>

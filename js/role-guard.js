@@ -1,5 +1,6 @@
 (async function () {
   try {
+    localStorage.removeItem("user_data");
     const response = await fetch("api/session.php");
     if (!response.ok) {
       window.location.href = "index.html";
@@ -15,21 +16,16 @@
     const user = data.user;
     localStorage.setItem("user_id", user.id);
     localStorage.setItem("user_role", user.role);
-    localStorage.setItem("user_data", JSON.stringify(user));
+    window.currentSessionUser = user;
     window.dispatchEvent(new CustomEvent("verified-session", { detail: user }));
 
-    if (localStorage.getItem("mysantriqu_remember_pending") === "1") {
-      try {
-        const rememberedUsers = JSON.parse(localStorage.getItem("mysantriqu_remembered_users") || "[]");
-        const otherUsers = Array.isArray(rememberedUsers)
-          ? rememberedUsers.filter((item) => item && item.email && item.email.toLowerCase() !== user.email.toLowerCase())
-          : [];
-        otherUsers.unshift({ name: user.name || user.email, email: user.email });
-        localStorage.setItem("mysantriqu_remembered_users", JSON.stringify(otherUsers.slice(0, 10)));
-        localStorage.removeItem("mysantriqu_remember_pending");
-      } catch (error) {
-        console.error("Akun tidak dapat diingat di perangkat ini:", error);
-      }
+    const userName = document.getElementById("user-name");
+    if (userName) userName.textContent = user.name || user.email || "Pengguna";
+    const userPhoto = document.getElementById("user-photo");
+    if (userPhoto) userPhoto.src = user.photo || user.picture || "assets/Logo.png";
+    const catalogManagement = document.getElementById("catalog-management");
+    if (catalogManagement && user.role === "admin") {
+      catalogManagement.style.display = "block";
     }
 
     if (!user.role_selected) {

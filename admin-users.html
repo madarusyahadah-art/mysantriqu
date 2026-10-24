@@ -44,7 +44,7 @@
         .badge-bk { background: #17a2b8; color: white; }
         select { padding: 8px 12px; border: 1px solid #ddd; border-radius: 5px; cursor: pointer; }
     </style>
-    <link rel="stylesheet" href="app-theme.css?v=20261013">
+    <link rel="stylesheet" href="style.css?v=20261023-4">
     <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
     <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
 </head>
@@ -90,17 +90,11 @@
         console.log("Admin Users page loaded");
         
         const user_id = localStorage.getItem("user_id");
-        const userData = JSON.parse(localStorage.getItem("user_data"));
         
         if (!user_id) {
             window.location.href = "index.html";
         }
         
-        if (userData) {
-            document.getElementById("user-name").textContent = userData.name;
-            var fotoUrl = userData.picture || userData.photo || 'assets/Logo.png';
-            document.getElementById("user-photo").src = fotoUrl;
-        }
         
         // Load semua user
         function loadUsers() {
@@ -216,8 +210,8 @@
             window.location.href = "index.html";
         });
     </script>
-    <script src="js/role-guard.js?v=20261012"></script>
-    <script src="js/auth.js"></script>
-    <script src="js/theme.js?v=20261012-3"></script>
+    <script src="js/role-guard.js?v=20261023-4"></script>
+    <script src="js/auth.js?v=20261023-4"></script>
+    <script src="js/theme.js?v=20261023-9"></script>
 </body>
 </html>

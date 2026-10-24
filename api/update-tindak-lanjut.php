@@ -1,74 +1,83 @@
 <?php
-header("Access-Control-Allow-Origin: *");
 header("Content-Type: application/json; charset=UTF-8");
 
 require_once __DIR__ . '/config.php';
 require_role(['admin']);
 
 if (!isset($conn)) {
-    http_response_code(500);
-    echo json_encode(["error" => "Database connection not established"]);
-    exit;
+    json_response(["success" => false, "error" => "Database connection not established"], 500);
 }
 
 $rawInput = file_get_contents('php://input');
 $data = json_decode($rawInput, true);
 
-if (!$data) {
-    http_response_code(400);
-    echo json_encode(["error" => "Invalid JSON data"]);
-    exit;
+if (!is_array($data) || !$data) {
+    json_response(["success" => false, "error" => "Invalid JSON data"], 400);
 }
 
-$id = $data['id'] ?? '';
-$status = $data['status_tindak_lanjut'] ?? '';
-$catatan_bk = $data['catatan_bk'] ?? '';
+$id = filter_var($data['id'] ?? null, FILTER_VALIDATE_INT);
+$status = $data['status_tindak_lanjut'] ?? null;
+$catatan_bk = $data['catatan_bk'] ?? null;
 
-if (empty($id)) {
-    http_response_code(400);
-    echo json_encode(["error" => "ID pelanggaran wajib diisi"]);
-    exit;
+if ($id === false || $id < 1) {
+    json_response(["success" => false, "error" => "ID pelanggaran wajib diisi"], 400);
 }
 
 // Validasi status
 $validStatus = ['belum', 'diproses', 'selesai'];
-if (!empty($status) && !in_array($status, $validStatus)) {
-    http_response_code(400);
-    echo json_encode(["error" => "Status tidak valid"]);
-    exit;
+if ($status !== null && (!is_string($status) || !in_array($status, $validStatus, true))) {
+    json_response(["success" => false, "error" => "Status tidak valid"], 400);
 }
 
-$sql = "UPDATE pelanggaran SET ";
+$updates = [];
 $params = [];
 $types = "";
 
-if (!empty($status)) {
-    $sql .= "status_tindak_lanjut = ?, ";
+if ($status !== null) {
+    $updates[] = "status_tindak_lanjut = ?";
     $params[] = $status;
     $types .= "s";
 }
 
 if ($catatan_bk !== null) {
-    $sql .= "catatan_bk = ?, ";
+    if (!is_string($catatan_bk) || mb_strlen($catatan_bk) > 5000) {
+        json_response(["success" => false, "error" => "Catatan tindak lanjut tidak valid"], 400);
+    }
+    $updates[] = "catatan_bk = ?";
     $params[] = $catatan_bk;
     $types .= "s";
 }
 
-// Hapus koma dan spasi terakhir
-$sql = rtrim($sql, ', ');
-$sql .= " WHERE id = ?";
+if (!$updates) {
+    json_response(["success" => false, "error" => "Tidak ada perubahan tindak lanjut yang dikirim"], 400);
+}
+
+$sql = "UPDATE pelanggaran SET " . implode(", ", $updates) . " WHERE id = ?";
 $params[] = $id;
 $types .= "i";
 
 $stmt = $conn->prepare($sql);
+if (!$stmt) {
+    json_response(["success" => false, "error" => "Perubahan tindak lanjut gagal disiapkan"], 500);
+}
 $stmt->bind_param($types, ...$params);
 
-if ($stmt->execute()) {
-    echo json_encode(["success" => true]);
-} else {
-    echo json_encode(["success" => false, "error" => $conn->error]);
+$executed = $stmt->execute();
+$affectedRows = $stmt->affected_rows;
+$stmt->close();
+if (!$executed) {
+    json_response(["success" => false, "error" => "Perubahan tindak lanjut gagal disimpan"], 500);
+}
+if ($affectedRows === 0) {
+    $existsStmt = $conn->prepare("SELECT 1 FROM pelanggaran WHERE id = ?");
+    $existsStmt->bind_param("i", $id);
+    $existsStmt->execute();
+    $exists = $existsStmt->get_result()->num_rows > 0;
+    $existsStmt->close();
+    if (!$exists) {
+        json_response(["success" => false, "error" => "Pelanggaran tidak ditemukan"], 404);
+    }
 }
 
-$stmt->close();
-$conn->close();
+json_response(["success" => true]);
 ?>

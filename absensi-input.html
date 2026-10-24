@@ -77,7 +77,7 @@
         .badge-berhalangan { background: #f8d7da; color: #721c24; }
         .badge-lainnya { background: #d1ecf1; color: #0c5460; }
     </style>
-    <link rel="stylesheet" href="app-theme.css?v=20261013">
+    <link rel="stylesheet" href="style.css?v=20261023-4">
     <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
     <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
 </head>
@@ -124,7 +124,7 @@
             </div>
 
             <div class="info-box">
-                <h4>📋 Instruksi</h4>
+                <h4>ðŸ“‹ Instruksi</h4>
                 <p>Cari nama santri yang <strong>tidak hadir</strong>, lalu isi keterangan dan tindak lanjut (opsional).</p>
             </div>
 
@@ -229,7 +229,7 @@
         </div>
     <!-- Section Input Ketidakhadiran Ustadz -->
     <div class="card attendance-panel" id="section-asatidz" style="display: none;">
-        <h2 style="color: #2d5016; margin-bottom: 15px;">👨🏫 Input Ketidakhadiran Ustadz/Asatidz</h2>
+        <h2 style="color: #2d5016; margin-bottom: 15px;">ðŸ‘¨ðŸ« Input Ketidakhadiran Ustadz/Asatidz</h2>
         <div class="info-box">
             <h4> Instruksi</h4>
             <p>Isi data asatidz terdaftar yang <strong>tidak hadir</strong> pada kegiatan ini. Penugasan dan peran mengikuti Manajemen Asatidz.</p>
@@ -306,19 +306,19 @@
 
     <script>
         console.log("Absensi Input page loaded");
+
+        function escapeHtml(value) {
+            return String(value == null ? '' : value).replace(/[&<>"']/g, function(character) {
+                return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[character];
+            });
+        }
         
         var user_id = localStorage.getItem("user_id");
-        var userData = JSON.parse(localStorage.getItem("user_data"));
         
         if (!user_id) {
             window.location.href = "index.html";
         }
         
-        if (userData) {
-            document.getElementById("user-name").textContent = userData.name;
-            var fotoUrl = userData.picture || userData.photo || 'assets/Logo.png';
-            document.getElementById("user-photo").src = fotoUrl;
-        }
         
         var localToday = new Date();
         localToday.setMinutes(localToday.getMinutes() - localToday.getTimezoneOffset());
@@ -399,16 +399,27 @@
             });
             
             var resultsDiv = document.getElementById("searchResults");
-            
+            resultsDiv.replaceChildren();
             if (filtered.length === 0) {
-                resultsDiv.innerHTML = '<div class="search-result-item">Tidak ada santri ditemukan</div>';
+                var emptyResult = document.createElement("div");
+                emptyResult.className = "search-result-item";
+                emptyResult.textContent = "Tidak ada santri ditemukan";
+                resultsDiv.appendChild(emptyResult);
             } else {
-                resultsDiv.innerHTML = filtered.map(function(s) {
-                    return '<div class="search-result-item" onclick="pilihSantri(' + s.id + ', \'' + s.nama.replace(/'/g, "\\'") + '\', \'' + (s.angkatan || '') + '\')">' +
-                        s.nama + ' <small style="color: #666;">(' + (s.angkatan || '-') + ')</small></div>';
-                }).join('');
+                filtered.forEach(function(s) {
+                    var result = document.createElement("div");
+                    result.className = "search-result-item";
+                    result.addEventListener("click", function() {
+                        pilihSantri(Number(s.id), s.nama, s.angkatan || "");
+                    });
+                    var name = document.createTextNode(s.nama + " ");
+                    var detail = document.createElement("small");
+                    detail.style.color = "#666";
+                    detail.textContent = "(" + (s.angkatan || "-") + ")";
+                    result.append(name, detail);
+                    resultsDiv.appendChild(result);
+                });
             }
-            
             resultsDiv.style.display = 'block';
         }
         
@@ -614,27 +625,41 @@
                         var tbody = document.getElementById("daftar-tidak-hadir-body");
                         if (data.tidak_hadir.length === 0) {
                             tbody.innerHTML = data.session_active
-                                ? '<tr><td colspan="7" class="text-center">Semua santri hadir! 🎉</td></tr>'
+                                ? '<tr><td colspan="7" class="text-center">Semua santri hadir! ðŸŽ‰</td></tr>'
                                 : '<tr><td colspan="7" class="text-center">Data ketidakhadiran lama belum cukup untuk menyimpulkan siapa yang hadir.</td></tr>';
                         } else {
                             var html = '';
                             data.tidak_hadir.forEach(function(item, index) {
+                                var recordId = Number(item.id);
+                                var status = ['izin', 'sakit', 'alpha', 'izin_menginap'].includes(item.status) ? item.status : 'lainnya';
                                 html += '<tr>';
                                 html += '<td>' + (index + 1) + '</td>';
-                                html += '<td>' + item.nama + '</td>';
-                                html += '<td>' + (item.angkatan || '-') + '</td>';
-                                html += '<td><span class="badge badge-' + item.status + '">' + item.status + '</span></td>';
-                                html += '<td>' + (item.keterangan || '-') + '</td>';
-                                html += '<td>' + (item.tindak_lanjut || '-') + '</td>';
+                                html += '<td>' + escapeHtml(item.nama) + '</td>';
+                                html += '<td>' + escapeHtml(item.angkatan || '-') + '</td>';
+                                html += '<td><span class="badge badge-' + status + '">' + escapeHtml(item.status) + '</span></td>';
+                                html += '<td>' + escapeHtml(item.keterangan || '-') + '</td>';
+                                html += '<td>' + escapeHtml(item.tindak_lanjut || '-') + '</td>';
                                 html += '<td>';
-                                html += '<button class="btn-edit" ' + (data.can_edit_report ? '' : 'disabled') + ' onclick="editAbsensi(' + item.id + ', \'' + item.santri_id + '\', \'' + item.nama.replace(/'/g, "\\'") + '\', \'' + (item.angkatan || '') + '\', \'' + item.status + '\', \'' + (item.keterangan || '').replace(/'/g, "\\'") + '\', \'' + (item.tindak_lanjut || '').replace(/'/g, "\\'") + '\')">Edit</button> ';
+                                html += '<button class="btn-edit" data-edit-index="' + index + '" ' + (data.can_edit_report ? '' : 'disabled') + '>Edit</button> ';
                                 var actionLabel = data.session_active ? 'Tandai Hadir' : 'Hapus Data Lama';
                                 var actionClass = data.session_active ? 'btn-edit' : 'btn-hapus';
-                                html += '<button class="' + actionClass + '" ' + (data.can_edit_report ? '' : 'disabled') + ' onclick="hapusAbsensi(' + item.id + ', ' + data.session_active + ')">' + actionLabel + '</button>';
+                                html += '<button class="' + actionClass + '" data-delete-id="' + recordId + '" ' + (data.can_edit_report ? '' : 'disabled') + '>' + actionLabel + '</button>';
                                 html += '</td>';
                                 html += '</tr>';
                             });
                             tbody.innerHTML = html;
+                            tbody.querySelectorAll("[data-edit-index]").forEach(function(button) {
+                                button.addEventListener("click", function() {
+                                    var item = data.tidak_hadir[Number(button.dataset.editIndex)];
+                                    editAbsensi(Number(item.id), Number(item.santri_id), item.nama, item.angkatan || '',
+                                        item.status, item.keterangan || '', item.tindak_lanjut || '');
+                                });
+                            });
+                            tbody.querySelectorAll("[data-delete-id]").forEach(function(button) {
+                                button.addEventListener("click", function() {
+                                    hapusAbsensi(Number(button.dataset.deleteId), data.session_active);
+                                });
+                            });
                         }
                         loadDaftarAsatidzTidakHadir();
                     }
@@ -860,7 +885,7 @@
                         item.tabIndex = 0;
                         var details = [person.mata_pelajaran, person.jabatan].filter(Boolean).join(' / ') || 'Tidak ada mata pelajaran atau jabatan';
                         var roleLabels = { masul: "Mas'ul", musyrif: 'Musyrif', pengampu: 'Pengampu' };
-                        item.textContent = person.nama + ' — ' + details + (person.peran ? ' · ' + (roleLabels[person.peran] || person.peran) : '');
+                        item.textContent = person.nama + ' â€” ' + details + (person.peran ? ' Â· ' + (roleLabels[person.peran] || person.peran) : '');
                         item.addEventListener('click', function() { pilihAsatidz(person); });
                         item.addEventListener('keydown', function(event) {
                             if (event.key === 'Enter' || event.key === ' ') pilihAsatidz(person);
@@ -1058,8 +1083,8 @@
             checkAsatidzSection();
         };
     </script>
-    <script src="js/auth.js"></script>
-  <script src="js/role-guard.js?v=20261012"></script>
-  <script src="js/theme.js?v=20261012-3"></script>
+    <script src="js/auth.js?v=20261023-4"></script>
+  <script src="js/role-guard.js?v=20261023-4"></script>
+  <script src="js/theme.js?v=20261023-9"></script>
 </body>
 </html>

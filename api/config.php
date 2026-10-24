@@ -1,8 +1,13 @@
 <?php
-$db_host = getenv('DB_HOST') ?: 'srv-captain--mariadb';
-$db_user = getenv('DB_USER') ?: 'mysantriqu_user';
-$db_pass = getenv('DB_PASS') ?: 'ee42a59a2eca1d51f51f9e952458f9be';
-$db_name = getenv('DB_NAME') ?: 'mysantriqu';
+ini_set('session.gc_maxlifetime', (string) (60 * 60 * 24 * 30));
+
+$localDbConfigFile = __DIR__ . '/db-config.local.php';
+$localDbConfig = is_file($localDbConfigFile) ? require $localDbConfigFile : [];
+
+$db_host = getenv('DB_HOST') ?: ($localDbConfig['db_host'] ?? 'localhost');
+$db_user = getenv('DB_USER') ?: ($localDbConfig['db_user'] ?? 'root');
+$db_pass = getenv('DB_PASS') ?: ($localDbConfig['db_pass'] ?? '');
+$db_name = getenv('DB_NAME') ?: ($localDbConfig['db_name'] ?? 'mysantriqu');
 
 // Create database connection
 $conn = null;
@@ -60,24 +65,37 @@ if (!function_exists('json_response')) {
 // Helper function untuk set session authentication
 if (!function_exists('set_authenticated_session')) {
     function set_authenticated_session($user, $rememberMe = false) {
+        $lifetime = $rememberMe ? 60 * 60 * 24 * 30 : 0;
+        $cookieParams = session_get_cookie_params();
+        $cookieOptions = [
+            'expires' => $lifetime ? time() + $lifetime : 0,
+            'path' => $cookieParams['path'] ?: '/',
+            'domain' => $cookieParams['domain'] ?? '',
+            'secure' => !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off',
+            'httponly' => true,
+            'samesite' => 'Lax',
+        ];
+
         if (session_status() === PHP_SESSION_NONE) {
+            ini_set('session.cookie_lifetime', (string) $lifetime);
+            session_set_cookie_params([
+                'lifetime' => $lifetime,
+                'path' => $cookieOptions['path'],
+                'domain' => $cookieOptions['domain'],
+                'secure' => $cookieOptions['secure'],
+                'httponly' => $cookieOptions['httponly'],
+                'samesite' => $cookieOptions['samesite'],
+            ]);
             session_start();
         }
-        
+
+        session_regenerate_id(true);
         $_SESSION['user'] = $user;
         $_SESSION['authenticated'] = true;
         $_SESSION['login_time'] = time();
-        
-        if ($rememberMe) {
-            ini_set('session.cookie_lifetime', 60 * 60 * 24 * 30);
-            session_set_cookie_params([
-                'lifetime' => 60 * 60 * 24 * 30,
-                'path' => '/',
-                'secure' => !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off',
-                'httponly' => true,
-                'samesite' => 'Lax',
-            ]);
-        }
+        $_SESSION['remember_me'] = (bool) $rememberMe;
+
+        setcookie(session_name(), session_id(), $cookieOptions);
     }
 }
 
@@ -87,6 +105,7 @@ if (!function_exists('is_authenticated')) {
         if (session_status() === PHP_SESSION_NONE) {
             session_start();
         }
+
         return isset($_SESSION['authenticated']) && $_SESSION['authenticated'] === true;
     }
 }

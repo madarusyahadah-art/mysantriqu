@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#114d35">
     <title>Manajemen Asatidz - MySantriQu</title>
-    <link rel="stylesheet" href="app-theme.css?v=20261013">
+    <link rel="stylesheet" href="style.css?v=20261023-4">
     <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
     <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
     <style>
@@ -305,7 +305,6 @@
                 document.getElementById("user-photo").src = session.user.photo || "assets/Logo.png";
                 localStorage.setItem("user_id", String(session.user.id));
                 localStorage.setItem("user_role", session.user.role);
-                localStorage.setItem("user_data", JSON.stringify(session.user));
                 const kegiatan = await requestJson("api/get-kegiatan.php");
                 activities = kegiatan.kegiatan;
                 await loadAsatidz();
@@ -314,8 +313,8 @@
             }
         })();
     </script>
-    <script src="js/auth.js"></script>
-    <script src="js/role-guard.js?v=20261013"></script>
-    <script src="js/theme.js?v=20261013"></script>
+    <script src="js/auth.js?v=20261023-4"></script>
+    <script src="js/role-guard.js?v=20261023-4"></script>
+    <script src="js/theme.js?v=20261023-9"></script>
 </body>
 </html>

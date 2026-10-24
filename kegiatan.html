@@ -74,7 +74,7 @@
         input:checked + .slider { background-color: #28a745; }
         input:checked + .slider:before { transform: translateX(26px); }
     </style>
-    <link rel="stylesheet" href="app-theme.css?v=20261013">
+    <link rel="stylesheet" href="style.css?v=20261023-4">
     <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
     <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
 </head>
@@ -177,20 +177,19 @@
 
     <script>
         console.log("Kegiatan page loaded");
+
+        function escapeHtml(value) {
+            return String(value == null ? '' : value).replace(/[&<>"']/g, function(character) {
+                return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[character];
+            });
+        }
         
         const user_id = localStorage.getItem("user_id");
-        const userData = JSON.parse(localStorage.getItem("user_data"));
         
         if (!user_id) {
             window.location.href = "index.html";
         }
         
-        if (userData) {
-            document.getElementById("user-name").textContent = userData.name;
-            // Cek apakah picture ada, jika tidak pakai photo
-            var fotoUrl = userData.picture || userData.photo || 'assets/Logo.png';
-            document.getElementById("user-photo").src = fotoUrl;
-        }
     
         
         // Load kegiatan
@@ -215,27 +214,39 @@
                             for (var i = 0; i < data.kegiatan.length; i++) {
                                 var k = data.kegiatan[i];
                                 var nomor = i + 1;
-                                var kategoriClass = 'badge-' + k.kategori;
+                                var kategoriClass = ['wajib', 'sunnah', 'opsional'].includes(k.kategori) ? 'badge-' + k.kategori : 'badge-opsional';
                                 var frekuensiLabel = k.frekuensi ? k.frekuensi.charAt(0).toUpperCase() + k.frekuensi.slice(1) : 'Harian';
-                                var semesters = k.semester_eligible ? 'Semester ' + k.semester_eligible.split(',').join(', ') : 'Semua';
+                                var semesters = k.semester_eligible ? 'Semester ' + escapeHtml(k.semester_eligible.split(',').join(', ')) : 'Semua';
                                 var statusBadge = k.is_active == 1 
                                     ? '<span class="badge badge-active">Aktif</span>' 
                                     : '<span class="badge badge-inactive">Nonaktif</span>';
                                 
                                 html += '<tr>';
                                 html += '<td>' + nomor + '</td>';
-                                html += '<td>' + k.nama_kegiatan + '</td>';
-                                html += '<td><span class="badge ' + kategoriClass + '">' + k.kategori + '</span></td>';
-                                html += '<td>' + frekuensiLabel + '</td>';
+                                html += '<td>' + escapeHtml(k.nama_kegiatan) + '</td>';
+                                html += '<td><span class="badge ' + kategoriClass + '">' + escapeHtml(k.kategori) + '</span></td>';
+                                html += '<td>' + escapeHtml(frekuensiLabel) + '</td>';
                                 html += '<td>' + semesters + '</td>';
                                 html += '<td>' + statusBadge + '</td>';
                                 html += '<td>';
-                                html += '<button class="btn btn-warning btn-sm" onclick="editKegiatan(' + k.id + ', \'' + k.nama_kegiatan.replace(/'/g, "\\'") + '\', \'' + k.kategori + '\', \'' + (k.frekuensi || 'harian') + '\', ' + k.is_active + ', \'' + (k.semester_eligible || '') + '\')">Edit</button> ';
-                                html += '<button class="btn btn-danger btn-sm" onclick="deleteKegiatan(' + k.id + ')">Hapus</button>';
+                                html += '<button class="btn btn-warning btn-sm" data-edit-index="' + i + '">Edit</button> ';
+                                html += '<button class="btn btn-danger btn-sm" data-delete-id="' + Number(k.id) + '">Hapus</button>';
                                 html += '</td>';
                                 html += '</tr>';
                             }
                             tbody.innerHTML = html;
+                            tbody.querySelectorAll("[data-edit-index]").forEach(function(button) {
+                                button.addEventListener("click", function() {
+                                    var k = data.kegiatan[Number(button.dataset.editIndex)];
+                                    editKegiatan(Number(k.id), k.nama_kegiatan, k.kategori, k.frekuensi || 'harian',
+                                        Number(k.is_active), k.semester_eligible || '');
+                                });
+                            });
+                            tbody.querySelectorAll("[data-delete-id]").forEach(function(button) {
+                                button.addEventListener("click", function() {
+                                    deleteKegiatan(Number(button.dataset.deleteId));
+                                });
+                            });
                         }
                     } else {
                         console.error('Error dari API:', data.error);
@@ -355,8 +366,8 @@
             window.location.href = "index.html";
         });
     </script>
-    <script src="js/role-guard.js?v=20261012"></script>
-    <script src="js/auth.js"></script>
-    <script src="js/theme.js?v=20261012-3"></script>
+    <script src="js/role-guard.js?v=20261023-4"></script>
+    <script src="js/auth.js?v=20261023-4"></script>
+    <script src="js/theme.js?v=20261023-9"></script>
 </body>
 </html>

@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#114d35">
+  <title>Kalender Akademik - MySantriQu</title>
+  <link rel="stylesheet" href="style.css?v=20261023-4">
+  <style>
+    .calendar-page { max-width: 1100px; margin: 2rem auto; padding: 0 1rem 3rem; }
+    .calendar-card { margin: 1rem 0; padding: 1.25rem; border-radius: 14px; background: var(--surface, #fff); color: var(--text, #173528); box-shadow: 0 8px 28px rgba(0,0,0,.12); }
+    .calendar-toolbar, .calendar-event { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+    .calendar-toolbar { flex-wrap: wrap; }
+    .calendar-toolbar label, .import-form label { display: grid; gap: .4rem; font-weight: 600; }
+    .calendar-toolbar input, .import-form input[type=file] { padding: .65rem; border: 1px solid #94a3b8; border-radius: 8px; }
+    .calendar-event { align-items: flex-start; padding: .9rem 0; border-bottom: 1px solid rgba(100,116,139,.25); }
+    .calendar-event:last-child { border-bottom: 0; }
+    .calendar-event p { margin: .3rem 0 0; white-space: pre-wrap; }
+    .calendar-date { min-width: 155px; font-weight: 700; }
+    .calendar-badge { display: inline-block; margin-top: .4rem; padding: .2rem .55rem; border-radius: 999px; background: #dbeafe; color: #1e40af; font-size: .8rem; }
+    .calendar-badge.done { background: #dcfce7; color: #166534; }
+    .import-preview { max-height: 28rem; overflow: auto; margin: 1rem 0; }
+    .import-preview label { display: flex; align-items: flex-start; gap: .65rem; padding: .6rem 0; border-bottom: 1px solid rgba(100,116,139,.2); }
+    .import-message { min-height: 1.5rem; }
+    .calendar-error { color: #b91c1c; }
+    .calendar-help { opacity: .8; }
+    @media(max-width:600px) { .calendar-event { display: block; } .calendar-date { margin-bottom: .3rem; } }
+  </style>
+  <script src="js/role-guard.js?v=20261023-4" defer></script>
+  <script src="js/auth.js?v=20261023-4" defer></script>
+  <script src="js/xlsx-calendar-parser.js?v=20261023-4" defer></script>
+  <script src="js/academic-calendar.js?v=20261023-4" defer></script>
+</head>
+<body>
+  <main class="calendar-page">
+    <a href="dashboard.html">â† Kembali ke dashboard</a>
+    <h1>Kalender Akademik</h1>
+    <p class="calendar-help">Jadwal Kaldik ditampilkan terpisah dari daftar kegiatan absensi. Kegiatan UAS yang telah diverifikasi akan menaikkan semester semua Mahasantri satu tingkat setelah hari terakhir ujian.</p>
+
+    <section class="calendar-card" id="import-card" hidden>
+      <h2>Impor Kaldik Excel</h2>
+      <p>Pilih berkas .xlsx. Periksa pratinjau, terutama penanda akhir semester, sebelum menyimpan. PDF dan berkas Excel dengan kata sandi tidak didukung.</p>
+      <form class="import-form" id="calendar-import-form">
+        <label for="calendar-file">Berkas kalender (.xlsx, maksimal 10 MB)</label>
+        <input id="calendar-file" type="file" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" required>
+        <p id="import-message" class="import-message" role="status"></p>
+        <div id="import-preview" class="import-preview" hidden></div>
+        <button id="import-submit" type="submit" hidden>Simpan kalender</button>
+      </form>
+    </section>
+
+    <section class="calendar-card">
+      <div class="calendar-toolbar">
+        <div>
+          <h2 id="calendar-title">Kegiatan kalender</h2>
+          <p id="calendar-year" class="calendar-help"></p>
+        </div>
+        <label for="calendar-month">Bulan
+          <input id="calendar-month" type="month">
+        </label>
+      </div>
+      <p id="semester-message" role="status"></p>
+      <div id="calendar-events" aria-live="polite"></div>
+    </section>
+    <p id="calendar-error" class="calendar-error" role="alert"></p>
+  </main>
+</body>
+</html>

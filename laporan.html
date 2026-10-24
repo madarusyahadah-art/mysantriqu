@@ -89,7 +89,7 @@
         .rank-3 { background: #cd7f32; font-weight: bold; color: white; }
         .btn-edit-tindak { padding: 5px 10px; background: #17a2b8; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 12px; }
     </style>
-    <link rel="stylesheet" href="app-theme.css?v=20261013">
+    <link rel="stylesheet" href="style.css?v=20261023-4">
     <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
     <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
 </head>
@@ -112,8 +112,8 @@
         <h1><span class="page-heading-icon"><ion-icon name="stats-chart-outline" aria-hidden="true"></ion-icon></span> Laporan & Rekap</h1>
         
         <div class="tab-container">
-            <div class="tab active" onclick="switchTab('absensi')">📋 Laporan Absensi</div>
-            <div class="tab" onclick="switchTab('pelanggaran')">⚠️ Laporan Pelanggaran</div>
+            <div class="tab active" onclick="switchTab('absensi')">ðŸ“‹ Laporan Absensi</div>
+            <div class="tab" onclick="switchTab('pelanggaran')">âš ï¸ Laporan Pelanggaran</div>
         </div>
 
         <!-- TAB ABSENSI -->
@@ -124,10 +124,10 @@
                 <div class="preset-buttons">
                     <span style="font-weight: bold; margin-right: 10px;">Preset:</span>
                     <button class="preset-btn" onclick="setPreset('week')"> Pekan Ini</button>
-                    <button class="preset-btn" onclick="setPreset('month')">📆 Bulan Ini</button>
-                    <button class="preset-btn" onclick="setPreset('mid')">📚 Mid Semester</button>
-                    <button class="preset-btn" onclick="setPreset('semester')">🎓 Semester</button>
-                    <button class="preset-btn" onclick="setPreset('year')">🗓️ Tahunan</button>
+                    <button class="preset-btn" onclick="setPreset('month')">ðŸ“† Bulan Ini</button>
+                    <button class="preset-btn" onclick="setPreset('mid')">ðŸ“š Mid Semester</button>
+                    <button class="preset-btn" onclick="setPreset('semester')">ðŸŽ“ Semester</button>
+                    <button class="preset-btn" onclick="setPreset('year')">ðŸ—“ï¸ Tahunan</button>
                 </div>
                 
                 <div class="filter-section">
@@ -164,10 +164,10 @@
                 
                 <div style="text-align: right;">
                     <button class="btn btn-secondary" onclick="resetFilter()">Reset</button>
-                    <button class="btn btn-primary" onclick="loadLaporan()">🔍 Tampilkan Laporan</button>
-                    <button class="btn btn-excel" onclick="exportExcel()">📊 Export Rekap</button>
-                    <button class="btn btn-excel" onclick="exportAttendance('issues')">📋 Export Absensi Bermasalah</button>
-                    <button class="btn btn-excel" onclick="exportAttendance('detail')">📚 Export Semua Absensi</button>
+                    <button class="btn btn-primary" onclick="loadLaporan()">ðŸ” Tampilkan Laporan</button>
+                    <button class="btn btn-excel" onclick="exportExcel()">ðŸ“Š Export Rekap</button>
+                    <button class="btn btn-excel" onclick="exportAttendance('issues')">ðŸ“‹ Export Absensi Bermasalah</button>
+                    <button class="btn btn-excel" onclick="exportAttendance('detail')">ðŸ“š Export Semua Absensi</button>
                 </div>
             </div>
 
@@ -212,7 +212,7 @@
 
                             <!-- Section Asatidz -->
                             <div id="section-laporan-asatidz" style="display: none; margin-top: 30px;">
-                                <h3 style="color: #2d5016; margin-bottom: 15px;">📚 Data Ketidakhadiran Asatidz</h3>
+                                <h3 style="color: #2d5016; margin-bottom: 15px;">ðŸ“š Data Ketidakhadiran Asatidz</h3>
                                 <table>
                                     <thead>
                                         <tr>
@@ -243,11 +243,11 @@
                 
                 <div class="preset-buttons">
                     <span style="font-weight: bold; margin-right: 10px;">Preset:</span>
-                    <button class="preset-btn" onclick="setPresetPelanggaran('week')">📅 Pekan Ini</button>
-                    <button class="preset-btn" onclick="setPresetPelanggaran('month')">📆 Bulan Ini</button>
+                    <button class="preset-btn" onclick="setPresetPelanggaran('week')">ðŸ“… Pekan Ini</button>
+                    <button class="preset-btn" onclick="setPresetPelanggaran('month')">ðŸ“† Bulan Ini</button>
                     <button class="preset-btn" onclick="setPresetPelanggaran('mid')"> Mid Semester</button>
-                    <button class="preset-btn" onclick="setPresetPelanggaran('semester')">🎓 Semester</button>
-                    <button class="preset-btn" onclick="setPresetPelanggaran('year')">🗓️ Tahunan</button>
+                    <button class="preset-btn" onclick="setPresetPelanggaran('semester')">ðŸŽ“ Semester</button>
+                    <button class="preset-btn" onclick="setPresetPelanggaran('year')">ðŸ—“ï¸ Tahunan</button>
                 </div>
                 
                 <div class="filter-section">
@@ -275,15 +275,15 @@
                 
                 <div style="text-align: right;">
                     <button class="btn btn-secondary" onclick="resetFilterPelanggaran()">Reset</button>
-                    <button class="btn btn-primary" onclick="loadLaporanPelanggaran()">🔍 Tampilkan Laporan</button>
-                    <button class="btn btn-excel" onclick="exportPelanggaranExcel(false)">📊 Export Semua Pelanggaran</button>
-                    <button class="btn btn-excel" onclick="exportPelanggaranExcel(true)">📝 Export Pelanggaran & Catatan</button>
+                    <button class="btn btn-primary" onclick="loadLaporanPelanggaran()">ðŸ” Tampilkan Laporan</button>
+                    <button class="btn btn-excel" onclick="exportPelanggaranExcel(false)">ðŸ“Š Export Semua Pelanggaran</button>
+                    <button class="btn btn-excel" onclick="exportPelanggaranExcel(true)">ðŸ“ Export Pelanggaran & Catatan</button>
                 </div>
             </div>
 
             <!-- Ranking Santri -->
             <div class="card">
-                <h2 style="margin-bottom: 15px; color: #2d5016;">🏆 Ranking Santri (Total Poin Tertinggi)</h2>
+                <h2 style="margin-bottom: 15px; color: #2d5016;">ðŸ† Ranking Santri (Total Poin Tertinggi)</h2>
                 <div class="table-container">
                     <table>
                         <thead>
@@ -304,7 +304,7 @@
 
             <!-- Persentase per Jenis -->
             <div class="card">
-                <h2 style="margin-bottom: 15px; color: #2d5016;">📊 Persentase Pelanggaran per Jenis</h2>
+                <h2 style="margin-bottom: 15px; color: #2d5016;">ðŸ“Š Persentase Pelanggaran per Jenis</h2>
                 <div class="table-container">
                     <table>
                         <thead>
@@ -324,7 +324,7 @@
             </div>
 
             <div class="card">
-                <h2 style="margin-bottom: 8px; color: #2d5016;">📈 Perkembangan Pelanggaran</h2>
+                <h2 style="margin-bottom: 8px; color: #2d5016;">ðŸ“ˆ Perkembangan Pelanggaran</h2>
                 <p id="trend-description" style="color: #666; margin-bottom: 15px;">Jumlah pelanggaran per periode pada rentang yang dipilih.</p>
                 <div id="violation-trend-chart" class="trend-chart" role="img" aria-label="Grafik perkembangan pelanggaran">
                     <p class="text-center">Klik "Tampilkan Laporan" untuk melihat grafik.</p>
@@ -333,7 +333,7 @@
 
             <!-- Detail Pelanggaran -->
             <div class="card">
-                <h2 style="margin-bottom: 15px; color: #2d5016;">📋 Detail Pelanggaran</h2>
+                <h2 style="margin-bottom: 15px; color: #2d5016;">ðŸ“‹ Detail Pelanggaran</h2>
                 <div class="table-container">
                     <table>
                         <thead>
@@ -385,19 +385,19 @@
 
     <script>
         console.log("Laporan page loaded");
+
+        function escapeHtml(value) {
+            return String(value == null ? '' : value).replace(/[&<>"']/g, function(character) {
+                return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[character];
+            });
+        }
         
         const user_id = localStorage.getItem("user_id");
-        const userData = JSON.parse(localStorage.getItem("user_data"));
         
         if (!user_id) {
             window.location.href = "index.html";
         }
         
-        if (userData) {
-            document.getElementById("user-name").textContent = userData.name;
-            var fotoUrl = userData.picture || userData.photo || 'assets/Logo.png';
-            document.getElementById("user-photo").src = fotoUrl;
-        }
         
         // Set default tanggal (bulan ini)
         var today = new Date();
@@ -514,17 +514,17 @@
                         var totalAll = 0, totalHadir = 0, totalIzin = 0, totalSakit = 0, totalAlpha = 0, totalIzinMenginap = 0;
                         
                         data.laporan.forEach(function(l, index) {
-                            var alphaClass = l.alpha > 3 ? 'alpha-high' : '';
+                            var alphaClass = Number(l.alpha) > 3 ? 'alpha-high' : '';
                             html += '<tr>';
                             html += '<td>' + (index + 1) + '</td>';
-                            html += '<td><a href="profil-santri.html?id=' + l.santri_id + '" style="color: #2d5016; text-decoration: none; font-weight: bold;">' + l.nama + '</a></td>';
-                            html += '<td>' + (l.angkatan || '-') + '</td>';
-                            html += '<td class="text-center">' + (l.total_absensi || 0) + '</td>';
-                            html += '<td class="text-center">' + (l.hadir || 0) + '</td>';
-                            html += '<td class="text-center">' + (l.izin || 0) + '</td>';
-                            html += '<td class="text-center">' + (l.sakit || 0) + '</td>';
-                            html += '<td class="text-center ' + alphaClass + '">' + (l.alpha || 0) + '</td>';
-                            html += '<td class="text-center">' + (l.izin_menginap || 0) + '</td>';
+                            html += '<td><a href="profil-santri.html?id=' + Number(l.santri_id) + '" style="color: #2d5016; text-decoration: none; font-weight: bold;">' + escapeHtml(l.nama) + '</a></td>';
+                            html += '<td>' + escapeHtml(l.angkatan || '-') + '</td>';
+                            html += '<td class="text-center">' + Number(l.total_absensi || 0) + '</td>';
+                            html += '<td class="text-center">' + Number(l.hadir || 0) + '</td>';
+                            html += '<td class="text-center">' + Number(l.izin || 0) + '</td>';
+                            html += '<td class="text-center">' + Number(l.sakit || 0) + '</td>';
+                            html += '<td class="text-center ' + alphaClass + '">' + Number(l.alpha || 0) + '</td>';
+                            html += '<td class="text-center">' + Number(l.izin_menginap || 0) + '</td>';
                             html += '</tr>';
                             
                             totalAll += parseInt(l.total_absensi || 0);
@@ -714,11 +714,11 @@
                                 else if (index === 2) rankClass = 'rank-3';
                                 
                                 html += '<tr class="' + rankClass + '">';
-                                html += '<td class="text-center">' + (index < 3 ? ['🥇','🥈','🥉'][index] : rankLabel) + '</td>';
-                                html += '<td><a href="profil-santri.html?id=' + r.santri_id + '" style="color: #2d5016; text-decoration: none; font-weight: bold;">' + r.nama + '</a></td>';
-                                html += '<td>' + (r.angkatan || '-') + '</td>';
-                                html += '<td class="text-center">' + r.total_pelanggaran + '</td>';
-                                html += '<td class="text-center" style="font-weight: bold; color: #dc3545;">' + r.total_poin + '</td>';
+                                html += '<td class="text-center">' + (index < 3 ? ['ðŸ¥‡','ðŸ¥ˆ','ðŸ¥‰'][index] : rankLabel) + '</td>';
+                                html += '<td><a href="profil-santri.html?id=' + Number(r.santri_id) + '" style="color: #2d5016; text-decoration: none; font-weight: bold;">' + escapeHtml(r.nama) + '</a></td>';
+                                html += '<td>' + escapeHtml(r.angkatan || '-') + '</td>';
+                                html += '<td class="text-center">' + Number(r.total_pelanggaran) + '</td>';
+                                html += '<td class="text-center" style="font-weight: bold; color: #dc3545;">' + Number(r.total_poin) + '</td>';
                                 html += '</tr>';
                             });
                             tbodyRanking.innerHTML = html;
@@ -733,10 +733,11 @@
                             data.persentase_jenis.forEach(function(p, index) {
                                 html += '<tr>';
                                 html += '<td>' + (index + 1) + '</td>';
-                                html += '<td>' + p.jenis_pelanggaran + '</td>';
-                                html += '<td class="text-center">' + p.jumlah + '</td>';
-                                html += '<td class="text-center">' + p.persentase + '%</td>';
-                                html += '<td><div class="bar-chart" style="width: ' + p.persentase + '%;"></div></td>';
+                                var percentage = Math.min(100, Math.max(0, Number(p.persentase) || 0));
+                                html += '<td>' + escapeHtml(p.jenis_pelanggaran) + '</td>';
+                                html += '<td class="text-center">' + Number(p.jumlah) + '</td>';
+                                html += '<td class="text-center">' + percentage + '%</td>';
+                                html += '<td><div class="bar-chart" style="width: ' + percentage + '%;"></div></td>';
                                 html += '</tr>';
                             });
                             tbodyPersentase.innerHTML = html;
@@ -751,28 +752,36 @@
                         } else {
                             var html = '';
                             data.detail_pelanggaran.forEach(function(p, index) {
-                                var statusClass = 'badge-status-' + p.status_tindak_lanjut;
+                                var statusValue = ['belum', 'diproses', 'selesai'].includes(p.status_tindak_lanjut)
+                                    ? p.status_tindak_lanjut : 'belum';
+                                var statusClass = 'badge-status-' + statusValue;
                                 var statusLabel = {
                                     'belum': 'Belum Ditindak',
                                     'diproses': 'Diproses BK',
                                     'selesai': 'Selesai'
-                                }[p.status_tindak_lanjut] || p.status_tindak_lanjut;
+                                }[statusValue];
                                 
                                 html += '<tr>';
                                 html += '<td>' + (index + 1) + '</td>';
-                                html += '<td>' + p.tanggal + '</td>';
-                                html += '<td><a href="profil-santri.html?id=' + p.santri_id + '" style="color: #2d5016; text-decoration: none; font-weight: bold;">' + p.nama_santri + '</a></td>';
-                                html += '<td>' + (p.angkatan || '-') + '</td>';
-                                html += '<td>' + p.jenis_pelanggaran + '</td>';
-                                html += '<td class="text-center" style="font-weight: bold; color: #dc3545;">' + p.poin + '</td>';
-                                html += '<td>' + (p.keterangan || '-') + '</td>';
+                                html += '<td>' + escapeHtml(p.tanggal) + '</td>';
+                                html += '<td><a href="profil-santri.html?id=' + Number(p.santri_id) + '" style="color: #2d5016; text-decoration: none; font-weight: bold;">' + escapeHtml(p.nama_santri) + '</a></td>';
+                                html += '<td>' + escapeHtml(p.angkatan || '-') + '</td>';
+                                html += '<td>' + escapeHtml(p.jenis_pelanggaran) + '</td>';
+                                html += '<td class="text-center" style="font-weight: bold; color: #dc3545;">' + Number(p.poin) + '</td>';
+                                html += '<td>' + escapeHtml(p.keterangan || '-') + '</td>';
                                 html += '<td><span class="badge ' + statusClass + '">' + statusLabel + '</span></td>';
-                                html += '<td>' + (p.catatan_bk || '-') + '</td>';
-                                html += '<td>' + (p.input_by_name || '-') + '</td>';
-                                html += '<td><button class="btn-edit-tindak" onclick="bukaModalTindakLanjut(' + p.id + ', \'' + p.status_tindak_lanjut + '\', \'' + (p.catatan_bk || '').replace(/'/g, "\\'") + '\')">Edit</button></td>';
+                                html += '<td>' + escapeHtml(p.catatan_bk || '-') + '</td>';
+                                html += '<td>' + escapeHtml(p.input_by_name || '-') + '</td>';
+                                html += '<td><button class="btn-edit-tindak" data-edit-index="' + index + '">Edit</button></td>';
                                 html += '</tr>';
                             });
                             tbodyDetail.innerHTML = html;
+                            tbodyDetail.querySelectorAll("[data-edit-index]").forEach(function(button) {
+                                button.addEventListener("click", function() {
+                                    var item = data.detail_pelanggaran[Number(button.dataset.editIndex)];
+                                    bukaModalTindakLanjut(Number(item.id), item.status_tindak_lanjut, item.catatan_bk || '');
+                                });
+                            });
                         }
 
                         function renderTrendChart(periods, granularity) {
@@ -907,8 +916,8 @@
             window.open(url, '_blank');
         }
     </script>
-    <script src="js/role-guard.js?v=20261012"></script>
-    <script src="js/auth.js"></script>
-    <script src="js/theme.js?v=20261012-3"></script>
+    <script src="js/role-guard.js?v=20261023-4"></script>
+    <script src="js/auth.js?v=20261023-4"></script>
+    <script src="js/theme.js?v=20261023-9"></script>
 </body>
 </html>

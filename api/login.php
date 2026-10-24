@@ -10,9 +10,11 @@ $GOOGLE_CLIENT_SECRET = $oauthConfig['client_secret'];
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET' && ($_GET['action'] ?? '') === 'google') {
     date_default_timezone_set('Asia/Jakarta');
+    $authAction = ($_GET['intent'] ?? '') === 'register' ? 'register' : 'login';
+    $cookieLifetime = 0;
     ini_set('session.gc_maxlifetime', (string) (60 * 60 * 24 * 30));
     session_set_cookie_params([
-        'lifetime' => 0,
+        'lifetime' => $cookieLifetime,
         'path' => '/',
         'secure' => !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off',
         'httponly' => true,
@@ -20,14 +22,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && ($_GET['action'] ?? '') === 'google'
     ]);
     session_start();
 
-    $_SESSION['remember_login'] = ($_GET['remember'] ?? '') === '1';
+    $_SESSION['google_auth_action'] = $authAction;
     $state = bin2hex(random_bytes(32));
     $_SESSION['google_oauth_state'] = $state;
     
-    $baseUrl = $oauthConfig['base_url'];
-    $redirectUri = $oauthConfig['redirect_uri'];
+    $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
+    $scriptName = $_SERVER['SCRIPT_NAME'] ?? '/api/login.php';
+    $apiPos = strpos($scriptName, '/api/');
+    $basePath = $apiPos === false ? '' : substr($scriptName, 0, $apiPos);
+    $https = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || (($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https');
+    $protocol = ($https || !in_array(explode(':', $host)[0], ['localhost', '127.0.0.1'], true)) ? 'https' : 'http';
+    $baseUrl = $protocol . '://' . $host . $basePath;
     
-    if ($GOOGLE_CLIENT_SECRET === '' || strpos($GOOGLE_CLIENT_SECRET, 'GANTI_DENGAN') !== false) {
+    if ($GOOGLE_CLIENT_SECRET === '') {
         header('Location: ' . $baseUrl . '/index.html?error=' . urlencode('Login Google belum dikonfigurasi. Admin perlu mengatur GOOGLE_CLIENT_SECRET di server.'));
         exit;
     }
@@ -57,21 +64,9 @@ if (!function_exists('json_response')) {
     }
 }
 
-// FALLBACK: Jika fungsi set_authenticated_session tidak ada di config.php, buat di sini
-if (!function_exists('set_authenticated_session')) {
-    function set_authenticated_session($user, $rememberMe) {
-        session_start();
-        $_SESSION['user'] = $user;
-        $_SESSION['authenticated'] = true;
-        if ($rememberMe) {
-            ini_set('session.cookie_lifetime', 60 * 60 * 24 * 30); // 30 hari
-        }
-    }
-}
-
-function find_or_create_user($conn, $email, $name, $photo)
+function find_google_user($conn, $email, $photo)
 {
-    $stmt = $conn->prepare("SELECT id, name, email, role, photo, santri_id, role_selected FROM users WHERE email = ?");
+    $stmt = $conn->prepare("SELECT id, name, email, role, photo, santri_id, role_selected, password_hash FROM users WHERE email = ?");
     $stmt->bind_param("s", $email);
     $stmt->execute();
     $result = $stmt->get_result();
@@ -89,23 +84,8 @@ function find_or_create_user($conn, $email, $name, $photo)
         return $user;
     }
 
-    $insertStmt = $conn->prepare("INSERT INTO users (name, email, photo, role, role_selected) VALUES (?, ?, ?, 'mahasantri', 0)");
-    $insertStmt->bind_param("sss", $name, $email, $photo);
-    $insertStmt->execute();
-
-    $user = [
-        'id' => $insertStmt->insert_id,
-        'name' => $name,
-        'email' => $email,
-        'role' => 'mahasantri',
-        'photo' => $photo,
-        'santri_id' => null,
-        'role_selected' => 0,
-    ];
-
-    $insertStmt->close();
     $stmt->close();
-    return $user;
+    return null;
 }
 
 function fetch_google_user_from_code($code, $redirectUri, $clientId, $clientSecret)
@@ -156,15 +136,21 @@ function fetch_google_user_from_code($code, $redirectUri, $clientId, $clientSecr
     }
 
     $googleUser = json_decode($userResponse, true);
-    if (!$googleUser || empty($googleUser['email'])) {
+    if (!$googleUser || empty($googleUser['email']) || empty($googleUser['verified_email'])) {
         throw new Exception('Data user Google tidak valid.');
     }
 
     return $googleUser;
 }
 
-$baseUrl = $oauthConfig['base_url'];
-$redirectUri = $oauthConfig['redirect_uri'];
+$host = $_SERVER['HTTP_HOST'] ?? 'localhost';
+$scriptName = $_SERVER['SCRIPT_NAME'] ?? '/api/login.php';
+$apiPos = strpos($scriptName, '/api/');
+$basePath = $apiPos === false ? '' : substr($scriptName, 0, $apiPos);
+$https = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || (($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https');
+$protocol = ($https || !in_array(explode(':', $host)[0], ['localhost', '127.0.0.1'], true)) ? 'https' : 'http';
+$baseUrl = $protocol . '://' . $host . $basePath;
+$redirectUri = $baseUrl . '/api/login.php';
 
 try {
     if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['code'])) {
@@ -184,23 +170,39 @@ try {
             throw new Exception('Koneksi database ($conn) tidak ditemukan. Cek file config.php');
         }
 
-        $user = find_or_create_user(
+        $email = strtolower(trim($googleUser['email']));
+        $user = find_google_user(
             $conn,
-            $googleUser['email'],
-            $googleUser['name'] ?? $googleUser['email'],
+            $email,
             $googleUser['picture'] ?? ''
         );
-        
-        $rememberMe = !empty($_SESSION['remember_login']);
-        unset($_SESSION['remember_login']);
-        set_authenticated_session($user, $rememberMe);
 
-        if (empty($user['role_selected'])) {
-            header('Location: ' . $baseUrl . '/pilih-role.html');
+        $authAction = $_SESSION['google_auth_action'] ?? 'login';
+        unset($_SESSION['google_auth_action']);
+        if (!$user || empty($user['password_hash'])) {
+            session_regenerate_id(true);
+            unset($_SESSION['user'], $_SESSION['authenticated'], $_SESSION['remember_me'], $_SESSION['login_time']);
+            setcookie(session_name(), session_id(), [
+                'expires' => 0,
+                'path' => '/',
+                'secure' => !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off',
+                'httponly' => true,
+                'samesite' => 'Lax',
+            ]);
+            $_SESSION['pending_google_account'] = [
+                'email' => $email,
+                'name' => $user['name'] ?? ($googleUser['name'] ?? $email),
+                'photo' => $user['photo'] ?? ($googleUser['picture'] ?? ''),
+                'verified_at' => time(),
+            ];
+            header('Location: ' . $baseUrl . '/set-password.html');
             exit;
         }
 
-        header('Location: ' . $baseUrl . '/dashboard.html');
+        $message = $authAction === 'register'
+            ? 'Email Google ini sudah memiliki akun. Silakan login dengan email dan kata sandi aplikasi.'
+            : 'Login menggunakan Google tidak tersedia untuk akun ini. Silakan gunakan email dan kata sandi aplikasi.';
+        header('Location: ' . $baseUrl . '/index.html?error=' . urlencode($message));
         exit;
     }
 
@@ -209,32 +211,10 @@ try {
     }
 
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        session_start();
-        $data = json_decode(file_get_contents('php://input'), true) ?: [];
-
-        if (!empty($data['code'])) {
-            $googleUser = fetch_google_user_from_code($data['code'], $redirectUri, $GOOGLE_CLIENT_ID, $GOOGLE_CLIENT_SECRET);
-        } else {
-            json_response(["success" => false, "error" => "Data login tidak lengkap"], 400);
-        }
-
-        if (!isset($conn)) {
-            throw new Exception('Koneksi database ($conn) tidak ditemukan. Cek file config.php');
-        }
-
-        $user = find_or_create_user(
-            $conn,
-            $googleUser['email'],
-            $googleUser['name'] ?? $googleUser['email'],
-            $googleUser['picture'] ?? ''
-        );
-        set_authenticated_session($user, !empty($data['remember_me']));
-
         json_response([
-            "success" => true,
-            "onboarding_required" => empty($user['role_selected']),
-            "user" => $_SESSION['user']
-        ]);
+            "success" => false,
+            "error" => "Login Google hanya digunakan untuk verifikasi akun baru. Silakan login menggunakan email dan kata sandi aplikasi.",
+        ], 410);
     }
 
     json_response(["success" => false, "error" => "Invalid request"], 405);

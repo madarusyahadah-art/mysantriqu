@@ -7,10 +7,21 @@
 
     window.logoutUser = function () {
         return fetch('api/logout.php', { method: 'POST' })
-            .catch(function () {})
-            .finally(function () {
+            .then(function (response) {
+                return response.json().then(function (data) {
+                    if (!response.ok || !data.success) {
+                        throw new Error(data.error || 'Logout gagal.');
+                    }
+                    return data;
+                });
+            })
+            .then(function () {
                 clearAuthStorage();
                 window.location.href = "index.html";
+            })
+            .catch(function (error) {
+                console.error('Logout gagal:', error);
+                window.alert(error.message || 'Logout gagal. Silakan coba lagi.');
             });
     };
 

@@ -55,7 +55,7 @@
         .modal-header h2 { color: #2d5016; }
         .close-btn { background: none; border: none; font-size: 24px; cursor: pointer; }
     </style>
-    <link rel="stylesheet" href="app-theme.css?v=20261013">
+    <link rel="stylesheet" href="style.css?v=20261023-4">
     <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
     <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
 </head>
@@ -88,6 +88,7 @@
                     <tr>
                         <th>No</th>
                         <th>Nama</th>
+                        <th>No. KTM</th>
                         <th>Asal</th>
                         <th>Angkatan</th>
                         <th>Semester aktif</th>
@@ -95,7 +96,7 @@
                     </tr>
                 </thead>
                 <tbody id="santri-table-body">
-                    <tr><td colspan="6">Memuat data...</td></tr>
+                    <tr><td colspan="7">Memuat data...</td></tr>
                 </tbody>
             </table>
         </div>
@@ -115,6 +116,10 @@
                     <input type="text" id="santriNama" required>
                 </div>
                 <div class="form-row">
+                    <div class="form-group">
+                        <label>No. KTM</label>
+                        <input type="text" id="santriKtm" maxlength="50">
+                    </div>
                     <div class="form-group">
                         <label>Asal</label>
                         <input type="text" id="santriAsal">
@@ -140,40 +145,42 @@
     <script>
         const user_id = localStorage.getItem("user_id");
         const user_role = localStorage.getItem("user_role");
-        const userData = JSON.parse(localStorage.getItem("user_data"));
         
         if (!user_id) {
             window.location.href = "index.html";
         }
         
-       if (userData) {
-            document.getElementById("user-name").textContent = userData.name;
-            // Cek apakah picture ada, jika tidak pakai photo
-            var fotoUrl = userData.picture || userData.photo || 'assets/Logo.png';
-            document.getElementById("user-photo").src = fotoUrl;
+        var cachedSantri = [];
+        function escapeHtml(value) {
+            return String(value || '').replace(/[&<>"']/g, function(character) {
+                return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[character];
+            });
         }
+
         // Load santri
         function loadSantri() {
             fetch('api/get-santri.php')
                 .then(function(res) { return res.json(); })
                 .then(function(data) {
                     if (data.success) {
+                        cachedSantri = data.santri;
                         var tbody = document.getElementById("santri-table-body");
                         if (data.santri.length === 0) {
-                            tbody.innerHTML = '<tr><td colspan="6">Belum ada data santri</td></tr>';
+                            tbody.innerHTML = '<tr><td colspan="7">Belum ada data santri</td></tr>';
                         } else {
                             var html = '';
                             data.santri.forEach(function(s, index) {
                                 var nomor = index + 1;
                                 html += '<tr>';
                                 html += '<td>' + nomor + '</td>';
-                                html += '<td><a href="profil-santri.html?id=' + s.id + '" style="color: #2d5016; text-decoration: none; font-weight: bold;">' + s.nama + '</a></td>';
-                                html += '<td>' + (s.asal || '-') + '</td>';
-                                html += '<td>' + (s.angkatan || '-') + '</td>';
-                                html += '<td>Semester ' + (s.semester_aktif || 1) + '</td>';
+                                html += '<td><a href="profil-santri.html?id=' + Number(s.id) + '" style="color: #2d5016; text-decoration: none; font-weight: bold;">' + escapeHtml(s.nama) + '</a></td>';
+                                html += '<td>' + escapeHtml(s.no_ktm || '-') + '</td>';
+                                html += '<td>' + escapeHtml(s.asal || '-') + '</td>';
+                                html += '<td>' + escapeHtml(s.angkatan || '-') + '</td>';
+                                html += '<td>Semester ' + Number(s.semester_aktif || 1) + '</td>';
                                 html += '<td>';
-                                html += '<button class="btn btn-warning btn-sm" onclick="editSantri(' + s.id + ', \'' + s.nama.replace(/'/g, "\\'") + '\', \'' + (s.asal || '').replace(/'/g, "\\'") + '\', \'' + (s.angkatan || '').replace(/'/g, "\\'") + '\', ' + (s.semester_aktif || 1) + ')">Edit</button> ';
-                                html += '<button class="btn btn-danger btn-sm" onclick="deleteSantri(' + s.id + ')">Hapus</button>';
+                                html += '<button class="btn btn-warning btn-sm" onclick="editSantri(' + Number(s.id) + ')">Edit</button> ';
+                                html += '<button class="btn btn-danger btn-sm" onclick="deleteSantri(' + Number(s.id) + ')">Hapus</button>';
                                 html += '</td>';
                                 html += '</tr>';
                             });
@@ -191,6 +198,7 @@
             document.getElementById("modalTitle").textContent = "Tambah Santri";
             document.getElementById("santriForm").reset();
             document.getElementById("santriId").value = "";
+            document.getElementById("santriKtm").value = "";
             document.getElementById("santriModal").classList.add("active");
         }
         
@@ -198,13 +206,16 @@
             document.getElementById("santriModal").classList.remove("active");
         }
         
-        function editSantri(id, nama, asal, angkatan, semester) {
+        function editSantri(id) {
+            var santri = cachedSantri.find(function(item) { return Number(item.id) === Number(id); });
+            if (!santri) return;
             document.getElementById("modalTitle").textContent = "Edit Santri";
             document.getElementById("santriId").value = id;
-            document.getElementById("santriNama").value = nama;
-            document.getElementById("santriAsal").value = asal;
-            document.getElementById("santriAngkatan").value = angkatan;
-            document.getElementById("santriSemester").value = semester || 1;
+            document.getElementById("santriNama").value = santri.nama;
+            document.getElementById("santriKtm").value = santri.no_ktm || "";
+            document.getElementById("santriAsal").value = santri.asal || "";
+            document.getElementById("santriAngkatan").value = santri.angkatan || "";
+            document.getElementById("santriSemester").value = santri.semester_aktif || 1;
             document.getElementById("santriModal").classList.add("active");
         }
         
@@ -214,14 +225,15 @@
             
             const id = document.getElementById("santriId").value;
             const nama = document.getElementById("santriNama").value;
+            const no_ktm = document.getElementById("santriKtm").value.trim();
             const asal = document.getElementById("santriAsal").value;
             const angkatan = document.getElementById("santriAngkatan").value;
             const semester_aktif = Number(document.getElementById("santriSemester").value);
             
             const url = id ? 'api/update-santri.php' : 'api/add-santri.php';
             const body = id 
-                ? { id: id, nama: nama, asal: asal, angkatan: angkatan, semester_aktif: semester_aktif }
-                : { nama: nama, asal: asal, angkatan: angkatan, semester_aktif: semester_aktif };
+                ? { id: id, nama: nama, no_ktm: no_ktm, asal: asal, angkatan: angkatan, semester_aktif: semester_aktif }
+                : { nama: nama, no_ktm: no_ktm, asal: asal, angkatan: angkatan, semester_aktif: semester_aktif };
             
             fetch(url, {
                 method: 'POST',
@@ -276,8 +288,8 @@
             window.location.href = "index.html";
         });
     </script>
-    <script src="js/role-guard.js?v=20261012"></script>
-    <script src="js/auth.js"></script>
-    <script src="js/theme.js?v=20261012-3"></script>
+    <script src="js/role-guard.js?v=20261023-4"></script>
+    <script src="js/auth.js?v=20261023-4"></script>
+    <script src="js/theme.js?v=20261023-9"></script>
 </body>
 </html>

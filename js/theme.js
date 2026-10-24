@@ -1,4 +1,45 @@
 (function () {
+  // --- Loading overlay (muncul sampai halaman siap) ---
+  function mountLoadingOverlay() {
+    if (document.getElementById("msq-loading-overlay")) return;
+    const style = document.createElement("style");
+    style.id = "msq-loading-style";
+    style.textContent = [
+      "#msq-loading-overlay { position: fixed; inset: 0; z-index: 9999; background: linear-gradient(135deg, #061d12, #0a2b1a); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1rem; transition: opacity 0.35s ease; }",
+      "html[data-theme=\"light\"] #msq-loading-overlay { background: linear-gradient(135deg, #e7f8ed, #f4fff7); }",
+      "#msq-loading-overlay.msq-loading-hidden { opacity: 0; pointer-events: none; }",
+      ".msq-loading-spinner { width: 48px; height: 48px; border: 4px solid rgba(154,230,180,0.25); border-top-color: #2dd36f; border-radius: 50%; animation: msq-spin 0.8s linear infinite; }",
+      "@keyframes msq-spin { to { transform: rotate(360deg); } }",
+      ".msq-loading-text { color: #effff3; font-weight: 600; font-size: 0.95rem; letter-spacing: 0.05em; }",
+      "html[data-theme=\"light\"] .msq-loading-text { color: #153728; }",
+    ].join("\n");
+    document.head.appendChild(style);
+
+    const overlay = document.createElement("div");
+    overlay.id = "msq-loading-overlay";
+    overlay.innerHTML = '<div class="msq-loading-spinner"></div><div class="msq-loading-text">Memuat halaman...</div>';
+    document.body.appendChild(overlay);
+    document.documentElement.classList.add("msq-loading-active");
+  }
+
+  function hideLoadingOverlay() {
+    const overlay = document.getElementById("msq-loading-overlay");
+    if (!overlay) return;
+    overlay.classList.add("msq-loading-hidden");
+    document.documentElement.classList.remove("msq-loading-active");
+    setTimeout(function () {
+      if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
+      const st = document.getElementById("msq-loading-style");
+      if (st && st.parentNode) st.parentNode.removeChild(st);
+    }, 400);
+  }
+
+  window.msqHideLoading = hideLoadingOverlay;
+
+  // Tampilkan segera
+  if (document.body) mountLoadingOverlay();
+  else document.addEventListener("DOMContentLoaded", mountLoadingOverlay, { once: true });
+
   const storageKey = "mysantriqu_theme";
   let theme = "dark";
   try {
@@ -89,14 +130,33 @@
     });
   }
 
+  window.msqApplyTheme = applyTheme;
+  window.msqGetTheme = function () { return theme; };
+
   applyTheme(theme);
+  setTimeout(function () { if (window.msqHideLoading) window.msqHideLoading(); }, 6000);
+  const isLoginPage = /index\.html|login\.html/i.test(window.location.pathname);
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", function () {
       mountThemeToggle();
       mountAppInstall();
+      if (isLoginPage) {
+        setTimeout(function () { if (window.msqHideLoading) window.msqHideLoading(); }, 300);
+      } else {
+        const settingsScript = document.createElement("script");
+        settingsScript.src = "js/settings.js?v=20261023-10";
+        document.head.appendChild(settingsScript);
+      }
     }, { once: true });
   } else {
-    mountThemeToggle();
     mountAppInstall();
+    if (isLoginPage) {
+      setTimeout(function () { if (window.msqHideLoading) window.msqHideLoading(); }, 300);
+    } else {
+      const settingsScript = document.createElement("script");
+      settingsScript.src = "js/settings.js?v=20261023-10";
+      document.head.appendChild(settingsScript);
+    }
   }
 })();
+

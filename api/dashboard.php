@@ -1,9 +1,8 @@
 <?php
-header("Access-Control-Allow-Origin: *");
 header("Content-Type: application/json; charset=UTF-8");
 
 require_once __DIR__ . '/config.php';
- $currentUser = require_role(['admin', 'kepala', 'santri']);
+$currentUser = require_role(['admin', 'kajur', 'mahasantri', 'supervisor']);
 
 if (!isset($conn)) {
     http_response_code(500);

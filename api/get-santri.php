@@ -1,5 +1,4 @@
 <?php
-header("Access-Control-Allow-Origin: *");
 header("Content-Type: application/json; charset=UTF-8");
 
 require_once __DIR__ . '/config.php';
@@ -14,10 +13,10 @@ if (!isset($conn)) {
 $angkatan = $_GET['angkatan'] ?? '';
 
 if ($angkatan) {
-    $stmt = $conn->prepare("SELECT id, nama, asal, angkatan, semester_aktif FROM santri WHERE angkatan = ? ORDER BY nama ASC");
+    $stmt = $conn->prepare("SELECT id, nama, no_ktm, asal, angkatan, semester_aktif FROM santri WHERE angkatan = ? ORDER BY nama ASC");
     $stmt->bind_param("s", $angkatan);
 } else {
-    $stmt = $conn->prepare("SELECT id, nama, asal, angkatan, semester_aktif FROM santri ORDER BY nama ASC");
+    $stmt = $conn->prepare("SELECT id, nama, no_ktm, asal, angkatan, semester_aktif FROM santri ORDER BY nama ASC");
 }
 
 $stmt->execute();

@@ -3,16 +3,33 @@ let santriDB = [];           // diisi dari data/dummy.json
 let terpilih = null;
 let daftar = [];
 
+function escapeHtml(value) {
+  return String(value ?? '').replace(/[&<>"']/g, character =>
+    ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[character]
+  );
+}
+
 fetch('data/dummy.json').then(r => r.json()).then(d => santriDB = d.santri);
 
 function cariSantri(q) {
   const hasil = santriDB.filter(s =>
-    s.nama.toLowerCase().includes(q.toLowerCase()) || s.nis.includes(q)).slice(0, 5);
-  document.getElementById('hasil').innerHTML = hasil.map(s =>
-    `<div class="card" style="margin:6px 0;cursor:pointer" onclick='pilih(${JSON.stringify(s)})'>
-       ${s.nama} <small>NIS: ${s.nis}</small></div>`).join('');
+    s.nama.toLowerCase().includes(q.toLowerCase()) || String(s.nis).includes(q)).slice(0, 5);
+  const container = document.getElementById('hasil');
+  container.replaceChildren();
+  hasil.forEach(s => {
+    const item = document.createElement('div');
+    item.className = 'card';
+    item.style.margin = '6px 0';
+    item.style.cursor = 'pointer';
+    item.addEventListener('click', () => pilih(s));
+    const name = document.createTextNode(s.nama + ' ');
+    const nis = document.createElement('small');
+    nis.textContent = 'NIS: ' + s.nis;
+    item.append(name, nis);
+    container.appendChild(item);
+  });
 }
-function pilih(s) { terpilih = s; document.getElementById('cari').value = s.nama; document.getElementById('hasil').innerHTML = ''; }
+function pilih(s) { terpilih = s; document.getElementById('cari').value = s.nama; document.getElementById('hasil').replaceChildren(); }
 
 function tambah() {
   if (!terpilih) return alert('Pilih santri dulu');
@@ -27,7 +44,7 @@ function batal() { daftar = []; render(); }
 function render() {
   document.getElementById('jml').textContent = daftar.length;
   document.getElementById('daftar').innerHTML = daftar.map((d, i) =>
-    `<tr><td>${i + 1}</td><td>${d.nama}</td><td>${d.alasan}</td>
+    `<tr><td>${i + 1}</td><td>${escapeHtml(d.nama)}</td><td>${escapeHtml(d.alasan)}</td>
      <td><button onclick="hapus(${i})" style="border:0;background:none;color:var(--red);cursor:pointer">🗑</button></td></tr>`).join('');
 }
 

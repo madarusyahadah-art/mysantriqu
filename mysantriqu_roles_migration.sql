@@ -10,4 +10,5 @@ END
 WHERE `role` IN ('santri', 'supervisor', 'kepala');
 
 ALTER TABLE `users`
-  MODIFY `role` VARCHAR(30) NOT NULL DEFAULT 'mahasantri';
+  MODIFY `role` VARCHAR(30) NOT NULL DEFAULT 'mahasantri',
+  MODIFY `role_selected` TINYINT(1) NOT NULL DEFAULT 1;

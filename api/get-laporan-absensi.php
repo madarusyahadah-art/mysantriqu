@@ -1,10 +1,5 @@
 <?php
-header("Access-Control-Allow-Origin: *");
 header("Content-Type: application/json; charset=UTF-8");
-
-// Tampilkan error untuk debug (hapus di production)
-error_reporting(E_ALL);
-ini_set('display_errors', 0); // Jangan tampilkan error ke browser
 
 require_once __DIR__ . '/config.php';
 $currentUser = require_role(['admin', 'kepala', 'santri', 'supervisor']);

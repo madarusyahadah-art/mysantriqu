@@ -1,5 +1,4 @@
 <?php
-header("Access-Control-Allow-Origin: *");
 header("Content-Type: application/json; charset=UTF-8");
 
 require_once __DIR__ . '/config.php';
@@ -7,28 +6,22 @@ require_once __DIR__ . '/config.php';
 require_role(['admin']);
 
 if (!isset($conn)) {
-    http_response_code(500);
-    echo json_encode(["error" => "Database connection not established"]);
-    exit;
+    json_response(["success" => false, "error" => "Database connection not established"], 500);
 }
 
 $rawInput = file_get_contents('php://input');
 $data = json_decode($rawInput, true);
 
-if (!$data) {
-    http_response_code(400);
-    echo json_encode(["error" => "Invalid JSON data"]);
-    exit;
+if (!is_array($data) || !$data) {
+    json_response(["success" => false, "error" => "Invalid JSON data"], 400);
 }
 
-$user_id = $data['user_id'] ?? '';
+$user_id = filter_var($data['user_id'] ?? null, FILTER_VALIDATE_INT);
 $role = $data['role'] ?? '';
 $santri_id = $data['santri_id'] ?? null;
 
-if (empty($user_id) || empty($role)) {
-    http_response_code(400);
-    echo json_encode(["error" => "user_id dan role wajib diisi"]);
-    exit;
+if ($user_id === false || $user_id < 1 || !is_string($role) || $role === '') {
+    json_response(["success" => false, "error" => "user_id dan role wajib diisi"], 400);
 }
 
 // Validasi role
@@ -37,27 +30,30 @@ if (!in_array($role, $validRoles, true)) {
     json_response(["success" => false, "error" => "Role tidak valid"], 400);
 }
 
-$santri_id = ($role === 'mahasantri' && $santri_id !== '') ? (int) $santri_id : null;
-if ($role === 'mahasantri' && $santri_id === null) {
-    json_response(["success" => false, "error" => "Pilih profil Mahasantri untuk role Mahasantri"], 400);
+$santriId = null;
+if ($role === 'mahasantri') {
+    $santriId = filter_var($santri_id, FILTER_VALIDATE_INT);
+    if ($santriId === false || $santriId < 1) {
+        json_response(["success" => false, "error" => "Pilih profil Mahasantri untuk role Mahasantri"], 400);
+    }
 }
 
-$stmt = $conn->prepare("UPDATE users SET role = ?, santri_id = ?, role_selected = 1 WHERE id = ?");
+$stmt = $conn->prepare("UPDATE users SET role = ?, santri_id = NULLIF(?, 0), role_selected = 1 WHERE id = ?");
 
 if (!$stmt) {
-    echo json_encode(["success" => false, "error" => "Prepare failed: " . $conn->error]);
-    $conn->close();
-    exit;
+    error_log('update-user-role.php prepare error: ' . $conn->error);
+    json_response(["success" => false, "error" => "Role akun gagal diperbarui"], 500);
 }
 
-$stmt->bind_param("sii", $role, $santri_id, $user_id);
+$santriIdParameter = $santriId ?? 0;
+$stmt->bind_param("sii", $role, $santriIdParameter, $user_id);
 
-if ($stmt->execute()) {
-    echo json_encode(["success" => true]);
-} else {
-    echo json_encode(["success" => false, "error" => $conn->error]);
+if (!$stmt->execute()) {
+    error_log('update-user-role.php execute error: ' . $stmt->error);
+    $stmt->close();
+    json_response(["success" => false, "error" => "Role akun gagal diperbarui"], 500);
 }
 
 $stmt->close();
-$conn->close();
+json_response(["success" => true]);
 ?>

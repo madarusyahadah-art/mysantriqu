@@ -30,6 +30,34 @@
         --shadow: 0 24px 60px rgba(4, 18, 13, 0.34);
         --shadow-soft: 0 12px 30px rgba(8, 25, 18, 0.18);
       }
+      html[data-theme="light"] .role-card {
+        color: #123526;
+        background: linear-gradient(150deg, rgba(255,255,255,.97), rgba(231,248,237,.97));
+        border-color: rgba(29,127,82,.2);
+      }
+      html[data-theme="light"] .role-card h2,
+      html[data-theme="light"] .role-profile h1,
+      html[data-theme="light"] .calendar-heading,
+      html[data-theme="light"] .record-item strong { color: #176a43; }
+      html[data-theme="light"] .role-profile p,
+      html[data-theme="light"] .report-controls label,
+      html[data-theme="light"] .kajur-filters label,
+      html[data-theme="light"] .role-empty,
+      html[data-theme="light"] .record-item p,
+      html[data-theme="light"] .student-row small { color: #456657; }
+      html[data-theme="light"] .profile-facts span,
+      html[data-theme="light"] .activity-tile,
+      html[data-theme="light"] .role-button,
+      html[data-theme="light"] .student-row,
+      html[data-theme="light"] .filter-chip { color: #174b32; background: rgba(45,211,111,.1); }
+      html[data-theme="light"] .report-controls input,
+      html[data-theme="light"] .kajur-filters input,
+      html[data-theme="light"] .kajur-filters select { color: #153728; background: #fff; }
+      html[data-theme="light"] .calendar-day { color: #153728; background: rgba(17,77,53,.06); }
+      html[data-theme="light"] .calendar-day.status-izin { color: #422006; background: #fcd34d; }
+      html[data-theme="light"] .calendar-day.status-sakit { color: #083344; background: #67e8f9; }
+      html[data-theme="light"] .calendar-day.status-alpha { color: #450a0a; background: #fca5a5; }
+      html[data-theme="light"] .calendar-day.status-izin_menginap { color: #2e1065; background: #c4b5fd; }
 
       * {
         margin: 0;
@@ -859,6 +887,84 @@
         border-radius: 18px;
       }
 
+      .role-dashboard { display: none; gap: 1.4rem; }
+      .role-dashboard-active .role-dashboard { display: grid; }
+      .role-dashboard-active .legacy-dashboard { display: none !important; }
+      .role-dashboard [hidden] { display: none !important; }
+      .role-card {
+        padding: clamp(1.2rem, 3vw, 2rem);
+        border: 1px solid rgba(154, 230, 180, 0.18);
+        border-radius: 24px;
+        background: linear-gradient(150deg, rgba(16, 54, 37, 0.94), rgba(7, 28, 19, 0.94));
+        box-shadow: var(--shadow-soft);
+      }
+      .role-card h2 { margin-bottom: 1rem; color: var(--green-200); font-size: 1.35rem; }
+      .role-student-count { display: flex; align-items: center; gap: .8rem; }
+      .role-student-count ion-icon { color: var(--green-300); font-size: 2rem; }
+      .role-student-count strong { color: var(--green-300); font-size: 1.8rem; }
+      .role-student-count p { color: var(--muted); }
+      .role-profile { display: grid; grid-template-columns: auto 1fr; align-items: center; gap: 1.2rem; }
+      .role-profile-photo { width: 112px; height: 112px; border: 3px solid var(--green-300); border-radius: 50%; object-fit: cover; background: var(--green-800); }
+      .role-profile h1 { color: #dfffe9; font-size: clamp(1.5rem, 3vw, 2.4rem); }
+      .role-profile p { color: var(--muted); overflow-wrap: anywhere; }
+      .profile-facts { display: flex; flex-wrap: wrap; gap: .6rem; margin-top: .8rem; }
+      .profile-facts span { padding: .45rem .7rem; border: 1px solid var(--line); border-radius: 999px; color: var(--green-200); background: rgba(154, 230, 180, .08); font-size: .85rem; }
+      .photo-form { display: flex; flex-wrap: wrap; align-items: center; gap: .6rem; margin-top: .8rem; }
+      .photo-form input { max-width: 100%; color: var(--muted); }
+      .role-button, .activity-tile, .filter-chip, .student-row {
+        border: 1px solid rgba(154, 230, 180, .22);
+        border-radius: 12px;
+        color: var(--green-200);
+        background: rgba(154, 230, 180, .09);
+        font: inherit;
+        cursor: pointer;
+      }
+      .role-button { min-height: 42px; padding: .6rem .9rem; font-weight: 700; }
+      .activity-tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(128px, 1fr)); gap: .8rem; }
+      .activity-tile { display: grid; justify-items: center; align-content: center; min-height: 116px; padding: .9rem .55rem; text-align: center; text-decoration: none; transition: transform .2s ease, background .2s ease; }
+      .activity-tile[hidden] { display: none !important; }
+      .activity-tile:hover, .activity-tile:focus-visible { transform: translateY(-3px); background: rgba(45, 211, 111, .2); }
+      .activity-tile ion-icon { margin-bottom: .4rem; color: var(--green-300); font-size: 1.8rem; }
+      .activity-tile small { margin-top: .2rem; color: var(--muted); }
+      .activity-tile.is-future { cursor: not-allowed; opacity: .62; }
+      .report-controls, .kajur-filters { display: flex; flex-wrap: wrap; align-items: end; gap: .8rem; margin-bottom: 1rem; }
+      .report-controls label, .kajur-filters label { display: grid; gap: .35rem; color: var(--muted); font-size: .82rem; }
+      .report-controls input, .kajur-filters input, .kajur-filters select {
+        min-height: 42px; padding: .55rem .7rem; border: 1px solid rgba(154, 230, 180, .24);
+        border-radius: 10px; color: var(--text); background: rgba(3, 18, 12, .55); font: inherit;
+      }
+      .summary-chips { display: flex; flex-wrap: wrap; gap: .55rem; margin: 1rem 0; }
+      .filter-chip { padding: .45rem .75rem; }
+      .filter-chip[aria-pressed="true"] { color: #062816; background: var(--green-300); }
+      .report-layout { display: grid; grid-template-columns: minmax(260px, 360px) 1fr; gap: 1rem; align-items: start; }
+      .calendar { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: .3rem; }
+      .calendar-heading { grid-column: 1 / -1; margin-bottom: .4rem; color: var(--green-200); font-weight: 700; text-align: center; }
+      .calendar-weekday, .calendar-day { display: grid; place-items: center; min-height: 38px; border-radius: 9px; }
+      .calendar-weekday { color: var(--muted); font-size: .72rem; }
+      .calendar-day { border: 1px solid transparent; color: var(--text); background: rgba(255,255,255,.04); }
+      .calendar-day.outside { opacity: .35; }
+      .calendar-day.has-record { border-color: rgba(154, 230, 180, .3); cursor: pointer; }
+      .calendar-day.status-izin { color: #422006; background: #fcd34d; }
+      .calendar-day.status-sakit { color: #083344; background: #67e8f9; }
+      .calendar-day.status-alpha { color: #450a0a; background: #fca5a5; }
+      .calendar-day.status-izin_menginap { color: #2e1065; background: #c4b5fd; }
+      .calendar-day.selected { outline: 2px solid white; }
+      .record-list { display: grid; gap: .6rem; max-height: 440px; overflow: auto; }
+      .record-item { padding: .8rem; border: 1px solid var(--line); border-radius: 12px; background: rgba(255,255,255,.035); }
+      .record-item strong { color: var(--green-200); }
+      .record-item p { margin-top: .25rem; color: var(--muted); white-space: pre-wrap; }
+      .kajur-layout { display: grid; grid-template-columns: minmax(230px, .75fr) 1.5fr; gap: 1rem; }
+      .student-list { display: grid; align-content: start; gap: .45rem; max-height: 560px; overflow: auto; }
+      .student-row { display: flex; justify-content: space-between; align-items: center; gap: .5rem; padding: .7rem; text-align: left; }
+      .student-row[aria-pressed="true"] { border-color: var(--green-300); background: rgba(45, 211, 111, .22); }
+      .student-row small { color: var(--muted); }
+      .role-empty { color: var(--muted); line-height: 1.6; }
+      @media (max-width: 740px) {
+        .report-layout, .kajur-layout { grid-template-columns: 1fr; }
+        .role-profile { grid-template-columns: 1fr; justify-items: center; text-align: center; }
+        .profile-facts, .photo-form { justify-content: center; }
+      }
+
       .theme-toggle {
         position: fixed;
         right: 1.1rem;
@@ -946,19 +1052,102 @@
       <div class="nav-brand">
         <img src="assets/Logo.png" alt="Logo" class="nav-logo" />
         <ion-icon name="school-outline" aria-hidden="true"></ion-icon>
-        <span>Recording Mahasantri</span>
+        <span>MySantriQu</span>
       </div>
 
       <div class="nav-user">
         <img id="user-photo" src="assets/Logo.png" alt="User" class="user-photo" />
         <span class="user-name" id="user-name">Loading...</span>
         <span id="user-role" class="badge-role">Santri</span>
-        <button id="btn-logout" class="btn-logout"><ion-icon name="log-out-outline" aria-hidden="true"></ion-icon> Logout</button>
       </div>
     </nav>
 
     <main class="dashboard-content">
-      <section class="welcome-section">
+      <section id="role-dashboard" class="role-dashboard" aria-live="polite">
+        <a id="role-academic-calendar-link" class="role-button" href="kalender-akademik.html" hidden>Lihat Kalender Akademik</a>
+        <p id="role-dashboard-warning" role="alert" hidden></p>
+        <section class="role-card" aria-labelledby="role-student-count-heading">
+          <h2 id="role-student-count-heading">Total Mahasantri Terdata</h2>
+          <div class="role-student-count">
+            <ion-icon name="people-outline" aria-hidden="true"></ion-icon>
+            <strong id="role-student-count">0</strong>
+            <p>Mahasantri sudah diinput oleh admin.</p>
+          </div>
+        </section>
+        <section id="mahasantri-dashboard" class="role-card" hidden>
+          <div class="role-profile">
+            <img id="role-profile-photo" class="role-profile-photo" src="assets/Logo.png" alt="Foto Mahasantri" />
+            <div>
+              <h1 id="role-profile-name">Profil Mahasantri</h1>
+              <p id="role-profile-email"></p>
+              <div id="profile-facts" class="profile-facts"></div>
+              <form id="profile-photo-form" class="photo-form">
+                <label class="role-button" for="profile-photo-input">Ubah foto</label>
+                <input id="profile-photo-input" type="file" accept="image/jpeg,image/png,image/webp" required />
+                <button class="role-button" type="submit">Simpan foto</button>
+                <span id="photo-message" role="status"></span>
+              </form>
+            </div>
+          </div>
+        </section>
+
+        <section id="activities-card" class="role-card" hidden>
+          <h2>Kegiatan & fitur Mahasantri</h2>
+          <p class="role-empty" id="activities-intro">Pilih kegiatan untuk melihat laporan dan absensi Anda.</p>
+          <div id="activity-tiles" class="activity-tiles"></div>
+        </section>
+
+        <section id="kajur-dashboard" class="role-card" hidden>
+          <h2>Pemantauan Mahasantri</h2>
+          <div class="kajur-filters">
+            <label for="kajur-search">Cari nama
+              <input id="kajur-search" type="search" placeholder="Nama Mahasantri" />
+            </label>
+            <label for="kajur-angkatan">Angkatan
+              <select id="kajur-angkatan"><option value="">Semua angkatan</option></select>
+            </label>
+            <label for="kajur-order">Urutkan
+              <select id="kajur-order"><option value="nama">Nama A-Z</option><option value="angkatan">Angkatan</option></select>
+            </label>
+            <label for="report-start">Mulai bulan
+              <input id="report-start" type="month" />
+            </label>
+            <label for="report-end">Sampai bulan
+              <input id="report-end" type="month" />
+            </label>
+            <button id="apply-kajur-filters" class="role-button" type="button">Terapkan</button>
+          </div>
+          <div class="kajur-layout">
+            <div id="kajur-student-list" class="student-list" aria-label="Daftar Mahasantri"></div>
+            <div id="kajur-student-detail" class="role-empty">Pilih Mahasantri untuk melihat rincian laporan.</div>
+          </div>
+        </section>
+
+        <section id="student-report-card" class="role-card" hidden>
+          <h2 id="report-heading">Laporan Bulanan</h2>
+          <div id="student-month-controls" class="report-controls" hidden>
+            <label for="student-report-month">Bulan laporan
+              <input id="student-report-month" type="month" />
+            </label>
+            <button id="load-student-month" class="role-button" type="button">Tampilkan</button>
+          </div>
+          <div id="report-summary" class="summary-chips"></div>
+          <div class="report-layout">
+            <div>
+              <div id="attendance-calendar" class="calendar"></div>
+              <p class="role-empty">Tanggal berwarna memiliki catatan ketidakhadiran. Pilih status untuk memfilter tanggal dan rincian.</p>
+            </div>
+            <div>
+              <h3>Rincian absensi</h3>
+              <div id="attendance-records" class="record-list"></div>
+              <h3 style="margin-top:1.2rem">Pelanggaran dan tindak lanjut</h3>
+              <div id="violation-records" class="record-list"></div>
+            </div>
+          </div>
+        </section>
+      </section>
+
+      <section class="welcome-section legacy-dashboard">
         <h1><ion-icon name="sunny-outline" aria-hidden="true"></ion-icon> Selamat Datang, <span id="welcome-name">Santri</span></h1>
         <p>Email: <span id="user-email">-</span></p>
         <p class="account-notice" id="account-notice" role="status" hidden>
@@ -968,7 +1157,7 @@
         <p id="dashboard-error" role="alert" style="display: none; margin-top: 10px; color: #fecaca;"></p>
       </section>
 
-      <section class="activity-showcase" aria-label="Aktivitas pesantren slideshow">
+      <section class="activity-showcase legacy-dashboard" aria-label="Aktivitas pesantren slideshow">
         <div id="activitySlides"></div>
         <div class="slide-dots" id="activityDots" aria-label="Slider indicators"></div>
         <button type="button" class="slide-autoplay-button" id="toggleSlideAutoplay" aria-pressed="false">
@@ -980,7 +1169,7 @@
         <button type="button" class="slide-edit-button" id="editSlideButton"><ion-icon name="create-outline"></ion-icon> Edit slide</button>
       </section>
 
-      <div class="slide-modal" id="slideEditModal" aria-hidden="true">
+      <div class="slide-modal legacy-dashboard" id="slideEditModal" aria-hidden="true">
         <section class="slide-modal-card" role="dialog" aria-modal="true" aria-labelledby="slideEditTitle">
           <h2 id="slideEditTitle">Edit slide</h2>
           <form class="slide-edit-form" id="slideEditForm">
@@ -1005,7 +1194,7 @@
         </section>
       </div>
 
-      <section class="stats-grid">
+      <section class="stats-grid legacy-dashboard">
         <div class="stat-card total-santri">
           <h3><ion-icon name="people-outline" aria-hidden="true"></ion-icon> Total Santri</h3>
           <p id="total-santri">0</p>
@@ -1040,7 +1229,7 @@
         </div>
       </section>
 
-      <section class="menu-grid">
+      <section class="menu-grid legacy-dashboard">
         <div class="menu-card supervisor-menu" id="menu-absensi-input" style="display: none;" onclick="window.location.href='absensi-input.html'">
           <span class="menu-icon"><ion-icon name="clipboard-outline" aria-hidden="true"></ion-icon></span>
           <h3>Absensi Santri</h3>
@@ -1081,6 +1270,11 @@
           <h3>Kegiatan</h3>
           <p>Kelola kegiatan pesantren</p>
         </div>
+        <div class="menu-card" id="menu-academic-calendar" onclick="window.location.href='kalender-akademik.html'">
+          <span class="menu-icon"><ion-icon name="calendar-outline" aria-hidden="true"></ion-icon></span>
+          <h3>Kalender Akademik</h3>
+          <p>Lihat jadwal Kaldik dan impor kalender untuk Admin</p>
+        </div>
         <div class="menu-card" id="menu-admin" style="display: none;" onclick="window.location.href='admin-users.html'">
           <span class="menu-icon"><ion-icon name="person-add-outline" aria-hidden="true"></ion-icon></span>
           <h3>Manajemen User</h3>
@@ -1088,7 +1282,7 @@
         </div>
       </section>
 
-      <section class="menu-grid" id="section-profil-sendiri" style="display: none;">
+      <section class="menu-grid legacy-dashboard" id="section-profil-sendiri" style="display: none;">
         <div class="menu-card" id="menu-profil-sendiri" onclick="window.location.href='profil-santri.html'">
           <span class="menu-icon"><ion-icon name="person-circle-outline" aria-hidden="true"></ion-icon></span>
           <h3>Profil Saya</h3>
@@ -1096,7 +1290,7 @@
         </div>
       </section>
 
-      <section class="riwayat-section">
+      <section class="riwayat-section legacy-dashboard">
         <h2><ion-icon name="time-outline" aria-hidden="true"></ion-icon> Riwayat Absensi Terakhir</h2>
         <table class="riwayat-table">
           <thead>
@@ -1113,7 +1307,7 @@
         </table>
       </section>
 
-      <section class="riwayat-section" id="riwayat-asatidz-section" style="display: none;">
+      <section class="riwayat-section legacy-dashboard" id="riwayat-asatidz-section" style="display: none;">
         <h2><ion-icon name="school-outline" aria-hidden="true"></ion-icon> Riwayat Ketidakhadiran Ustadz Terakhir</h2>
         <table class="riwayat-table">
           <thead>
@@ -1133,6 +1327,7 @@
       </section>
     </main>
 
+    <script src="js/role-dashboard.js?v=20261023-4"></script>
     <script>
       const slidesContainer = document.getElementById("activitySlides");
       const dotsContainer = document.getElementById("activityDots");
@@ -1171,7 +1366,7 @@
           menu.style.display = isAdmin ? "block" : "none";
         });
         document.querySelectorAll(".supervisor-menu").forEach((menu) => {
-          menu.style.display = isAdmin || role === "supervisor" ? "block" : "none";
+          menu.style.display = isAdmin || ["supervisor", "musyrif", "mas'ul"].includes(role) ? "block" : "none";
         });
         document.getElementById("menu-admin").style.display = isAdmin ? "block" : "none";
         document.getElementById("menu-kegiatan").style.display = isAdmin ? "block" : "none";
@@ -1255,42 +1450,24 @@
 
           const content = document.createElement("div");
           content.className = "slide-content";
-          const tag = document.createElement("div");
-          tag.className = "slide-tag";
-          tag.textContent = activity.kategori || "Kegiatan";
           const title = document.createElement("h3");
           title.textContent = activity.slide_title || activity.nama_kegiatan || "Kegiatan Pesantren";
-          const description = document.createElement("p");
-          description.textContent = activity.slide_description || "Frekuensi: " + (activity.frekuensi || "Tidak ditentukan");
-          const details = document.createElement("div");
-          details.className = "slide-names";
+          content.appendChild(title);
 
-          [activity.kategori || "Kegiatan", activity.frekuensi || "Tidak ditentukan", "Aktif"].forEach((value) => {
-            const item = document.createElement("span");
-            item.textContent = value;
-            details.appendChild(item);
-          });
-
-          const reportStatus = activity.status_laporan === "dilaporkan"
-            ? "Laporan masuk"
-            : activity.status_laporan === "tidak_berlangsung" ? "Tidak berlangsung" : "Belum input";
-          const statusPill = document.createElement("span");
-          statusPill.textContent = reportStatus;
-          details.appendChild(statusPill);
-          if (activity.status_laporan === "dilaporkan") {
-            const absentPill = document.createElement("span");
-            absentPill.textContent = "Tidak hadir: santri " + activity.santri_tidak_hadir + " · asatidz " + activity.asatidz_tidak_hadir;
-            details.appendChild(absentPill);
+          const alpha = (activity.santri_alpha || 0) + (activity.asatidz_alpha || 0);
+          const sakit = (activity.santri_sakit || 0) + (activity.asatidz_sakit || 0);
+          const izin = (activity.santri_izin || 0) + (activity.asatidz_izin || 0);
+          if (alpha > 0 || sakit > 0 || izin > 0) {
+            const absence = document.createElement("p");
+            absence.className = "slide-absence";
+            const parts = [];
+            if (alpha > 0) parts.push("Alpa: " + alpha);
+            if (sakit > 0) parts.push("Sakit: " + sakit);
+            if (izin > 0) parts.push("Izin: " + izin);
+            absence.textContent = parts.join(" · ");
+            content.appendChild(absence);
           }
-          const monitorLink = document.createElement("a");
-          monitorLink.className = "slide-monitor-link";
-          const now = new Date();
-          const localDate = [now.getFullYear(), String(now.getMonth() + 1).padStart(2, "0"), String(now.getDate()).padStart(2, "0")].join("-");
-          monitorLink.href = "pemantauan.html?kegiatan_id=" + encodeURIComponent(activity.id) + "&tanggal=" + encodeURIComponent(slideStateDate || localDate);
-          monitorLink.textContent = "Lihat detail ketidakhadiran";
-          monitorLink.addEventListener("click", (event) => event.stopPropagation());
 
-          content.append(tag, title, description, details, monitorLink);
           slide.appendChild(content);
           slidesContainer.appendChild(slide);
 
@@ -1467,11 +1644,25 @@
           }
 
           const currentUser = session.user;
+          if (session.academic_calendar_warning) {
+            const warning = document.getElementById("role-dashboard-warning");
+            warning.textContent = session.academic_calendar_warning;
+            warning.hidden = false;
+            const legacyWarning = document.getElementById("dashboard-error");
+            legacyWarning.textContent = session.academic_calendar_warning;
+            legacyWarning.style.display = "block";
+          }
           const userId = String(currentUser.id);
           localStorage.setItem("user_id", userId);
           localStorage.setItem("user_role", currentUser.role || "santri");
-          localStorage.setItem("user_data", JSON.stringify(currentUser));
+          localStorage.removeItem("user_data");
           applyDashboardAccess(currentUser);
+
+          if (["mahasantri", "santri", "kajur", "kepala"].includes(currentUser.role)) {
+            document.body.classList.add("role-dashboard-active");
+            await window.initializeRoleDashboard(currentUser);
+            return;
+          }
 
           loadDashboard(userId).catch((error) => {
             console.error("Gagal memuat dashboard:", error);
@@ -1561,17 +1752,8 @@
         }
       });
 
-      document.getElementById("btn-logout").addEventListener("click", function () {
-        fetch("api/logout.php", { method: "POST" }).finally(function () {
-          localStorage.removeItem("user_data");
-          localStorage.removeItem("user_id");
-          localStorage.removeItem("user_role");
-          localStorage.removeItem("mysantriqu_remember_pending");
-          window.location.href = "index.html";
-        });
-      });
     </script>
-    <script src="js/role-guard.js?v=20261012"></script>
-    <script src="js/theme.js?v=20261012-3"></script>
+    <script src="js/role-guard.js?v=20261023-4"></script>
+    <script src="js/theme.js?v=20261023-11"></script>
   </body>
 </html>

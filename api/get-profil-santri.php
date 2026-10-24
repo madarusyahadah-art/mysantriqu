@@ -1,5 +1,4 @@
 <?php
-header("Access-Control-Allow-Origin: *");
 header("Content-Type: application/json; charset=UTF-8");
 
 require_once __DIR__ . '/config.php';
@@ -27,7 +26,7 @@ if (empty($santri_id)) {
 }
 
 // Ambil data santri
-$stmt = $conn->prepare("SELECT id, nama, asal, angkatan, created_at FROM santri WHERE id = ?");
+$stmt = $conn->prepare("SELECT id, nama, no_ktm, asal, angkatan, semester_aktif, created_at FROM santri WHERE id = ?");
 $stmt->bind_param("i", $santri_id);
 $stmt->execute();
 $result = $stmt->get_result();

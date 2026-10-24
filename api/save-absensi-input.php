@@ -1,5 +1,4 @@
 <?php
-header("Access-Control-Allow-Origin: *");
 header("Content-Type: application/json; charset=UTF-8");
 
 require_once __DIR__ . '/config.php';
@@ -65,6 +64,7 @@ $check_stmt = $conn->prepare("SELECT id, input_by FROM absensi WHERE kegiatan_id
 $check_stmt->bind_param("isi", $kegiatan_id, $tanggal, $santri_id);
 $check_stmt->execute();
 $existing = $check_stmt->get_result()->fetch_assoc();
+$check_stmt->close();
 
 if ($existing) {
     if ($currentUser['role'] !== 'admin') {

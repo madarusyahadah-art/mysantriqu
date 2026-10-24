@@ -16,19 +16,19 @@ document.addEventListener("DOMContentLoaded", function () {
       showName: false,
       showConfirm: false,
       showRemember: true,
-      showGoogle: true,
+      showGoogle: false,
       showRegister: true,
       showForgot: true,
       showBack: false,
     },
     register: {
-      title: "Buat Akun",
-      submit: "Daftar",
-      showPassword: true,
-      showName: true,
-      showConfirm: true,
+      title: "Buat Akun Baru",
+      submit: "Buat Akun dengan Google",
+      showPassword: false,
+      showName: false,
+      showConfirm: false,
       showRemember: false,
-      showGoogle: false,
+      showGoogle: true,
       showRegister: false,
       showForgot: false,
       showBack: true,
@@ -91,6 +91,8 @@ document.addEventListener("DOMContentLoaded", function () {
     const settings = modes[mode];
     document.getElementById("auth-title").textContent = settings.title;
     document.getElementById("submit-button").textContent = settings.submit;
+    emailInput.closest(".input-box").hidden = mode === "register";
+    emailInput.required = mode !== "register";
     document.getElementById("password-field").hidden = !settings.showPassword;
     passwordInput.required = settings.showPassword;
     document.getElementById("name-field").hidden = !settings.showName;
@@ -98,6 +100,7 @@ document.addEventListener("DOMContentLoaded", function () {
     document.getElementById("confirm-password-field").hidden = !settings.showConfirm;
     confirmPasswordInput.required = settings.showConfirm;
     document.getElementById("remember-options").hidden = !settings.showRemember;
+    document.getElementById("submit-button").hidden = mode === "register";
     accountList.hidden = !settings.showRemember || readRememberedAccounts().length === 0;
     document.getElementById("google-button").hidden = !settings.showGoogle;
     document.getElementById("login-divider").hidden = !settings.showGoogle;
@@ -105,6 +108,11 @@ document.addEventListener("DOMContentLoaded", function () {
     document.getElementById("register-link").hidden = !settings.showRegister;
     document.getElementById("forgot-link").hidden = !settings.showForgot;
     document.getElementById("back-to-login").hidden = !settings.showBack;
+    const help = document.getElementById("auth-help");
+    help.textContent = mode === "register"
+      ? "Verifikasi akun Google terlebih dahulu. Setelah itu, buat kata sandi untuk login menggunakan email Google Anda."
+      : "";
+    help.hidden = mode !== "register";
     document.getElementById("password").autocomplete = mode === "register" ? "new-password" : "current-password";
     showMessage("", "");
   }
@@ -124,21 +132,15 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   document.getElementById("google-button").addEventListener("click", function () {
-    const rememberMe = rememberInput.checked;
-    try {
-      if (rememberMe) {
-        localStorage.setItem("mysantriqu_remember_pending", "1");
-      } else {
-        localStorage.removeItem("mysantriqu_remember_pending");
-      }
-    } catch (error) {
-      console.error("Preferensi ingat akun tidak dapat disimpan:", error);
-    }
-    window.location.href = "api/login.php?action=google&remember=" + (rememberMe ? "1" : "0");
+    window.location.href = "api/login.php?action=google&intent=register";
   });
 
   form.addEventListener("submit", async function (event) {
     event.preventDefault();
+    if (mode === "register") {
+      document.getElementById("google-button").click();
+      return;
+    }
     if (!form.reportValidity()) return;
     const email = emailInput.value.trim();
 
@@ -146,19 +148,6 @@ document.addEventListener("DOMContentLoaded", function () {
       if (mode === "forgot") {
         const result = await postJson("api/forgot-password.php", { email: email });
         showMessage(result.message, "success");
-        return;
-      }
-
-      if (mode === "register") {
-        if (passwordInput.value !== confirmPasswordInput.value) {
-          throw new Error("Kata sandi dan konfirmasinya tidak sama.");
-        }
-        await postJson("api/register.php", {
-          name: nameInput.value.trim(),
-          email: email,
-          password: passwordInput.value,
-        });
-        window.location.href = "pilih-role.html";
         return;
       }
 
@@ -215,11 +204,45 @@ document.addEventListener("DOMContentLoaded", function () {
     showMessage("Akun dihapus dari daftar perangkat ini. Kata sandi tidak pernah disimpan.", "success");
   });
 
+  setMode("login");
   renderRememberedAccounts();
   const query = new URLSearchParams(window.location.search);
   const error = query.get("error");
   if (error) {
     showMessage("Login Google gagal: " + error, "error");
-    window.history.replaceState({}, document.title, window.location.pathname);
+    query.delete("error");
   }
+
+  let registeredEmail = query.get("email");
+  try {
+    registeredEmail = registeredEmail || sessionStorage.getItem("mysantriqu_registered_email");
+    sessionStorage.removeItem("mysantriqu_registered_email");
+  } catch (storageError) {
+    console.error("Email akun baru tidak dapat dipulihkan:", storageError);
+  }
+  if (registeredEmail) {
+    emailInput.value = registeredEmail;
+    query.delete("email");
+  }
+  if (query.has("registered")) {
+    showMessage("Akun berhasil dibuat. Silakan login dengan email dan kata sandi yang baru dibuat.", "success");
+    query.delete("registered");
+  }
+  if (registeredEmail || query.toString() !== window.location.search.replace(/^\?/, "")) {
+    const nextUrl = window.location.pathname + (query.toString() ? "?" + query.toString() : "");
+    window.history.replaceState({}, document.title, nextUrl);
+  }
+
+  fetch("api/session.php", { credentials: "same-origin" })
+    .then(function (response) {
+      if (!response.ok) return null;
+      return response.json();
+    })
+    .then(function (data) {
+      if (!data || !data.success || !data.user) return;
+      window.location.replace(data.user.role_selected ? "dashboard.html" : "pilih-role.html");
+    })
+    .catch(function (error) {
+      console.error("Sesi akun tidak dapat diperiksa:", error);
+    });
 });

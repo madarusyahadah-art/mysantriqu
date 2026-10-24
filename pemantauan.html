@@ -7,7 +7,7 @@
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="apple-touch-icon" href="assets/app-icon-192.png">
   <title>Pemantauan Ketidakhadiran - MySantriQu</title>
-  <link rel="stylesheet" href="app-theme.css?v=20261015">
+  <link rel="stylesheet" href="style.css?v=20261023-4">
   <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
   <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
   <style>
@@ -217,15 +217,11 @@
     dateInput.addEventListener("change", () => loadMonitor().catch(showError));
     loadMonitor().catch(showError);
   </script>
-  <script src="js/role-guard.js?v=20261014"></script>
-  <script src="js/auth.js"></script>
-  <script src="js/theme.js?v=20261015"></script>
+  <script src="js/role-guard.js?v=20261023-4"></script>
+  <script src="js/auth.js?v=20261023-4"></script>
+  <script src="js/theme.js?v=20261023-9"></script>
   <script>
-    const monitorUser = JSON.parse(localStorage.getItem("user_data") || "{}");
-    document.getElementById("user-name").textContent = monitorUser.name || "Pengguna";
-    document.getElementById("user-photo").src = monitorUser.picture || monitorUser.photo || "assets/Logo.png";
     document.getElementById("btn-logout").addEventListener("click", function() {
-      localStorage.removeItem("user_data");
       localStorage.removeItem("user_id");
       localStorage.removeItem("user_role");
       window.location.href = "index.html";

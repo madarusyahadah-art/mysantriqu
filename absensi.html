@@ -59,7 +59,7 @@
         .asatidz-select { padding: 5px 10px; border: 1px solid #ddd; border-radius: 5px; }
         .btn-hapus-baris { padding: 5px 10px; background: #dc3545; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 12px; }
     </style>
-    <link rel="stylesheet" href="app-theme.css?v=20261013">
+    <link rel="stylesheet" href="style.css?v=20261023-4">
     <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
     <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
 </head>
@@ -175,20 +175,20 @@
         console.log("Absensi page loaded");
         
         var user_id = localStorage.getItem("user_id");
-        var userData = JSON.parse(localStorage.getItem("user_data"));
         
         if (!user_id) {
             window.location.href = "index.html";
         }
         
-        if (userData) {
-            document.getElementById("user-name").textContent = userData.name;
-            var fotoUrl = userData.picture || userData.photo || 'assets/Logo.png';
-            document.getElementById("user-photo").src = fotoUrl;
-        }
         
         var today = new Date().toISOString().split('T')[0];
         document.getElementById("absensiTanggal").value = today;
+
+        function escapeHtml(value) {
+            return String(value == null ? '' : value).replace(/[&<>"']/g, function(character) {
+                return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[character];
+            });
+        }
         
         var asatidzCounter = 0;
         
@@ -207,9 +207,9 @@
                         data.kegiatan.forEach(function(k) {
                             if (k.is_active == 1) {
                                 if (k.frekuensi === 'harian') {
-                                    harianHtml += '<div class="kegiatan-item selected" data-id="' + k.id + '" data-nama="' + k.nama_kegiatan + '">' + k.nama_kegiatan + '</div>';
+                                    harianHtml += '<div class="kegiatan-item selected" data-id="' + Number(k.id) + '" data-nama="' + escapeHtml(k.nama_kegiatan) + '">' + escapeHtml(k.nama_kegiatan) + '</div>';
                                 } else {
-                                    lainHtml += '<div class="kegiatan-item" data-id="' + k.id + '" data-nama="' + k.nama_kegiatan + '">' + k.nama_kegiatan + ' (' + k.frekuensi + ')</div>';
+                                    lainHtml += '<div class="kegiatan-item" data-id="' + Number(k.id) + '" data-nama="' + escapeHtml(k.nama_kegiatan) + '">' + escapeHtml(k.nama_kegiatan) + ' (' + escapeHtml(k.frekuensi) + ')</div>';
                                 }
                             }
                         });
@@ -315,10 +315,10 @@
                             data.santri.forEach(function(s, index) {
                                 html += '<tr>';
                                 html += '<td>' + (index + 1) + '</td>';
-                                html += '<td>' + s.nama + '</td>';
-                                html += '<td>' + (s.angkatan || '-') + '</td>';
+                                html += '<td>' + escapeHtml(s.nama) + '</td>';
+                                html += '<td>' + escapeHtml(s.angkatan || '-') + '</td>';
                                 html += '<td>';
-                                html += '<select class="status-select" data-santri-id="' + s.id + '">';
+                                html += '<select class="status-select" data-santri-id="' + Number(s.id) + '">';
                                 html += '<option value="hadir">Hadir</option>';
                                 html += '<option value="alpha">Alpha</option>';
                                 html += '<option value="sakit">Sakit</option>';
@@ -326,7 +326,7 @@
                                 html += '<option value="izin_menginap">Izin Menginap</option>';
                                 html += '</select>';
                                 html += '</td>';
-                                html += '<td><input type="text" class="keterangan-input" data-santri-id="' + s.id + '" placeholder="Keterangan (opsional)"></td>';
+                                html += '<td><input type="text" class="keterangan-input" data-santri-id="' + Number(s.id) + '" placeholder="Keterangan (opsional)"></td>';
                                 html += '</tr>';
                             });
                             tbody.innerHTML = html;
@@ -451,7 +451,7 @@
             window.location.href = "index.html";
         });
     </script>
-    <script src="js/auth.js"></script>
-    <script src="js/theme.js?v=20261012-3"></script>
+    <script src="js/auth.js?v=20261023-4"></script>
+    <script src="js/theme.js?v=20261023-9"></script>
 </body>
 </html>
