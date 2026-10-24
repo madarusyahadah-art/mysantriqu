@@ -26,14 +26,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && ($_GET['action'] ?? '') === 'google'
     $state = bin2hex(random_bytes(32));
     $_SESSION['google_oauth_state'] = $state;
     
-    $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
-    $scriptName = $_SERVER['SCRIPT_NAME'] ?? '/api/login.php';
-    $apiPos = strpos($scriptName, '/api/');
-    $basePath = $apiPos === false ? '' : substr($scriptName, 0, $apiPos);
-    $https = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || (($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https');
-    $protocol = ($https || !in_array(explode(':', $host)[0], ['localhost', '127.0.0.1'], true)) ? 'https' : 'http';
-    $baseUrl = $protocol . '://' . $host . $basePath;
-    
+    $baseUrl = $oauthConfig['base_url'];
+    $redirectUri = $oauthConfig['redirect_uri'];
     if ($GOOGLE_CLIENT_SECRET === '') {
         header('Location: ' . $baseUrl . '/index.html?error=' . urlencode('Login Google belum dikonfigurasi. Admin perlu mengatur GOOGLE_CLIENT_SECRET di server.'));
         exit;
@@ -143,14 +137,8 @@ function fetch_google_user_from_code($code, $redirectUri, $clientId, $clientSecr
     return $googleUser;
 }
 
-$host = $_SERVER['HTTP_HOST'] ?? 'localhost';
-$scriptName = $_SERVER['SCRIPT_NAME'] ?? '/api/login.php';
-$apiPos = strpos($scriptName, '/api/');
-$basePath = $apiPos === false ? '' : substr($scriptName, 0, $apiPos);
-$https = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || (($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https');
-$protocol = ($https || !in_array(explode(':', $host)[0], ['localhost', '127.0.0.1'], true)) ? 'https' : 'http';
-$baseUrl = $protocol . '://' . $host . $basePath;
-$redirectUri = $baseUrl . '/api/login.php';
+$baseUrl = $oauthConfig['base_url'];
+$redirectUri = $oauthConfig['redirect_uri'];
 
 try {
     if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['code'])) {
