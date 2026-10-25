@@ -1,4 +1,4 @@
-const CACHE_NAME = "mysantriqu-shell-v1";
+const CACHE_NAME = "mysantriqu-shell-v2";
 const APP_ROOT = new URL(self.registration.scope);
 const APP_PATH = APP_ROOT.pathname;
 const APP_SHELL = [

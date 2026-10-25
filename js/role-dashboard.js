@@ -399,8 +399,11 @@
 
   function showDashboardError(error) {
     const target = document.getElementById("dashboard-error");
-    target.textContent = error.message || String(error);
-    target.style.display = "block";
+    if (target) {
+      target.textContent = error && error.message ? error.message : String(error);
+      target.style.display = "block";
+    }
+    console.error(error);
   }
 
   async function loadData(studentId) {
