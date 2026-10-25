@@ -1327,7 +1327,7 @@
       </section>
     </main>
 
-    <script src="js/role-dashboard.js?v=20261023-4"></script>
+    <script src="js/role-dashboard.js?v=20261023-5"></script>
     <script>
       const slidesContainer = document.getElementById("activitySlides");
       const dotsContainer = document.getElementById("activityDots");
@@ -1646,11 +1646,15 @@
           const currentUser = session.user;
           if (session.academic_calendar_warning) {
             const warning = document.getElementById("role-dashboard-warning");
-            warning.textContent = session.academic_calendar_warning;
-            warning.hidden = false;
+            if (warning) {
+              warning.textContent = session.academic_calendar_warning;
+              warning.hidden = false;
+            }
             const legacyWarning = document.getElementById("dashboard-error");
-            legacyWarning.textContent = session.academic_calendar_warning;
-            legacyWarning.style.display = "block";
+            if (legacyWarning) {
+              legacyWarning.textContent = session.academic_calendar_warning;
+              legacyWarning.style.display = "block";
+            }
           }
           const userId = String(currentUser.id);
           localStorage.setItem("user_id", userId);
@@ -1658,26 +1662,51 @@
           localStorage.removeItem("user_data");
           applyDashboardAccess(currentUser);
 
+          if (document.body.dataset.access === "authenticated") {
+            document.querySelectorAll(".login-box").forEach((el) => el.remove());
+          }
+
           if (["mahasantri", "santri", "kajur", "kepala"].includes(currentUser.role)) {
-            document.body.classList.add("role-dashboard-active");
-            await window.initializeRoleDashboard(currentUser);
+            try {
+              await window.initializeRoleDashboard(currentUser);
+              document.body.classList.add("role-dashboard-active");
+            } catch (error) {
+              console.error("Gagal inisialisasi role dashboard:", error);
+              const errorMessage = document.getElementById("dashboard-error");
+              if (errorMessage) {
+                errorMessage.textContent = error.message || String(error);
+                errorMessage.style.display = "block";
+              }
+            } finally {
+              if (window.msqHideLoading) window.msqHideLoading();
+            }
             return;
           }
 
-          loadDashboard(userId).catch((error) => {
+          try {
+            await loadDashboard(userId);
+          } catch (error) {
             console.error("Gagal memuat dashboard:", error);
             const errorMessage = document.getElementById("dashboard-error");
-            errorMessage.textContent = error.message;
-            errorMessage.style.display = "block";
-          });
-          loadActivities().catch((error) => {
+            if (errorMessage) {
+              errorMessage.textContent = error.message || String(error);
+              errorMessage.style.display = "block";
+            }
+          }
+          try {
+            await loadActivities();
+          } catch (error) {
             console.error("Gagal memuat kegiatan:", error);
             activities = [];
             renderSlides();
             const errorMessage = document.getElementById("dashboard-error");
-            errorMessage.textContent = error.message;
-            errorMessage.style.display = "block";
-          });
+            if (errorMessage) {
+              errorMessage.textContent = error.message || String(error);
+              errorMessage.style.display = "block";
+            }
+          } finally {
+            if (window.msqHideLoading) window.msqHideLoading();
+          }
         } catch (error) {
           console.error("Gagal memuat dashboard:", error);
           window.location.href = "index.html";

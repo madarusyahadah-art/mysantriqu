@@ -329,7 +329,7 @@
 
   function removeHeaders() {
     const btnLogout = document.getElementById("btn-logout");
-    if (btnLogout && btnLogout.closest("nav.navbar, .navbar")) {
+    if (btnLogout && btnLogout.closest("nav.navbar")) {
       document.body.appendChild(btnLogout);
       btnLogout.style.position = "fixed";
       btnLogout.style.bottom = "1rem";
@@ -337,7 +337,7 @@
       btnLogout.style.zIndex = "2000";
       btnLogout.style.display = "inline-block";
     }
-    document.querySelectorAll("nav.navbar, .navbar").forEach(function (n) { n.remove(); });
+    document.querySelectorAll("nav.navbar").forEach(function (n) { n.remove(); });
     if (!document.getElementById("btn-logout")) {
       const hiddenLogout = document.createElement("button");
       hiddenLogout.id = "btn-logout";
@@ -361,8 +361,9 @@
       if (savedBg) document.documentElement.style.setProperty("--msq-bg-custom", savedBg);
       if (savedEl) document.documentElement.style.setProperty("--msq-element-custom", savedEl);
       if (savedBg || savedEl) updateThemeOverride();
-    } catch (e) {}
-    // Sembunyikan loading setelah halaman siap
+    } catch (e) {
+      console.error("Gagal memuat preferensi tema:", e);
+    }
     if (window.msqHideLoading) window.msqHideLoading();
   }
 
