@@ -112,8 +112,8 @@
         <h1><span class="page-heading-icon"><ion-icon name="stats-chart-outline" aria-hidden="true"></ion-icon></span> Laporan & Rekap</h1>
         
         <div class="tab-container">
-            <div class="tab active" onclick="switchTab('absensi')">ðŸ“‹ Laporan Absensi</div>
-            <div class="tab" onclick="switchTab('pelanggaran')">âš ï¸ Laporan Pelanggaran</div>
+            <div class="tab active" onclick="switchTab('absensi')">📋 Laporan Absensi</div>
+            <div class="tab" onclick="switchTab('pelanggaran')">⚠️ Laporan Pelanggaran</div>
         </div>
 
         <!-- TAB ABSENSI -->
@@ -124,10 +124,10 @@
                 <div class="preset-buttons">
                     <span style="font-weight: bold; margin-right: 10px;">Preset:</span>
                     <button class="preset-btn" onclick="setPreset('week')"> Pekan Ini</button>
-                    <button class="preset-btn" onclick="setPreset('month')">ðŸ“† Bulan Ini</button>
-                    <button class="preset-btn" onclick="setPreset('mid')">ðŸ“š Mid Semester</button>
-                    <button class="preset-btn" onclick="setPreset('semester')">ðŸŽ“ Semester</button>
-                    <button class="preset-btn" onclick="setPreset('year')">ðŸ—“ï¸ Tahunan</button>
+                    <button class="preset-btn" onclick="setPreset('month')">📅 Bulan Ini</button>
+                    <button class="preset-btn" onclick="setPreset('mid')">📚 Mid Semester</button>
+                    <button class="preset-btn" onclick="setPreset('semester')">🎓 Semester</button>
+                    <button class="preset-btn" onclick="setPreset('year')">🗓️ Tahunan</button>
                 </div>
                 
                 <div class="filter-section">
@@ -164,10 +164,10 @@
                 
                 <div style="text-align: right;">
                     <button class="btn btn-secondary" onclick="resetFilter()">Reset</button>
-                    <button class="btn btn-primary" onclick="loadLaporan()">ðŸ” Tampilkan Laporan</button>
-                    <button class="btn btn-excel" onclick="exportExcel()">ðŸ“Š Export Rekap</button>
-                    <button class="btn btn-excel" onclick="exportAttendance('issues')">ðŸ“‹ Export Absensi Bermasalah</button>
-                    <button class="btn btn-excel" onclick="exportAttendance('detail')">ðŸ“š Export Semua Absensi</button>
+                    <button class="btn btn-primary" onclick="loadLaporan()">📊 Tampilkan Laporan</button>
+                    <button class="btn btn-excel" onclick="exportExcel()">📊 Export Rekap</button>
+                    <button class="btn btn-excel" onclick="exportAttendance('issues')">📋 Export Absensi Bermasalah</button>
+                    <button class="btn btn-excel" onclick="exportAttendance('detail')">📚 Export Semua Absensi</button>
                 </div>
             </div>
 
@@ -212,7 +212,7 @@
 
                             <!-- Section Asatidz -->
                             <div id="section-laporan-asatidz" style="display: none; margin-top: 30px;">
-                                <h3 style="color: #2d5016; margin-bottom: 15px;">ðŸ“š Data Ketidakhadiran Asatidz</h3>
+                                <h3 style="color: #2d5016; margin-bottom: 15px;">📚 Data Ketidakhadiran Asatidz</h3>
                                 <table>
                                     <thead>
                                         <tr>
@@ -243,11 +243,11 @@
                 
                 <div class="preset-buttons">
                     <span style="font-weight: bold; margin-right: 10px;">Preset:</span>
-                    <button class="preset-btn" onclick="setPresetPelanggaran('week')">ðŸ“… Pekan Ini</button>
-                    <button class="preset-btn" onclick="setPresetPelanggaran('month')">ðŸ“† Bulan Ini</button>
+                    <button class="preset-btn" onclick="setPresetPelanggaran('week')">📅 Pekan Ini</button>
+                    <button class="preset-btn" onclick="setPresetPelanggaran('month')">📅 Bulan Ini</button>
                     <button class="preset-btn" onclick="setPresetPelanggaran('mid')"> Mid Semester</button>
-                    <button class="preset-btn" onclick="setPresetPelanggaran('semester')">ðŸŽ“ Semester</button>
-                    <button class="preset-btn" onclick="setPresetPelanggaran('year')">ðŸ—“ï¸ Tahunan</button>
+                    <button class="preset-btn" onclick="setPresetPelanggaran('semester')">🎓 Semester</button>
+                    <button class="preset-btn" onclick="setPresetPelanggaran('year')">🗓️ Tahunan</button>
                 </div>
                 
                 <div class="filter-section">
@@ -275,15 +275,15 @@
                 
                 <div style="text-align: right;">
                     <button class="btn btn-secondary" onclick="resetFilterPelanggaran()">Reset</button>
-                    <button class="btn btn-primary" onclick="loadLaporanPelanggaran()">ðŸ” Tampilkan Laporan</button>
-                    <button class="btn btn-excel" onclick="exportPelanggaranExcel(false)">ðŸ“Š Export Semua Pelanggaran</button>
-                    <button class="btn btn-excel" onclick="exportPelanggaranExcel(true)">ðŸ“ Export Pelanggaran & Catatan</button>
+                    <button class="btn btn-primary" onclick="loadLaporanPelanggaran()">📊 Tampilkan Laporan</button>
+                    <button class="btn btn-excel" onclick="exportPelanggaranExcel(false)">📊 Export Semua Pelanggaran</button>
+                    <button class="btn btn-excel" onclick="exportPelanggaranExcel(true)">📄 Export Pelanggaran & Catatan</button>
                 </div>
             </div>
 
             <!-- Ranking Santri -->
             <div class="card">
-                <h2 style="margin-bottom: 15px; color: #2d5016;">ðŸ† Ranking Santri (Total Poin Tertinggi)</h2>
+                <h2 style="margin-bottom: 15px; color: #2d5016;">🏆 Ranking Santri (Total Poin Tertinggi)</h2>
                 <div class="table-container">
                     <table>
                         <thead>
@@ -304,7 +304,7 @@
 
             <!-- Persentase per Jenis -->
             <div class="card">
-                <h2 style="margin-bottom: 15px; color: #2d5016;">ðŸ“Š Persentase Pelanggaran per Jenis</h2>
+                <h2 style="margin-bottom: 15px; color: #2d5016;">📊 Persentase Pelanggaran per Jenis</h2>
                 <div class="table-container">
                     <table>
                         <thead>
@@ -324,7 +324,7 @@
             </div>
 
             <div class="card">
-                <h2 style="margin-bottom: 8px; color: #2d5016;">ðŸ“ˆ Perkembangan Pelanggaran</h2>
+                <h2 style="margin-bottom: 8px; color: #2d5016;">📈 Perkembangan Pelanggaran</h2>
                 <p id="trend-description" style="color: #666; margin-bottom: 15px;">Jumlah pelanggaran per periode pada rentang yang dipilih.</p>
                 <div id="violation-trend-chart" class="trend-chart" role="img" aria-label="Grafik perkembangan pelanggaran">
                     <p class="text-center">Klik "Tampilkan Laporan" untuk melihat grafik.</p>
@@ -333,7 +333,7 @@
 
             <!-- Detail Pelanggaran -->
             <div class="card">
-                <h2 style="margin-bottom: 15px; color: #2d5016;">ðŸ“‹ Detail Pelanggaran</h2>
+                <h2 style="margin-bottom: 15px; color: #2d5016;">📋 Detail Pelanggaran</h2>
                 <div class="table-container">
                     <table>
                         <thead>
@@ -714,7 +714,7 @@
                                 else if (index === 2) rankClass = 'rank-3';
                                 
                                 html += '<tr class="' + rankClass + '">';
-                                html += '<td class="text-center">' + (index < 3 ? ['ðŸ¥‡','ðŸ¥ˆ','ðŸ¥‰'][index] : rankLabel) + '</td>';
+                                html += '<td class="text-center">' + (index < 3 ? ['🥇','🥈','🥉'][index] : rankLabel) + '</td>';
                                 html += '<td><a href="profil-santri.html?id=' + Number(r.santri_id) + '" style="color: #2d5016; text-decoration: none; font-weight: bold;">' + escapeHtml(r.nama) + '</a></td>';
                                 html += '<td>' + escapeHtml(r.angkatan || '-') + '</td>';
                                 html += '<td class="text-center">' + Number(r.total_pelanggaran) + '</td>';

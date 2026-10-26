@@ -156,7 +156,7 @@
             const list = document.getElementById("catalog-list");
             if (list) {
                 list.innerHTML = catalogTypes.map(function(type) {
-                    return '<p>' + escapeHtml(type.nama) + ' Â· ' + Number(type.poin_default) + ' poin ' +
+                    return '<p>' + escapeHtml(type.nama) + ' · ' + Number(type.poin_default) + ' poin ' +
                         '<button type="button" onclick="editCatalogType(' + Number(type.id) + ')">Ubah</button> ' +
                         '<button type="button" onclick="deactivateCatalogType(' + Number(type.id) + ')">Nonaktifkan</button></p>';
                 }).join("") || "<p>Belum ada jenis pelanggaran.</p>";

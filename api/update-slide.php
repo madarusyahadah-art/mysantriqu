@@ -25,8 +25,12 @@ if ($image !== '') {
     $parsed = parse_url($image);
     $isWebUrl = filter_var($image, FILTER_VALIDATE_URL) && in_array(strtolower($parsed['scheme'] ?? ''), ['http', 'https'], true);
     $isLocalAsset = strpos($image, '/') === 0 && strpos($image, '//') !== 0 && strpos($image, '\\') === false;
-    if (!$isWebUrl && !$isLocalAsset) {
-        json_response(["success" => false, "error" => "Gambar harus menggunakan URL HTTPS/HTTP atau path aset lokal"], 400);
+    $isUploadPath = preg_match('#^uploads/(?:slides|profile)/[a-f0-9]{48}\.(?:jpg|png|webp)$#', $image) === 1;
+    if (!$isWebUrl && !$isLocalAsset && !$isUploadPath) {
+        json_response(["success" => false, "error" => "Gambar harus menggunakan URL HTTPS/HTTP, path aset lokal, atau file unggahan"], 400);
+    }
+    if (strpos($image, '..') !== false || strpos($image, '\\') !== false) {
+        json_response(["success" => false, "error" => "Path gambar tidak valid"], 400);
     }
 }
 

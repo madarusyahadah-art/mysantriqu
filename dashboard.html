@@ -1182,6 +1182,13 @@
             <label>URL gambar (opsional)
               <input type="text" id="slideImageInput" maxlength="500" placeholder="https://... atau kosongkan" />
             </label>
+            <label>Unggah gambar (opsional)
+              <input type="file" id="slideImageFileInput" accept="image/jpeg,image/png,image/webp" />
+            </label>
+            <label class="slide-apply-all">
+              <input type="checkbox" id="slideApplyAllInput" />
+              Terapkan gambar ini ke semua slide
+            </label>
             <label>Urutan slide
               <input type="number" id="slideOrderInput" min="0" step="1" required />
             </label>
@@ -1582,6 +1589,10 @@
         document.getElementById("slideImageInput").value = activity.slide_image || "";
         document.getElementById("slideOrderInput").value = activity.slide_order || activity.id;
         document.getElementById("slideEditMessage").textContent = "";
+         const slideFileInput = document.getElementById("slideImageFileInput");
+         if (slideFileInput) slideFileInput.value = "";
+         const applyAllInput = document.getElementById("slideApplyAllInput");
+         if (applyAllInput) applyAllInput.checked = false;
         document.getElementById("slideEditModal").classList.add("open");
         document.getElementById("slideEditModal").setAttribute("aria-hidden", "false");
         document.getElementById("slideTitleInput").focus();
@@ -1758,14 +1769,40 @@
         button.disabled = true;
         message.textContent = "Menyimpan...";
         try {
-          const response = await fetch("api/update-slide.php", {
+          let imageUrl = document.getElementById("slideImageInput").value.trim();
+const fileInput = document.getElementById("slideImageFileInput");
+if (fileInput && fileInput.files && fileInput.files[0]) {
+  message.textContent = "Mengunggah gambar...";
+  const form = new FormData();
+  form.append("image", fileInput.files[0]);
+  const oldImage = document.getElementById("slideImageInput").value.trim();
+  if (oldImage) form.append("old_image", oldImage);
+  const uploadResponse = await fetch("api/upload-slide-image.php", { method: "POST", credentials: "same-origin", body: form });
+  const uploadResult = await uploadResponse.json();
+  if (!uploadResponse.ok || !uploadResult.success) throw new Error(uploadResult.error || "Gambar gagal diunggah.");
+  imageUrl = uploadResult.image;
+  document.getElementById("slideImageInput").value = imageUrl;
+}
+message.textContent = "Menyimpan...";
+const applyAll = document.getElementById("slideApplyAllInput");
+if (applyAll && applyAll.checked) {
+  const bulkResponse = await fetch("api/update-all-slide-images.php", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    credentials: "same-origin",
+    body: JSON.stringify({ slide_image: imageUrl })
+  });
+  const bulkResult = await bulkResponse.json();
+  if (!bulkResponse.ok || !bulkResult.success) throw new Error(bulkResult.error || "Gagal menerapkan gambar ke semua slide.");
+}
+const response = await fetch("api/update-slide.php", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
               id: Number(slideEditActivity.id),
               slide_title: document.getElementById("slideTitleInput").value.trim(),
               slide_description: document.getElementById("slideDescriptionInput").value.trim(),
-              slide_image: document.getElementById("slideImageInput").value.trim(),
+              slide_image: imageUrl,
               slide_order: Number(document.getElementById("slideOrderInput").value)
             })
           });
