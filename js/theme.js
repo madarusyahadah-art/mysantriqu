@@ -144,7 +144,7 @@
         setTimeout(function () { if (window.msqHideLoading) window.msqHideLoading(); }, 300);
       } else {
         const settingsScript = document.createElement("script");
-        settingsScript.src = "js/settings.js?v=20261023-10";
+        settingsScript.src = "js/settings.js?v=20261023-12";
         document.head.appendChild(settingsScript);
       }
     }, { once: true });
@@ -154,7 +154,7 @@
       setTimeout(function () { if (window.msqHideLoading) window.msqHideLoading(); }, 300);
     } else {
       const settingsScript = document.createElement("script");
-      settingsScript.src = "js/settings.js?v=20261023-10";
+      settingsScript.src = "js/settings.js?v=20261023-12";
       document.head.appendChild(settingsScript);
     }
   }

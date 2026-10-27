@@ -25,14 +25,6 @@
             });
     };
 
-    document.addEventListener('DOMContentLoaded', function () {
-        var logoutButton = document.getElementById('btn-logout');
-        if (!logoutButton) return;
-
-        logoutButton.addEventListener('click', function (event) {
-            event.preventDefault();
-            event.stopImmediatePropagation();
-            window.logoutUser();
-        }, true);
-    });
+    // Logout is handled exclusively by the gear settings panel via window.logoutUser().
+// No direct #btn-logout binding here to avoid conflicts with settings.js removeHeaders().
 })();

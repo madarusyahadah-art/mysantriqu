@@ -185,7 +185,7 @@
       "input[type=\"range\"] { width: 100%; accent-color: var(--msq-accent, #2dd36f); margin-bottom: 0.5rem; }",
       "input[type=\"text\"] { width: 100%; padding: 0.5rem; border-radius: 8px; border: 1px solid rgba(154,230,180,0.25); background: rgba(255,255,255,0.04); color: inherit; }",
       ".msq-back { background: none; border: none; color: inherit; font-weight: 600; cursor: pointer; margin-bottom: 1rem; text-align: left; padding: 0; font-size: 1rem; }",
-      ".msq-logout { width: 100%; padding: 0.7rem; border: none; border-radius: 12px; background: linear-gradient(135deg, #ef4444, #dc2626); color: #fff; font-weight: 700; cursor: pointer; margin-top: 0.5rem; }",
+      ".msq-logout { display: inline-flex; align-items: center; justify-content: center; width: auto; max-width: 100%; padding: 0.55rem 0.9rem; border: none; border-radius: 12px; background: linear-gradient(135deg, #ef4444, #dc2626); color: #fff; font-weight: 700; cursor: pointer; margin-top: 0.5rem; }",
       ".msq-logout:hover { transform: translateY(-2px); }"
     ].join("\n");
     document.head.appendChild(style);
@@ -244,6 +244,14 @@
         '</li>' +
         '</ul>';
       viewMain.querySelector(".msq-theme-open").addEventListener("click", function () { renderTheme(); viewMain.hidden = true; viewTheme.hidden = false; });
+      const logoutBtn = viewMain.querySelector("#msq-logout");
+      if (logoutBtn) {
+        logoutBtn.addEventListener("click", function (event) {
+          event.preventDefault();
+          if (window.logoutUser) window.logoutUser();
+          else { try { localStorage.removeItem("user_data"); localStorage.removeItem("user_id"); localStorage.removeItem("user_role"); } catch (e) {} window.location.href = "index.html"; }
+        });
+      }
     }
 
     function renderTheme() {
@@ -253,46 +261,14 @@
         '<div class="msq-theme-choices">' +
         '<button class="msq-theme-choice" data-theme="light" type="button">Tema Terang</button>' +
         '<button class="msq-theme-choice" data-theme="dark" type="button">Tema Gelap</button>' +
-        '<button class="msq-theme-choice" data-theme="custom" type="button">Custom Warna</button>' +
-        '</div>' +
-        '<div id="msq-theme-custom-section" hidden>' +
         '</div>';
       viewTheme.querySelector("#msq-theme-back").addEventListener("click", function () { viewTheme.hidden = true; viewMain.hidden = false; });
       viewTheme.querySelectorAll(".msq-theme-choice").forEach(function (b) {
         b.addEventListener("click", function () {
           applyTheme(b.dataset.theme);
-          const section = document.getElementById("msq-theme-custom-section");
-          if (b.dataset.theme === "custom") {
-            section.hidden = false;
-            initCustomPickers();
-          } else {
-            section.hidden = true;
-          }
         });
       });
-      try {
-        const savedTheme = localStorage.getItem(storageTheme);
-        if (savedTheme === "custom") {
-          document.getElementById("msq-theme-custom-section").hidden = false;
-          initCustomPickers();
-        }
-      } catch (e) {}
       syncThemeUI(localStorage.getItem(storageTheme) || "dark");
-    }
-
-    function initCustomPickers() {
-      const section = document.getElementById("msq-theme-custom-section");
-      if (section.dataset.initialized === "true") return;
-      section.innerHTML = "";
-      const bg = localStorage.getItem(storageBg) || "#061d12";
-      const el = localStorage.getItem(storageElement) || "#2dd36f";
-      const p1 = buildColorPicker("bg", "Warna Background", bg);
-      const p2 = buildColorPicker("el", "Warna Element / Card", el);
-      section.appendChild(p1.el);
-      section.appendChild(p2.el);
-      initColorPicker(p1);
-      initColorPicker(p2);
-      section.dataset.initialized = "true";
     }
 
     btn.addEventListener("click", function () {
@@ -301,14 +277,6 @@
     });
     closeBtn.addEventListener("click", function () { overlay.hidden = true; });
     overlay.addEventListener("click", function (e) { if (e.target === overlay) overlay.hidden = true; });
-
-    const logoutBtn = document.getElementById("msq-logout");
-    if (logoutBtn) {
-      logoutBtn.addEventListener("click", function () {
-        if (window.logoutUser) window.logoutUser();
-        else { try { localStorage.removeItem("user_data"); localStorage.removeItem("user_id"); localStorage.removeItem("user_role"); } catch (e) {} window.location.href = "index.html"; }
-      });
-    }
 
     fetch("api/session.php", { credentials: "same-origin" })
       .then(function (r) { return r.json(); })
@@ -328,15 +296,9 @@
   }
 
   function removeHeaders() {
-    const btnLogout = document.getElementById("btn-logout");
-    if (btnLogout && btnLogout.closest("nav.navbar")) {
-      document.body.appendChild(btnLogout);
-      btnLogout.style.position = "fixed";
-      btnLogout.style.bottom = "1rem";
-      btnLogout.style.right = "1rem";
-      btnLogout.style.zIndex = "2000";
-      btnLogout.style.display = "inline-block";
-    }
+    document.querySelectorAll("#btn-logout").forEach(function (b) {
+      if (b.parentNode) b.parentNode.removeChild(b);
+    });
     document.querySelectorAll("nav.navbar").forEach(function (n) { n.remove(); });
     if (!document.getElementById("btn-logout")) {
       const hiddenLogout = document.createElement("button");
@@ -356,11 +318,7 @@
     try {
       const savedTheme = localStorage.getItem(storageTheme);
       if (savedTheme) applyTheme(savedTheme);
-      const savedBg = localStorage.getItem(storageBg);
-      const savedEl = localStorage.getItem(storageElement);
-      if (savedBg) document.documentElement.style.setProperty("--msq-bg-custom", savedBg);
-      if (savedEl) document.documentElement.style.setProperty("--msq-element-custom", savedEl);
-      if (savedBg || savedEl) updateThemeOverride();
+      try { localStorage.removeItem(storageBg); localStorage.removeItem(storageElement); } catch (e) {}
     } catch (e) {
       console.error("Gagal memuat preferensi tema:", e);
     }
