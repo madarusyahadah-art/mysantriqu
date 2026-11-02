@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
@@ -7,89 +7,9 @@
     <link rel="manifest" href="manifest.webmanifest">
     <link rel="apple-touch-icon" href="assets/app-icon-192.png">
     <title>Laporan - Recording Mahasantri</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f5f5; }
-        .navbar {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 1rem 2rem; background: #2d5016; color: white;
-        }
-        .nav-brand { display: flex; align-items: center; gap: 10px; font-size: 1.2rem; font-weight: bold; }
-        .nav-logo { width: 40px; height: 40px; }
-        .nav-user { display: flex; align-items: center; gap: 15px; }
-        .user-photo { width: 35px; height: 35px; border-radius: 50%; }
-        .btn-logout { padding: 8px 16px; background: #dc3545; color: white; border: none; border-radius: 5px; cursor: pointer; }
-        .container { max-width: 1400px; margin: 2rem auto; padding: 0 2rem; }
-        h1 { margin-bottom: 1.5rem; color: #2d5016; }
-        .btn-back {
-            display: inline-block; margin-bottom: 1rem; padding: 10px 20px;
-            background: #2d5016; color: white; text-decoration: none; border-radius: 5px;
-        }
-        .btn { padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-size: 14px; margin-right: 5px; }
-        .btn-primary { background: #28a745; color: white; }
-        .btn-secondary { background: #6c757d; color: white; }
-        .btn-excel { background: #217346; color: white; }
-        .card {
-            background: white; border-radius: 10px; padding: 20px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 20px;
-        }
-        .filter-section {
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px; margin-bottom: 20px;
-        }
-        .form-group label { display: block; margin-bottom: 5px; font-weight: bold; color: #333; font-size: 14px; }
-        .form-group input, .form-group select {
-            width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px;
-        }
-        .preset-buttons { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
-        .preset-btn {
-            padding: 8px 15px; background: #f8f9fa; border: 1px solid #ddd;
-            border-radius: 5px; cursor: pointer; font-size: 13px;
-        }
-        .preset-btn:hover { background: #2d5016; color: white; border-color: #2d5016; }
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-        th, td { padding: 10px; text-align: left; border-bottom: 1px solid #eee; font-size: 14px; }
-        th { background: #f8f9fa; font-weight: bold; color: #2d5016; position: sticky; top: 0; }
-        .table-container { max-height: 500px; overflow-y: auto; }
-        .text-center { text-align: center; }
-        .text-right { text-align: right; }
-        .total-row { background: #f8f9fa; font-weight: bold; }
-        .alpha-high { color: #dc3545; font-weight: bold; }
-        .tab-container { display: flex; gap: 10px; margin-bottom: 20px; }
-        .tab {
-            padding: 10px 20px; background: #f8f9fa; border: 2px solid #ddd;
-            border-radius: 5px 5px 0 0; cursor: pointer; font-weight: bold;
-        }
-        .tab.active { background: #2d5016; color: white; border-color: #2d5016; }
-        .tab-content { display: none; }
-        .tab-content.active { display: block; }
-        .badge-izin { background: #fff3cd; color: #856404; }
-        .badge-sakit { background: #fff3cd; color: #856404; }
-        .badge-berhalangan { background: #f8d7da; color: #721c24; }
-        .badge-lainnya { background: #d1ecf1; color: #0c5460; }
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; }
-        .modal.active { display: flex; }
-        .badge-status-belum { background: #f8d7da; color: #721c24; }
-        .badge-status-diproses { background: #fff3cd; color: #856404; }
-        .badge-status-selesai { background: #d4edda; color: #155724; }
-        .bar-chart { background: #2d5016; height: 20px; border-radius: 3px; }
-        .trend-chart {
-            display: flex; align-items: flex-end; gap: 10px; min-height: 220px;
-            padding: 18px 8px 0; overflow-x: auto; border-bottom: 1px solid #ddd;
-        }
-        .trend-column {
-            display: flex; flex: 1 0 46px; min-width: 46px; height: 200px;
-            flex-direction: column; align-items: center; justify-content: flex-end; gap: 5px;
-        }
-        .trend-count { color: #444; font-size: 12px; }
-        .trend-bar { width: 70%; max-height: 150px; min-height: 2px; flex-shrink: 0; background: #2d5016; border-radius: 4px 4px 0 0; }
-        .trend-label { color: #666; font-size: 11px; white-space: nowrap; padding-bottom: 7px; }
-        .rank-1 { background: #ffd700; font-weight: bold; }
-        .rank-2 { background: #c0c0c0; font-weight: bold; }
-        .rank-3 { background: #cd7f32; font-weight: bold; color: white; }
-        .btn-edit-tindak { padding: 5px 10px; background: #17a2b8; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 12px; }
-    </style>
-    <link rel="stylesheet" href="style.css?v=20261023-4">
+    
+    <link rel="stylesheet" href="laporan.css"/>
+    >
     <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
     <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
 </head>
@@ -918,6 +838,9 @@
     </script>
     <script src="js/role-guard.js?v=20261023-4"></script>
     <script src="js/auth.js?v=20261023-4"></script>
-    <script src="js/theme.js?v=20261023-9"></script>
+    <script src="js/theme.js?v=20261023-12"></script>
 </body>
 </html>
+
+
+

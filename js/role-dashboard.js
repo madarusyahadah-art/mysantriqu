@@ -40,6 +40,10 @@
     return date.getFullYear() + "-" + String(date.getMonth() + 1).padStart(2, "0");
   }
 
+  function displayActivityName(name) {
+    return String(name || "Kegiatan").replace(/\s*[/|]\s*musyahadah\b/i, "").trim();
+  }
+
   async function fetchDashboard(monthStart, monthEnd, studentId) {
     const params = new URLSearchParams({
       bulan_mulai: monthStart,
@@ -94,29 +98,38 @@
     const section = document.getElementById("activities-card");
     section.hidden = currentUser.role !== "mahasantri";
     if (section.hidden) return;
+    document.getElementById("student-profile-link-notice").hidden = Boolean(data.santri);
 
     const container = document.getElementById("activity-tiles");
     container.replaceChildren();
     const activities = data.kegiatan || [];
     activities.forEach((activity, index) => {
-      const tile = document.createElement("a");
+      const tile = document.createElement("button");
+      tile.type = "button";
       tile.className = "activity-tile" + (index >= 7 ? " more-activity" : "");
-      tile.href = "#student-report-card";
       tile.hidden = index >= 7;
       tile.dataset.activityId = activity.id;
       const icon = document.createElement("ion-icon");
       icon.setAttribute("name", activityIcons[index % activityIcons.length]);
       icon.setAttribute("aria-hidden", "true");
       const label = document.createElement("strong");
-      label.textContent = activity.nama_kegiatan;
+      label.textContent = displayActivityName(activity.nama_kegiatan);
       const category = document.createElement("small");
       category.textContent = activity.kategori || activity.frekuensi || "Kegiatan";
       tile.append(icon, label, category);
       tile.addEventListener("click", () => {
+        if (!currentData.santri) {
+          document.getElementById("student-profile-link-notice").hidden = false;
+          document.getElementById("student-profile-link-notice").scrollIntoView({ behavior: "smooth", block: "center" });
+          return;
+        }
         selectedActivityId = String(activity.id);
         selectedDate = "";
         selectedStatus = "nonhadir";
         renderReport(currentData);
+        if (currentData.santri) {
+          document.getElementById("student-report-card").scrollIntoView({ behavior: "smooth" });
+        }
       });
       container.appendChild(tile);
     });
@@ -136,26 +149,42 @@
       selectedDate = "";
       selectedStatus = "nonhadir";
       renderReport(currentData);
-      document.getElementById("student-report-card").scrollIntoView({ behavior: "smooth" });
+      if (currentData.santri) {
+        document.getElementById("student-report-card").scrollIntoView({ behavior: "smooth" });
+      } else {
+        document.getElementById("student-profile-link-notice").hidden = false;
+        document.getElementById("student-profile-link-notice").scrollIntoView({ behavior: "smooth", block: "center" });
+      }
     });
     container.appendChild(allTile);
 
     [
-      ["book-outline", "Jurnal & munazarah"],
-      ["document-text-outline", "Pengumpulan skripsi"],
-      ["school-outline", "KHS pribadi"],
-    ].forEach(([iconName, title]) => {
-      const tile = document.createElement("div");
-      tile.className = "activity-tile is-future future-feature";
+      ["book-outline", "Jurnal & Munazarah", "journal"],
+      ["document-text-outline", "Pengumpulan Skripsi", "thesis"],
+      ["school-outline", "KHS Pribadi", "khs"],
+    ].forEach(([iconName, title, service]) => {
+      const tile = document.createElement("button");
+      tile.type = "button";
+      tile.className = "activity-tile more-activity future-feature";
       tile.hidden = true;
-      tile.setAttribute("aria-disabled", "true");
+      tile.dataset.studentService = service;
       const icon = document.createElement("ion-icon");
       icon.setAttribute("name", iconName);
       const label = document.createElement("strong");
       label.textContent = title;
       const status = document.createElement("small");
-      status.textContent = "Segera hadir";
+      status.textContent = "Buka layanan";
       tile.append(icon, label, status);
+      tile.addEventListener("click", () => {
+        const target = document.getElementById("student-" + tile.dataset.studentService + "-card");
+        if (!currentData.santri) {
+          document.getElementById("student-profile-link-notice").hidden = false;
+          document.getElementById("student-profile-link-notice").scrollIntoView({ behavior: "smooth", block: "center" });
+          return;
+        }
+        target.hidden = false;
+        target.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
       container.appendChild(tile);
     });
   }

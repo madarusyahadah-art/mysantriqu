@@ -23,6 +23,14 @@ $nama_kegiatan = $data['nama_kegiatan'] ?? '';
 $kategori = $data['kategori'] ?? 'wajib';
 $frekuensi = $data['frekuensi'] ?? 'harian';
 $is_active = $data['is_active'] ?? 1;
+$validCategories = ['wajib', 'sunnah', 'opsional'];
+$validFrequencies = ['harian', 'mingguan', 'bulanan'];
+if (!in_array($kategori, $validCategories, true) ||
+    !in_array($frekuensi, $validFrequencies, true) ||
+    !in_array($is_active, [0, 1, '0', '1'], true)) {
+    json_response(["success" => false, "error" => "Kategori, frekuensi, atau status kegiatan tidak valid"], 400);
+}
+$is_active = (int) $is_active;
 $semesters = $data['semester_eligible'] ?? [];
 if (!is_array($semesters)) $semesters = [];
 $semesters = array_values(array_unique(array_map('intval', $semesters)));

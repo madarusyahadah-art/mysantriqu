@@ -37,5 +37,12 @@ For an existing database, apply the SQL migrations in order:
 1. `mysantriqu_profile_migration.sql`
 2. `mysantriqu_academic_calendar_migration.sql`
 3. `mysantriqu_roles_migration.sql` if the role migration has not already been applied
+4. `mysantriqu_student_services_migration.sql`
 
-The full `mysantriqu_xampp.sql` schema includes the profile, role, and academic-calendar tables for new installations.
+The full `mysantriqu_xampp.sql` schema includes the profile, role, academic-calendar, and student-service tables for new installations.
+
+## Student academic services
+
+The student dashboard stores journal entries and thesis submissions in the database. Thesis files and KHS PDFs are kept under `uploads/student-documents/` and are delivered through authenticated download endpoints. Admins can review thesis submissions and upload a KHS PDF for each student semester from **Dokumen Akademik** on the dashboard.
+
+For an existing database, run `mysantriqu_student_services_migration.sql` before using these features. Connect each student account to its student record in user management; these student-only features require that link.

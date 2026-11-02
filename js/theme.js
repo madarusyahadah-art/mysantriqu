@@ -1,6 +1,7 @@
-(function () {
+﻿(function () {
   // --- Loading overlay (muncul sampai halaman siap) ---
   function mountLoadingOverlay() {
+    if (document.body && document.body.dataset.dashboardReady === "true") return;
     if (document.getElementById("msq-loading-overlay")) return;
     const style = document.createElement("style");
     style.id = "msq-loading-style";
@@ -22,9 +23,13 @@
     document.documentElement.classList.add("msq-loading-active");
   }
 
-  function hideLoadingOverlay() {
+  function hideLoadingOverlay(force) {
+    if (document.body &&
+        document.body.dataset.loadingMode === "dashboard" &&
+        document.body.dataset.dashboardReady !== "true" &&
+        force !== true) return;
     const overlay = document.getElementById("msq-loading-overlay");
-    if (!overlay) return;
+    if (!overlay || overlay.classList.contains("msq-loading-hidden")) return;
     overlay.classList.add("msq-loading-hidden");
     document.documentElement.classList.remove("msq-loading-active");
     setTimeout(function () {
@@ -134,7 +139,7 @@
   window.msqGetTheme = function () { return theme; };
 
   applyTheme(theme);
-  setTimeout(function () { if (window.msqHideLoading) window.msqHideLoading(); }, 6000);
+  setTimeout(function () { hideLoadingOverlay(true); }, 6000);
   const isLoginPage = /index\.html|login\.html/i.test(window.location.pathname);
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", function () {
@@ -144,7 +149,7 @@
         setTimeout(function () { if (window.msqHideLoading) window.msqHideLoading(); }, 300);
       } else {
         const settingsScript = document.createElement("script");
-        settingsScript.src = "js/settings.js?v=20261023-12";
+        settingsScript.src = "js/settings.js?v=20261102-2";
         document.head.appendChild(settingsScript);
       }
     }, { once: true });
@@ -154,9 +159,8 @@
       setTimeout(function () { if (window.msqHideLoading) window.msqHideLoading(); }, 300);
     } else {
       const settingsScript = document.createElement("script");
-      settingsScript.src = "js/settings.js?v=20261023-12";
+      settingsScript.src = "js/settings.js?v=20261102-2";
       document.head.appendChild(settingsScript);
     }
   }
 })();
-

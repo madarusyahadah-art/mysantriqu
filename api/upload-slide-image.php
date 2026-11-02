@@ -44,13 +44,5 @@ if (!move_uploaded_file($file['tmp_name'], $destination)) {
 
 $imagePath = $relativeDirectory . '/' . $fileName;
 
-$oldImage = trim((string) ($_POST['old_image'] ?? ''));
-if (preg_match('#^uploads/slides/[a-f0-9]{48}\.(?:jpg|png|webp)$#', $oldImage)) {
-    $oldPath = dirname(__DIR__) . DIRECTORY_SEPARATOR . str_replace('/', DIRECTORY_SEPARATOR, $oldImage);
-    if ($oldPath !== $destination && is_file($oldPath)) {
-        @unlink($oldPath);
-    }
-}
-
 json_response(["success" => true, "image" => $imagePath]);
 ?>

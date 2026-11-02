@@ -185,7 +185,7 @@
       "input[type=\"range\"] { width: 100%; accent-color: var(--msq-accent, #2dd36f); margin-bottom: 0.5rem; }",
       "input[type=\"text\"] { width: 100%; padding: 0.5rem; border-radius: 8px; border: 1px solid rgba(154,230,180,0.25); background: rgba(255,255,255,0.04); color: inherit; }",
       ".msq-back { background: none; border: none; color: inherit; font-weight: 600; cursor: pointer; margin-bottom: 1rem; text-align: left; padding: 0; font-size: 1rem; }",
-      ".msq-logout { display: inline-flex; align-items: center; justify-content: center; width: auto; max-width: 100%; padding: 0.55rem 0.9rem; border: none; border-radius: 12px; background: linear-gradient(135deg, #ef4444, #dc2626); color: #fff; font-weight: 700; cursor: pointer; margin-top: 0.5rem; }",
+      ".msq-logout { display: inline-flex; align-items: center; justify-content: center; width: auto !important; max-width: 100% !important; padding: 0.55rem 0.9rem !important; border: none !important; border-radius: 10px !important; background: linear-gradient(135deg, #ef4444, #dc2626) !important; color: #fff !important; font-weight: 700 !important; font-size: 0.95rem !important; cursor: pointer; margin-top: 0.5rem; white-space: nowrap !important; }",
       ".msq-logout:hover { transform: translateY(-2px); }"
     ].join("\n");
     document.head.appendChild(style);
@@ -248,8 +248,16 @@
       if (logoutBtn) {
         logoutBtn.addEventListener("click", function (event) {
           event.preventDefault();
-          if (window.logoutUser) window.logoutUser();
-          else { try { localStorage.removeItem("user_data"); localStorage.removeItem("user_id"); localStorage.removeItem("user_role"); } catch (e) {} window.location.href = "index.html"; }
+          event.stopImmediatePropagation();
+          var doLogout = function () {
+            try { localStorage.removeItem("user_data"); localStorage.removeItem("user_id"); localStorage.removeItem("user_role"); } catch (e) {}
+            window.location.href = "index.html";
+          };
+          if (typeof window.logoutUser === "function") {
+            window.logoutUser().catch(function () { doLogout(); });
+          } else {
+            fetch("api/logout.php", { method: "POST", credentials: "same-origin" }).then(function () { doLogout(); }).catch(function () { doLogout(); });
+          }
         });
       }
     }
@@ -299,7 +307,9 @@
     document.querySelectorAll("#btn-logout").forEach(function (b) {
       if (b.parentNode) b.parentNode.removeChild(b);
     });
-    document.querySelectorAll("nav.navbar").forEach(function (n) { n.remove(); });
+    if (!/dashboard\.html$/i.test(window.location.pathname)) {
+      document.querySelectorAll("nav.navbar").forEach(function (n) { n.remove(); });
+    }
     if (!document.getElementById("btn-logout")) {
       const hiddenLogout = document.createElement("button");
       hiddenLogout.id = "btn-logout";

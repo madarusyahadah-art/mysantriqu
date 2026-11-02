@@ -19,11 +19,19 @@ if (!$data) {
     exit;
 }
 
-$id = $data['id'] ?? '';
+$id = filter_var($data['id'] ?? null, FILTER_VALIDATE_INT);
 $nama_kegiatan = $data['nama_kegiatan'] ?? '';
 $kategori = $data['kategori'] ?? 'wajib';
 $frekuensi = $data['frekuensi'] ?? 'harian';
 $is_active = $data['is_active'] ?? 1;
+$validCategories = ['wajib', 'sunnah', 'opsional'];
+$validFrequencies = ['harian', 'mingguan', 'bulanan'];
+if (!in_array($kategori, $validCategories, true) ||
+    !in_array($frekuensi, $validFrequencies, true) ||
+    !in_array($is_active, [0, 1, '0', '1'], true)) {
+    json_response(["success" => false, "error" => "Kategori, frekuensi, atau status kegiatan tidak valid"], 400);
+}
+$is_active = (int) $is_active;
 $semesterProvided = array_key_exists('semester_eligible', $data);
 $semesters = $data['semester_eligible'] ?? [];
 if (!is_array($semesters)) {
@@ -34,7 +42,7 @@ if (array_filter($semesters, static function ($semester) { return $semester < 1 
     json_response(["success" => false, "error" => "Semester kegiatan tidak valid"], 400);
 }
 
-if (empty($id) || empty($nama_kegiatan)) {
+if ($id === false || $id < 1 || empty($nama_kegiatan)) {
     http_response_code(400);
     echo json_encode(["error" => "ID dan nama kegiatan wajib diisi"]);
     exit;
@@ -42,6 +50,16 @@ if (empty($id) || empty($nama_kegiatan)) {
 
 $conn->begin_transaction();
 try {
+    $existsStmt = $conn->prepare("SELECT id FROM kegiatan WHERE id = ? FOR UPDATE");
+    $existsStmt->bind_param("i", $id);
+    if (!$existsStmt->execute()) throw new RuntimeException("Kegiatan gagal diperiksa");
+    $exists = $existsStmt->get_result()->num_rows > 0;
+    $existsStmt->close();
+    if (!$exists) {
+        $conn->rollback();
+        json_response(["success" => false, "error" => "Kegiatan tidak ditemukan"], 404);
+    }
+
     $stmt = $conn->prepare("UPDATE kegiatan SET nama_kegiatan = ?, kategori = ?, frekuensi = ?, is_active = ? WHERE id = ?");
     $stmt->bind_param("sssii", $nama_kegiatan, $kategori, $frekuensi, $is_active, $id);
     if (!$stmt->execute()) throw new RuntimeException("Kegiatan gagal diperbarui");

@@ -34,6 +34,19 @@ if ($image !== '') {
     }
 }
 
+$existingStmt = $conn->prepare("SELECT slide_image FROM kegiatan WHERE id = ?");
+$existingStmt->bind_param("i", $id);
+if (!$existingStmt->execute()) {
+    $existingStmt->close();
+    json_response(["success" => false, "error" => "Slide gagal diperiksa"], 500);
+}
+$existing = $existingStmt->get_result()->fetch_assoc();
+$existingStmt->close();
+if (!$existing) {
+    json_response(["success" => false, "error" => "Kegiatan untuk slide tidak ditemukan"], 404);
+}
+$oldImage = (string) ($existing['slide_image'] ?? '');
+
 $stmt = $conn->prepare("UPDATE kegiatan SET slide_title = ?, slide_description = ?, slide_image = ?, slide_order = ? WHERE id = ?");
 $stmt->bind_param("sssii", $title, $description, $image, $order, $id);
 if (!$stmt->execute()) {
@@ -50,6 +63,24 @@ $exists = $check->get_result()->num_rows > 0;
 $check->close();
 if (!$exists) {
     json_response(["success" => false, "error" => "Kegiatan untuk slide tidak ditemukan"], 404);
+}
+
+if ($oldImage !== $image && preg_match('#^uploads/slides/[a-f0-9]{48}\.(?:jpg|png|webp)$#', $oldImage) === 1) {
+    $referenceStmt = $conn->prepare("SELECT id FROM kegiatan WHERE slide_image = ? LIMIT 1");
+    if (!$referenceStmt) {
+        error_log("Gagal memeriksa referensi gambar slide lama.");
+    } else {
+        $referenceStmt->bind_param("s", $oldImage);
+        if (!$referenceStmt->execute()) {
+            error_log("Gagal memeriksa referensi gambar slide lama.");
+        } elseif ($referenceStmt->get_result()->num_rows === 0) {
+            $oldPath = dirname(__DIR__) . DIRECTORY_SEPARATOR . str_replace('/', DIRECTORY_SEPARATOR, $oldImage);
+            if (is_file($oldPath) && !@unlink($oldPath)) {
+                error_log("Gambar slide lama tidak dapat dihapus: " . basename($oldPath));
+            }
+        }
+        $referenceStmt->close();
+    }
 }
 
 json_response(["success" => true, "changed" => $affected > 0]);
