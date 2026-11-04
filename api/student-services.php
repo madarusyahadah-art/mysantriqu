@@ -38,6 +38,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             json_response(["success" => false, "error" => "Data Mahasantri tidak ditemukan"], 404);
         }
 
+        $journalStmt = $conn->prepare("
+            SELECT id, entry_date, title, content, created_at
+            FROM student_journal_entries WHERE santri_id = ? ORDER BY entry_date DESC, id DESC
+        ");
+        if (!$journalStmt) {
+            json_response(["success" => false, "error" => "Jurnal Mahasantri gagal disiapkan"], 500);
+        }
+        $journalStmt->bind_param("i", $santriId);
+        if (!$journalStmt->execute()) {
+            $journalStmt->close();
+            json_response(["success" => false, "error" => "Jurnal Mahasantri gagal dimuat"], 500);
+        }
+        $journals = $journalStmt->get_result()->fetch_all(MYSQLI_ASSOC);
+        $journalStmt->close();
+
         $thesisStmt = $conn->prepare("
             SELECT id, santri_id, title, original_filename, status, admin_note, submitted_at, reviewed_at
             FROM student_thesis_submissions WHERE santri_id = ? ORDER BY submitted_at DESC
@@ -61,7 +76,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         }
         $khs = $khsStmt->get_result()->fetch_all(MYSQLI_ASSOC);
         $khsStmt->close();
-        json_response(["success" => true, "students" => $students, "thesis" => $thesis, "khs" => $khs]);
+        json_response(["success" => true, "students" => $students, "journals" => $journals, "thesis" => $thesis, "khs" => $khs]);
     }
 
     if (empty($user['santri_id'])) {
@@ -117,6 +132,50 @@ if (!is_array($data)) {
 }
 
 if ($isAdmin) {
+    if (($data['action'] ?? '') === 'admin-create-journal') {
+        $santriId = filter_var($data['santri_id'] ?? null, FILTER_VALIDATE_INT);
+        $date = $data['entry_date'] ?? '';
+        $title = $data['title'] ?? '';
+        $content = $data['content'] ?? '';
+        $parsedDate = is_string($date) ? DateTimeImmutable::createFromFormat('!Y-m-d', $date) : false;
+        if ($santriId === false || $santriId < 1 ||
+            !$parsedDate || $parsedDate->format('Y-m-d') !== $date ||
+            !is_string($title) || trim($title) === '' || mb_strlen(trim($title)) > 255 ||
+            !is_string($content) || trim($content) === '' || mb_strlen(trim($content)) > 10000) {
+            json_response(["success" => false, "error" => "Mahasantri, tanggal, judul, atau isi jurnal tidak valid"], 400);
+        }
+
+        $studentStmt = $conn->prepare("SELECT id FROM santri WHERE id = ?");
+        if (!$studentStmt) {
+            json_response(["success" => false, "error" => "Data Mahasantri gagal diperiksa"], 500);
+        }
+        $studentStmt->bind_param("i", $santriId);
+        if (!$studentStmt->execute()) {
+            $studentStmt->close();
+            json_response(["success" => false, "error" => "Data Mahasantri gagal diperiksa"], 500);
+        }
+        $studentExists = $studentStmt->get_result()->num_rows > 0;
+        $studentStmt->close();
+        if (!$studentExists) {
+            json_response(["success" => false, "error" => "Data Mahasantri tidak ditemukan"], 404);
+        }
+
+        $title = trim($title);
+        $content = trim($content);
+        $stmt = $conn->prepare("INSERT INTO student_journal_entries (santri_id, entry_date, title, content) VALUES (?, ?, ?, ?)");
+        if (!$stmt) {
+            json_response(["success" => false, "error" => "Jurnal gagal disiapkan"], 500);
+        }
+        $stmt->bind_param("isss", $santriId, $date, $title, $content);
+        if (!$stmt->execute()) {
+            $stmt->close();
+            json_response(["success" => false, "error" => "Jurnal gagal disimpan"], 500);
+        }
+        $id = $stmt->insert_id;
+        $stmt->close();
+        json_response(["success" => true, "id" => $id]);
+    }
+
     if (($data['action'] ?? '') !== 'review-thesis') {
         json_response(["success" => false, "error" => "Aksi admin tidak valid"], 400);
     }

@@ -9,7 +9,6 @@
     <title>Laporan - Recording Mahasantri</title>
     
     <link rel="stylesheet" href="laporan.css"/>
-    >
     <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
     <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
 </head>
@@ -31,13 +30,13 @@
         <a href="dashboard.html" class="btn-back"><ion-icon name="arrow-back-outline" aria-hidden="true"></ion-icon> Kembali ke Dashboard</a>
         <h1><span class="page-heading-icon"><ion-icon name="stats-chart-outline" aria-hidden="true"></ion-icon></span> Laporan & Rekap</h1>
         
-        <div class="tab-container">
-            <div class="tab active" onclick="switchTab('absensi')">📋 Laporan Absensi</div>
-            <div class="tab" onclick="switchTab('pelanggaran')">⚠️ Laporan Pelanggaran</div>
+        <div class="tab-container" role="tablist" aria-label="Jenis laporan">
+            <button type="button" class="tab active" id="tab-button-absensi" role="tab" aria-selected="true" aria-controls="tab-absensi" onclick="switchTab('absensi', this)">📋 Laporan Absensi</button>
+            <button type="button" class="tab" id="tab-button-pelanggaran" role="tab" aria-selected="false" aria-controls="tab-pelanggaran" onclick="switchTab('pelanggaran', this)">⚠️ Laporan Pelanggaran</button>
         </div>
 
         <!-- TAB ABSENSI -->
-        <div id="tab-absensi" class="tab-content active">
+        <div id="tab-absensi" class="tab-content active" role="tabpanel" aria-labelledby="tab-button-absensi">
             <div class="card">
                 <h2 style="margin-bottom: 15px; color: #2d5016;">Filter Laporan Absensi</h2>
                 
@@ -157,7 +156,7 @@
         </div>
 
         <!-- TAB PELANGGARAN -->
-        <div id="tab-pelanggaran" class="tab-content">
+        <div id="tab-pelanggaran" class="tab-content" role="tabpanel" aria-labelledby="tab-button-pelanggaran">
             <div class="card">
                 <h2 style="margin-bottom: 15px; color: #2d5016;">Filter Laporan Pelanggaran</h2>
                 
@@ -311,13 +310,6 @@
                 return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[character];
             });
         }
-        
-        const user_id = localStorage.getItem("user_id");
-        
-        if (!user_id) {
-            window.location.href = "index.html";
-        }
-        
         
         // Set default tanggal (bulan ini)
         var today = new Date();
@@ -512,11 +504,15 @@
         }
         
         // Switch tab
-        function switchTab(tabName) {
-            document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active'); });
+        function switchTab(tabName, tabElement) {
+            document.querySelectorAll('.tab').forEach(function(t) {
+                t.classList.remove('active');
+                t.setAttribute('aria-selected', 'false');
+            });
             document.querySelectorAll('.tab-content').forEach(function(t) { t.classList.remove('active'); });
             
-            event.target.classList.add('active');
+            tabElement.classList.add('active');
+            tabElement.setAttribute('aria-selected', 'true');
             document.getElementById('tab-' + tabName).classList.add('active');
         }
         
@@ -841,6 +837,4 @@
     <script src="js/theme.js?v=20261023-12"></script>
 </body>
 </html>
-
-
 

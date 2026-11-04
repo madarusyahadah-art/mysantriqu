@@ -84,4 +84,27 @@
         .stat-mini p { font-size: 20px; font-weight: bold; color: #2d5016; }
         .badge-berhalangan { background: #f8d7da; color: #721c24; }
         .badge-lainnya { background: #d1ecf1; color: #0c5460; }
+
+        @media (max-width: 760px) {
+            .navbar { padding: .75rem 1rem; }
+            .nav-brand { gap: 7px; font-size: 1rem; }
+            .nav-logo { width: 34px; height: 34px; }
+            .nav-user { gap: 8px; }
+            .container { width: auto; margin: 1rem auto; padding: 0 1rem; }
+            .form-row { grid-template-columns: 1fr; gap: 0; }
+            .stats-mini { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+            .card { padding: 15px; }
+            table { display: block; width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+            th, td { white-space: nowrap; }
+            .card > div[style*="text-align: right"] { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: .5rem; }
+        }
+
+        @media (max-width: 420px) {
+            .nav-brand ion-icon { display: none; }
+            .nav-user #user-name { max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+            .stats-mini { gap: 7px; }
+            .stat-mini { padding: 8px 5px; }
+            .stat-mini p { font-size: 18px; }
+            .card > div[style*="text-align: right"] button { flex: 1 1 100%; }
+        }
     

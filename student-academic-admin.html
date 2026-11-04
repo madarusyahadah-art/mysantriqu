@@ -11,7 +11,7 @@
   <header class="admin-header">
     <a href="dashboard.html">Kembali ke Dashboard</a>
     <h1>Dokumen Akademik Mahasantri</h1>
-    <p>Tinjau pengumpulan skripsi dan unggah KHS PDF.</p>
+    <p>Input skripsi dan jurnal Munazharah, tinjau pengumpulan, serta unggah KHS PDF untuk Mahasantri.</p>
   </header>
 
   <main class="admin-content">
@@ -20,6 +20,31 @@
       <option value="">Memuat daftar Mahasantri...</option>
     </select>
     <p id="page-message" role="status" aria-live="polite"></p>
+
+    <section class="admin-card">
+      <h2>Input Skripsi Mahasantri</h2>
+      <form id="thesis-upload-form">
+        <label for="thesis-title">Judul skripsi</label>
+        <input id="thesis-title" type="text" maxlength="255" required>
+        <label for="thesis-file">File skripsi (PDF, maksimal 10 MB)</label>
+        <input id="thesis-file" type="file" accept="application/pdf,.pdf" required>
+        <button type="submit">Simpan skripsi</button>
+      </form>
+    </section>
+
+    <section class="admin-card">
+      <h2>Input Jurnal Munazharah</h2>
+      <form id="journal-form">
+        <label for="journal-date">Tanggal</label>
+        <input id="journal-date" type="date" required>
+        <label for="journal-title">Judul / topik Munazharah</label>
+        <input id="journal-title" type="text" maxlength="255" required>
+        <label for="journal-content">Isi jurnal</label>
+        <textarea id="journal-content" rows="5" maxlength="10000" required></textarea>
+        <button type="submit">Simpan jurnal</button>
+      </form>
+      <div id="journal-list" class="document-list"></div>
+    </section>
 
     <section class="admin-card">
       <h2>Unggah KHS PDF</h2>
@@ -42,7 +67,7 @@
     </section>
 
     <section class="admin-card">
-      <h2>Pengumpulan Skripsi</h2>
+      <h2>Riwayat Skripsi</h2>
       <div id="thesis-list" class="document-list"></div>
     </section>
   </main>
@@ -50,6 +75,6 @@
   <script src="js/auth.js?v=20261023-4"></script>
   <script src="js/role-guard.js?v=20261023-4"></script>
   <script src="js/theme.js?v=20261023-13"></script>
-  <script src="js/student-academic-admin.js?v=20261102-1"></script>
+  <script src="js/student-academic-admin.js?v=20261104-1"></script>
 </body>
 </html>

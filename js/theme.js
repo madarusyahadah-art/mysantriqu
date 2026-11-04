@@ -135,8 +135,94 @@
     });
   }
 
+  function mountMobileNavigation(user) {
+    if (!user || !user.role || document.getElementById("msq-mobile-nav")) return;
+    if (/index\.html|login\.html/i.test(window.location.pathname)) return;
+
+    const role = String(user.role).toLowerCase();
+    const isSupervisor = ["musyrif", "mas'ul", "supervisor"].includes(role);
+    let items = [{ label: "Dashboard", href: "dashboard.html", icon: "home-outline" }];
+
+    if (role === "admin") {
+      items = items.concat([
+        { label: "Absensi", href: "absensi-input.html", icon: "clipboard-outline" },
+        { label: "Pelanggaran", href: "pelanggaran.html", icon: "alert-circle-outline" },
+        { label: "Laporan", href: "laporan.html", icon: "stats-chart-outline" },
+        { label: "Data Santri", href: "santri.html", icon: "people-outline" },
+      ]);
+    } else if (isSupervisor) {
+      items = items.concat([
+        { label: "Absensi", href: "absensi-input.html", icon: "clipboard-outline" },
+        { label: "Pelanggaran", href: "pelanggaran.html", icon: "alert-circle-outline" },
+        { label: "Laporan", href: "laporan.html", icon: "stats-chart-outline" },
+      ]);
+    } else if (role === "kajur") {
+      items = items.concat([
+        { label: "Laporan", href: "laporan.html", icon: "stats-chart-outline" },
+        { label: "Kalender", href: "kalender-akademik.html", icon: "calendar-outline" },
+      ]);
+    } else if (role === "mahasantri") {
+      items = items.concat([
+        { label: "Laporan", href: "laporan.html", icon: "stats-chart-outline" },
+      ]);
+      if (user.santri_id) {
+        items.push({ label: "Profil", href: "profil-santri.html", icon: "person-circle-outline" });
+      }
+    } else {
+      return;
+    }
+
+    if (!document.getElementById("msq-mobile-nav-style")) {
+      const style = document.createElement("style");
+      style.id = "msq-mobile-nav-style";
+      style.textContent = [
+        "#msq-mobile-nav { display: none; }",
+        "@media (max-width: 760px) {",
+        "  body.msq-has-mobile-nav { padding-bottom: calc(76px + env(safe-area-inset-bottom)); }",
+        "  #msq-mobile-nav { position: fixed; inset: auto 0 0; z-index: 1100; display: grid; grid-template-columns: repeat(var(--msq-nav-count), minmax(0, 1fr)); padding: .35rem .45rem calc(.35rem + env(safe-area-inset-bottom)); border-top: 1px solid rgba(154,230,180,.2); background: rgba(6,29,18,.96); box-shadow: 0 -8px 26px rgba(0,0,0,.22); backdrop-filter: blur(16px); }",
+        "  #msq-mobile-nav a { display: flex; min-width: 0; min-height: 52px; flex-direction: column; align-items: center; justify-content: center; gap: .15rem; border-radius: 12px; color: #cfe8d8; font: 600 10px/1.2 'Segoe UI', sans-serif; text-align: center; text-decoration: none; -webkit-tap-highlight-color: transparent; }",
+        "  #msq-mobile-nav a ion-icon { font-size: 1.35rem; }",
+        "  #msq-mobile-nav a[aria-current='page'] { color: #9ae6b4; background: rgba(45,211,111,.14); }",
+        "  #msq-mobile-nav a:focus-visible { outline: 2px solid #9ae6b4; outline-offset: -2px; }",
+        "  .theme-toggle { display: none !important; }",
+        "  .pwa-install-button { bottom: calc(5.5rem + env(safe-area-inset-bottom)) !important; }",
+        "}",
+      ].join("\n");
+      document.head.appendChild(style);
+    }
+
+    const nav = document.createElement("nav");
+    nav.id = "msq-mobile-nav";
+    nav.setAttribute("aria-label", "Navigasi utama");
+    nav.style.setProperty("--msq-nav-count", String(items.length));
+    const currentPage = window.location.pathname.split("/").pop() || "index.html";
+
+    items.forEach(function (item) {
+      const link = document.createElement("a");
+      link.href = item.href;
+      if (currentPage === item.href) link.setAttribute("aria-current", "page");
+
+      const icon = document.createElement("ion-icon");
+      icon.setAttribute("name", item.icon);
+      icon.setAttribute("aria-hidden", "true");
+
+      const label = document.createElement("span");
+      label.textContent = item.label;
+      link.appendChild(icon);
+      link.appendChild(label);
+      nav.appendChild(link);
+    });
+
+    document.body.classList.add("msq-has-mobile-nav");
+    document.body.appendChild(nav);
+  }
+
   window.msqApplyTheme = applyTheme;
   window.msqGetTheme = function () { return theme; };
+  window.addEventListener("verified-session", function (event) {
+    mountMobileNavigation(event.detail);
+  });
+  if (window.currentSessionUser) mountMobileNavigation(window.currentSessionUser);
 
   applyTheme(theme);
   setTimeout(function () { hideLoadingOverlay(true); }, 6000);

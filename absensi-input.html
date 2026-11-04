@@ -9,7 +9,6 @@
     <title>Input Ketidakhadiran - Recording Mahasantri</title>
     
     <link rel="stylesheet" href="absensi-input.css"/>
-    >
     <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
     <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
 </head>
@@ -244,13 +243,6 @@
             });
         }
         
-        var user_id = localStorage.getItem("user_id");
-        
-        if (!user_id) {
-            window.location.href = "index.html";
-        }
-        
-        
         var localToday = new Date();
         localToday.setMinutes(localToday.getMinutes() - localToday.getTimezoneOffset());
         var today = localToday.toISOString().split('T')[0];
@@ -464,8 +456,7 @@
                                 santri_id: item.santri_id,
                                 status: item.status,
                                 keterangan: item.keterangan,
-                                tindak_lanjut: item.tindak_lanjut,
-                                user_id: user_id
+                                tindak_lanjut: item.tindak_lanjut
                             })
                         });
                         var data = await response.json();
@@ -689,8 +680,7 @@
                     santri_id: santriId,
                     status: status,
                     keterangan: keterangan,
-                    tindak_lanjut: tindakLanjut,
-                    user_id: user_id
+                    tindak_lanjut: tindakLanjut
                 })
             })
             .then(function(res) { return res.json(); })
@@ -1013,6 +1003,4 @@
   <script src="js/theme.js?v=20261023-13"></script>
 </body>
 </html>
-
-
 

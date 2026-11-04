@@ -43,6 +43,6 @@ The full `mysantriqu_xampp.sql` schema includes the profile, role, academic-cale
 
 ## Student academic services
 
-The student dashboard stores journal entries and thesis submissions in the database. Thesis files and KHS PDFs are kept under `uploads/student-documents/` and are delivered through authenticated download endpoints. Admins can review thesis submissions and upload a KHS PDF for each student semester from **Dokumen Akademik** on the dashboard.
+The student dashboard stores journal entries and thesis submissions in the database. Thesis files and KHS PDFs are kept under `uploads/student-documents/` and are delivered through authenticated download endpoints. Admins can input a thesis PDF and Munazharah journal for a selected student, review thesis submissions, and upload a KHS PDF for each student semester from **Dokumen Akademik** on the dashboard.
 
 For an existing database, run `mysantriqu_student_services_migration.sql` before using these features. Connect each student account to its student record in user management; these student-only features require that link.

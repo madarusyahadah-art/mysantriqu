@@ -5,7 +5,21 @@
   const khsSemester = document.getElementById("khs-semester");
   const khsFile = document.getElementById("khs-file");
   const khsList = document.getElementById("khs-list");
+  const thesisForm = document.getElementById("thesis-upload-form");
+  const thesisTitle = document.getElementById("thesis-title");
+  const thesisFile = document.getElementById("thesis-file");
+  const journalForm = document.getElementById("journal-form");
+  const journalDate = document.getElementById("journal-date");
+  const journalTitle = document.getElementById("journal-title");
+  const journalContent = document.getElementById("journal-content");
+  const journalList = document.getElementById("journal-list");
   const thesisList = document.getElementById("thesis-list");
+
+  function localDateString(date) {
+    const localDate = new Date(date);
+    localDate.setMinutes(localDate.getMinutes() - localDate.getTimezoneOffset());
+    return localDate.toISOString().slice(0, 10);
+  }
 
   async function requestJson(url, options) {
     const response = await fetch(url, Object.assign({ credentials: "same-origin" }, options || {}));
@@ -44,6 +58,24 @@
       link.textContent = "Unduh KHS";
       item.append(title, filename, link);
       khsList.appendChild(item);
+    });
+  }
+
+  function renderJournals(journals) {
+    journalList.replaceChildren();
+    if (!journals.length) {
+      appendEmpty(journalList, "Belum ada jurnal Munazharah untuk Mahasantri ini.");
+      return;
+    }
+    journals.forEach(function (journal) {
+      const item = document.createElement("article");
+      item.className = "document-item";
+      const title = document.createElement("strong");
+      title.textContent = journal.entry_date + " · " + journal.title;
+      const content = document.createElement("p");
+      content.textContent = journal.content;
+      item.append(title, content);
+      journalList.appendChild(item);
     });
   }
 
@@ -113,14 +145,17 @@
     if (!studentSelect.value) {
       khsList.replaceChildren();
       thesisList.replaceChildren();
+      journalList.replaceChildren();
       appendEmpty(khsList, "Pilih Mahasantri untuk melihat dokumen.");
       appendEmpty(thesisList, "Pilih Mahasantri untuk melihat dokumen.");
+      appendEmpty(journalList, "Pilih Mahasantri untuk melihat jurnal.");
       return;
     }
     const query = new URLSearchParams({ admin: "1", santri_id: studentSelect.value });
     const data = await requestJson("api/student-services.php?" + query.toString());
     renderKhs(data.khs);
     renderThesis(data.thesis);
+    renderJournals(data.journals);
   }
 
   async function initialize() {
@@ -148,6 +183,78 @@
   studentSelect.addEventListener("change", function () {
     setMessage("");
     loadStudentDocuments().catch(function (error) { setMessage(error.message, true); });
+  });
+
+  thesisForm.addEventListener("submit", async function (event) {
+    event.preventDefault();
+    if (!studentSelect.value) {
+      setMessage("Pilih Mahasantri terlebih dahulu.", true);
+      return;
+    }
+    if (!thesisFile.files || !thesisFile.files[0]) {
+      setMessage("Pilih file skripsi PDF terlebih dahulu.", true);
+      return;
+    }
+
+    const button = thesisForm.querySelector('button[type="submit"]');
+    button.disabled = true;
+    setMessage("Menyimpan skripsi...");
+    const form = new FormData();
+    form.append("type", "thesis");
+    form.append("santri_id", studentSelect.value);
+    form.append("title", thesisTitle.value.trim());
+    form.append("document", thesisFile.files[0]);
+    try {
+      const response = await fetch("api/student-document-upload.php", {
+        method: "POST",
+        credentials: "same-origin",
+        body: form,
+      });
+      const data = await response.json();
+      if (!response.ok || !data.success) throw new Error(data.error || "Skripsi gagal disimpan.");
+      thesisTitle.value = "";
+      thesisFile.value = "";
+      await loadStudentDocuments();
+      setMessage("Skripsi berhasil disimpan untuk Mahasantri terpilih.");
+    } catch (error) {
+      setMessage(error.message, true);
+    } finally {
+      button.disabled = false;
+    }
+  });
+
+  journalForm.addEventListener("submit", async function (event) {
+    event.preventDefault();
+    if (!studentSelect.value) {
+      setMessage("Pilih Mahasantri terlebih dahulu.", true);
+      return;
+    }
+
+    const button = journalForm.querySelector('button[type="submit"]');
+    button.disabled = true;
+    setMessage("Menyimpan jurnal Munazharah...");
+    try {
+      await requestJson("api/student-services.php", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "admin-create-journal",
+          santri_id: studentSelect.value,
+          entry_date: journalDate.value,
+          title: journalTitle.value.trim(),
+          content: journalContent.value.trim(),
+        }),
+      });
+      journalTitle.value = "";
+      journalContent.value = "";
+      journalDate.value = localDateString(new Date());
+      await loadStudentDocuments();
+      setMessage("Jurnal Munazharah berhasil disimpan.");
+    } catch (error) {
+      setMessage(error.message, true);
+    } finally {
+      button.disabled = false;
+    }
   });
 
   khsForm.addEventListener("submit", async function (event) {
@@ -188,5 +295,6 @@
     }
   });
 
+  journalDate.value = localDateString(new Date());
   initialize();
 })();

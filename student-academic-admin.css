@@ -39,6 +39,14 @@ body {
   font: inherit;
 }
 
+.admin-content input:focus,
+.admin-content select:focus,
+.admin-content textarea:focus {
+  outline: 2px solid rgba(154, 230, 180, .55);
+  outline-offset: 1px;
+}
+
+.admin-content textarea { resize: vertical; }
 .admin-content input[type="file"] { padding: .45rem; }
 #page-message { min-height: 1.5rem; color: #9ae6b4; }
 .admin-card {

@@ -10,7 +10,7 @@ $type = $_POST['type'] ?? '';
 if (!in_array($type, ['thesis', 'khs'], true)) {
     json_response(["success" => false, "error" => "Jenis dokumen tidak valid"], 400);
 }
-if (($type === 'thesis' && $user['role'] !== 'mahasantri') ||
+if (($type === 'thesis' && !in_array($user['role'], ['admin', 'mahasantri'], true)) ||
     ($type === 'khs' && $user['role'] !== 'admin')) {
     json_response(["success" => false, "error" => "Anda tidak memiliki akses untuk mengunggah dokumen ini"], 403);
 }
@@ -46,14 +46,36 @@ $santriId = 0;
 $title = '';
 $semester = 0;
 if ($type === 'thesis') {
-    if (empty($user['santri_id'])) {
-        json_response(["success" => false, "error" => "Profil Mahasantri belum dihubungkan oleh admin"], 403);
+    if ($user['role'] === 'mahasantri') {
+        if (empty($user['santri_id'])) {
+            json_response(["success" => false, "error" => "Profil Mahasantri belum dihubungkan oleh admin"], 403);
+        }
+        $santriId = (int) $user['santri_id'];
+    } else {
+        $santriId = filter_var($_POST['santri_id'] ?? null, FILTER_VALIDATE_INT);
+        if ($santriId === false || $santriId < 1) {
+            json_response(["success" => false, "error" => "Mahasantri tidak valid"], 400);
+        }
+        $studentStmt = $conn->prepare("SELECT id FROM santri WHERE id = ?");
+        if (!$studentStmt) {
+            json_response(["success" => false, "error" => "Data Mahasantri gagal diperiksa"], 500);
+        }
+        $studentStmt->bind_param("i", $santriId);
+        if (!$studentStmt->execute()) {
+            $studentStmt->close();
+            json_response(["success" => false, "error" => "Data Mahasantri gagal diperiksa"], 500);
+        }
+        $studentExists = $studentStmt->get_result()->num_rows > 0;
+        $studentStmt->close();
+        if (!$studentExists) {
+            json_response(["success" => false, "error" => "Data Mahasantri tidak ditemukan"], 404);
+        }
     }
-    $santriId = (int) $user['santri_id'];
-    $title = trim((string) ($_POST['title'] ?? ''));
-    if ($title === '' || mb_strlen($title) > 255) {
+    $title = $_POST['title'] ?? '';
+    if (!is_string($title) || trim($title) === '' || mb_strlen(trim($title)) > 255) {
         json_response(["success" => false, "error" => "Judul skripsi wajib diisi (maksimal 255 karakter)"], 400);
     }
+    $title = trim($title);
 } else {
     $santriId = filter_var($_POST['santri_id'] ?? null, FILTER_VALIDATE_INT);
     $semester = filter_var($_POST['semester'] ?? null, FILTER_VALIDATE_INT);

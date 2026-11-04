@@ -79,4 +79,29 @@
         .rank-2 { background: #c0c0c0; font-weight: bold; }
         .rank-3 { background: #cd7f32; font-weight: bold; color: white; }
         .btn-edit-tindak { padding: 5px 10px; background: #17a2b8; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 12px; }
+
+        @media (max-width: 760px) {
+            .navbar { padding: .75rem 1rem; }
+            .nav-brand { gap: 7px; font-size: 1rem; }
+            .nav-logo { width: 34px; height: 34px; }
+            .nav-user { gap: 8px; }
+            .container { width: auto; margin: 1rem auto; padding: 0 1rem; }
+            .filter-section { grid-template-columns: 1fr; }
+            .card { padding: 15px; overflow: hidden; }
+            .preset-buttons, .tab-container { flex-wrap: nowrap; overflow-x: auto; padding-bottom: .35rem; -webkit-overflow-scrolling: touch; }
+            .preset-buttons > *, .tab { flex: 0 0 auto; }
+            .tab { padding: 9px 12px; }
+            .card > div[style*="text-align: right"] { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: .5rem; }
+            .table-container { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+            table { display: block; width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+            th, td { white-space: nowrap; }
+            .trend-chart { min-height: 190px; }
+        }
+
+        @media (max-width: 420px) {
+            .nav-brand ion-icon { display: none; }
+            .nav-user #user-name { max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+            .card > div[style*="text-align: right"] button { flex: 1 1 100%; }
+            .tab { font-size: 12px; }
+        }
     

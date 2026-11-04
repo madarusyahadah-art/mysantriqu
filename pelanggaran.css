@@ -34,4 +34,23 @@
         th { background: #f8f9fa; font-weight: bold; color: #2d5016; }
         .poin-input { width: 100px; padding: 5px 10px; border: 1px solid #ddd; border-radius: 5px; }
         .keterangan-input { width: 100%; padding: 5px 10px; border: 1px solid #ddd; border-radius: 5px; }
+
+        @media (max-width: 760px) {
+            .navbar { padding: .75rem 1rem; }
+            .nav-brand { gap: 7px; font-size: 1rem; }
+            .nav-logo { width: 34px; height: 34px; }
+            .nav-user { gap: 8px; }
+            .container { width: auto; margin: 1rem auto; padding: 0 1rem; }
+            .form-row { grid-template-columns: 1fr; gap: 0; }
+            .card { padding: 15px; }
+            table { display: block; width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+            th, td { white-space: nowrap; }
+            .card > div[style*="text-align: right"] { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: .5rem; }
+        }
+
+        @media (max-width: 420px) {
+            .nav-brand ion-icon { display: none; }
+            .nav-user #user-name { max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+            .card > div[style*="text-align: right"] button { flex: 1 1 100%; }
+        }
     
