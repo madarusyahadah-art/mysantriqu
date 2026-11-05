@@ -14,7 +14,7 @@ if ($user === null) {
     json_response(['success' => false, 'error' => 'Silakan masuk kembali.'], 401);
 }
 $role = strtolower((string) ($user['role'] ?? ''));
-if (!in_array($role, ['admin', 'musyrif', 'supervisor', "mas'ul"], true)) {
+if (!in_array($role, ['admin', 'musyrif', "mas'ul"], true)) {
     json_response(['success' => false, 'error' => 'Akun ini tidak memiliki akses untuk mencatat pelanggaran.'], 403);
 }
 $userId = filter_var($user['id'] ?? null, FILTER_VALIDATE_INT);
@@ -67,6 +67,26 @@ if (strlen($description) > 4000 || strlen($counselingNote) > 4000
 
 try {
     $connection = db_connection();
+    assert_students_in_scope($connection, $user, [$studentId]);
+    if ($method === 'PUT') {
+        $existingViolation = $connection->prepare(
+            'SELECT santri_id, absensi_id FROM pelanggaran WHERE id = ? LIMIT 1'
+        );
+        $existingViolation->bind_param('i', $id);
+        $existingViolation->execute();
+        $existingRecord = $existingViolation->get_result()->fetch_assoc();
+        $existingViolation->close();
+        if ($existingRecord === null) {
+            json_response(['success' => false, 'error' => 'Catatan pelanggaran tidak ditemukan.'], 404);
+        }
+        if ($existingRecord['absensi_id'] !== null) {
+            json_response([
+                'success' => false,
+                'error' => 'Catatan alpa otomatis mengikuti status absensi. Perbarui statusnya melalui halaman Input Kehadiran.',
+            ], 409);
+        }
+        assert_students_in_scope($connection, $user, [(int) $existingRecord['santri_id']]);
+    }
     $studentCheck = $connection->prepare('SELECT id FROM santri WHERE id = ? LIMIT 1');
     $studentCheck->bind_param('i', $studentId);
     $studentCheck->execute();

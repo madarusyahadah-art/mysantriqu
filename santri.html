@@ -9,6 +9,8 @@
     <link rel="icon" href="assets/app-icon-192.png" />
     <link rel="stylesheet" href="dashboard.css" />
     <link rel="stylesheet" href="santri.css" />
+    <script src="js/role-navigation.js" defer></script>
+    <script src="js/xlsx-calendar-parser.js" defer></script>
     <script src="js/santri.js" defer></script>
   </head>
   <body>
@@ -27,7 +29,7 @@
           <p class="nav-caption">KEMAHASANTRIAN</p>
           <a class="nav-link" href="absensi-input.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4.5h14v15H5zM8 8h8M8 12h8m-8 4h5"/></svg><span>Input Kehadiran</span></a>
           <a class="nav-link" href="pelanggaran.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5 21 20H3z"/><path d="M12 9v4m0 3h.01"/></svg><span>Data Pelanggaran</span></a>
-          <span class="nav-link unavailable" aria-disabled="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3.5h14v17H5zM8 8h8m-8 4h8m-8 4h5"/></svg><span>Laporan</span><small>Segera</small></span>
+          <a class="nav-link" href="laporan.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3.5h14v17H5zM8 8h8m-8 4h8m-8 4h5"/></svg><span>Laporan</span></a>
           <p class="nav-caption">AKADEMIK</p>
           <a class="nav-link" href="kalender-akademik.html"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M7.5 3v4m9-4v4m-13 3h17M8 14h3m2 0h3m-8 3h3"/></svg><span>Kalender Akademik</span></a>
           <a class="nav-link" href="dokumen-akademik.html?type=khs"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5A3.5 3.5 0 0 1 7.5 2H20v17H7.5A3.5 3.5 0 0 0 4 22z"/><path d="M4 5.5v13A3.5 3.5 0 0 1 7.5 15H20M8 6h8m-8 4h7"/></svg><span>KHS</span></a>
@@ -61,7 +63,10 @@
         <div class="dashboard-content student-content">
           <section class="page-heading">
             <div><p class="eyebrow">ADMINISTRASI</p><h1>Data Santri</h1><p class="page-description">Kelola data santri dan informasi akademik dasar.</p></div>
-            <button class="student-primary-button" id="add-student-button" type="button"><span aria-hidden="true">+</span> Tambah Santri</button>
+            <div class="student-heading-actions">
+              <button class="student-secondary-button" id="import-activity-button" type="button">Impor Rekap Excel</button>
+              <button class="student-primary-button" id="add-student-button" type="button"><span aria-hidden="true">+</span> Tambah Santri</button>
+            </div>
           </section>
           <p class="student-message" id="student-message" role="status" aria-live="polite" hidden></p>
 
@@ -103,13 +108,41 @@
         <input id="student-id" name="id" type="hidden" />
         <label class="form-field full-field"><span>Nama lengkap <b>*</b></span><input id="student-name" name="nama" type="text" maxlength="255" autocomplete="name" required placeholder="Nama lengkap santri" /></label>
         <div class="form-grid">
-          <label class="form-field"><span>Nomor Induk Mahasantri</span><input id="student-NIM" name="NIM" type="text" maxlength="50" placeholder="Nomor kartu mahasiswa" /></label>
+          <label class="form-field"><span>NIM / No. KTM</span><input id="student-ktm" name="no_ktm" type="text" maxlength="50" placeholder="Nomor kartu mahasiswa" /></label>
           <label class="form-field"><span>Asal</span><input id="student-origin" name="asal" type="text" maxlength="255" placeholder="Kota atau kabupaten asal" /></label>
           <label class="form-field"><span>Angkatan</span><input id="student-cohort" name="angkatan" type="text" maxlength="50" placeholder="Contoh: 2026" /></label>
           <label class="form-field"><span>Semester aktif <b>*</b></span><select id="student-semester" name="semester_aktif" required><option value="1">Semester 1</option><option value="2">Semester 2</option><option value="3">Semester 3</option><option value="4">Semester 4</option><option value="5">Semester 5</option><option value="6">Semester 6</option></select></label>
         </div>
         <p class="dialog-message" id="dialog-message" role="status" aria-live="polite" hidden></p>
         <div class="dialog-actions"><button class="student-secondary-button" id="cancel-student-dialog" type="button">Batal</button><button class="student-primary-button" id="save-student-button" type="submit">Simpan data</button></div>
+      </form>
+    </dialog>
+    <dialog class="student-dialog activity-import-dialog" id="activity-import-dialog" aria-labelledby="activity-import-title">
+      <form class="student-form" id="activity-import-form">
+        <div class="dialog-heading">
+          <div><p class="eyebrow">IMPOR RIWAYAT AKTIVITAS</p><h2 id="activity-import-title">Impor Rekap Excel</h2><p>Data akan ditambahkan ke riwayat tahun ajaran. Periksa pemetaan sebelum menyimpan.</p></div>
+          <button class="dialog-close" id="close-activity-import" type="button" aria-label="Tutup">×</button>
+        </div>
+        <div class="form-grid activity-import-fields">
+          <label class="form-field"><span>File rekap (.xlsx) <b>*</b></span><input id="activity-import-file" type="file" accept=".xlsx" required /></label>
+          <label class="form-field"><span>Tahun awal ajaran <b>*</b></span><input id="activity-import-year" type="number" min="2000" max="2099" value="2026" required /></label>
+        </div>
+        <p class="activity-import-help">Untuk menggabungkan rekap beberapa angkatan, impor file satu per satu dengan tahun awal ajaran yang sama. Data akan ditambahkan, bukan mengganti file sebelumnya. Setiap file harus memuat santri yang berbeda; santri yang sudah tercatat pada tahun ajaran ini tidak dapat diimpor ulang. Angka hari diimpor sebagai catatan aktivitas, sel kosong bukan absen, dan sheet ringkasan diabaikan.</p>
+        <button class="student-secondary-button" id="preview-activity-import" type="button">Baca dan pratinjau</button>
+        <div class="activity-import-preview" id="activity-import-preview" hidden>
+          <p id="activity-import-summary"></p>
+          <div class="student-table-wrap">
+            <table class="student-table activity-import-table">
+              <thead><tr><th>Nama di Excel</th><th>Baris data</th><th>Catatan</th><th>Cocokkan ke Data Santri</th></tr></thead>
+              <tbody id="activity-import-matches"></tbody>
+            </table>
+          </div>
+        </div>
+        <p class="dialog-message activity-import-message" id="activity-import-message" role="status" aria-live="polite" hidden></p>
+        <div class="dialog-actions">
+          <button class="student-secondary-button" id="cancel-activity-import" type="button">Tutup</button>
+          <button class="student-primary-button" id="save-activity-import" type="button" disabled>Impor data</button>
+        </div>
       </form>
     </dialog>
   </body>

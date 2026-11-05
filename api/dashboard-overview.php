@@ -12,24 +12,17 @@ if ($user === null) {
     json_response(['success' => false, 'error' => 'Silakan masuk kembali.'], 401);
 }
 
-$role = (string) ($user['role'] ?? '');
+$role = strtolower((string) ($user['role'] ?? ''));
 if (!in_array($role, ['admin', 'kajur', 'supervisor', 'musyrif', "mas'ul", 'mahasantri', 'santri'], true)) {
     json_response(['success' => false, 'error' => 'Anda tidak memiliki akses ke dashboard.'], 403);
 }
 
-$studentId = null;
-if (in_array($role, ['mahasantri', 'santri'], true)) {
-    $studentId = (int) ($user['santri_id'] ?? 0);
-    if ($studentId <= 0) {
-        json_response(['success' => false, 'error' => 'Akun santri belum dihubungkan oleh admin.'], 403);
-    }
-}
-
-function dashboard_rows(mysqli $connection, string $sql, ?int $studentId): array
+function dashboard_rows(mysqli $connection, string $sql, ?array $studentScope): array
 {
     $statement = $connection->prepare($sql);
-    if ($studentId !== null) {
-        $statement->bind_param('i', $studentId);
+    if ($studentScope) {
+        $types = str_repeat('i', count($studentScope));
+        $statement->bind_param($types, ...$studentScope);
     }
     $statement->execute();
     $rows = $statement->get_result()->fetch_all(MYSQLI_ASSOC);
@@ -37,9 +30,9 @@ function dashboard_rows(mysqli $connection, string $sql, ?int $studentId): array
     return $rows;
 }
 
-function dashboard_single(mysqli $connection, string $sql, ?int $studentId): array
+function dashboard_single(mysqli $connection, string $sql, ?array $studentScope): array
 {
-    $rows = dashboard_rows($connection, $sql, $studentId);
+    $rows = dashboard_rows($connection, $sql, $studentScope);
     return $rows[0] ?? [];
 }
 
@@ -62,8 +55,17 @@ function normalize_dashboard_rows(array $rows): array
 try {
     date_default_timezone_set('Asia/Jakarta');
     $connection = db_connection();
-    $whereSql = $studentId === null ? '' : ' WHERE santri_id = ?';
-    $whereP = $studentId === null ? '' : ' WHERE p.santri_id = ?';
+    $studentScope = student_scope_ids($connection, $user);
+    if (in_array($role, ['mahasantri', 'santri'], true) && !$studentScope) {
+        json_response(['success' => false, 'error' => 'Akun santri belum dihubungkan oleh admin.'], 403);
+    }
+    $scopePlaceholders = $studentScope ? implode(',', array_fill(0, count($studentScope), '?')) : '';
+    $whereSql = $studentScope === null ? '' : ($studentScope
+        ? ' WHERE santri_id IN (' . $scopePlaceholders . ')'
+        : ' WHERE 1 = 0');
+    $whereP = $studentScope === null ? '' : ($studentScope
+        ? ' WHERE p.santri_id IN (' . $scopePlaceholders . ')'
+        : ' WHERE 1 = 0');
 
     $stats = dashboard_single(
         $connection,
@@ -72,7 +74,7 @@ try {
                 COALESCE(SUM(YEARWEEK(tanggal, 1) = YEARWEEK(CURDATE(), 1)), 0) AS week,
                 COALESCE(SUM(YEAR(tanggal) = YEAR(CURDATE()) AND MONTH(tanggal) = MONTH(CURDATE())), 0) AS month
          FROM pelanggaran" . $whereSql,
-        $studentId
+        $studentScope
     );
 
     $dailyRows = dashboard_rows(
@@ -81,7 +83,7 @@ try {
          FROM pelanggaran" . $whereSql . ($whereSql === '' ? ' WHERE' : ' AND') . " tanggal >= DATE_SUB(CURDATE(), INTERVAL 29 DAY)
          GROUP BY tanggal
          ORDER BY tanggal ASC",
-        $studentId
+        $studentScope
     );
     $dailyCounts = [];
     foreach ($dailyRows as $row) {
@@ -101,7 +103,7 @@ try {
          GROUP BY jenis_pelanggaran
          ORDER BY total DESC, name ASC
          LIMIT 6",
-        $studentId
+        $studentScope
     );
 
     $topStudents = dashboard_rows(
@@ -112,7 +114,7 @@ try {
          GROUP BY s.id, s.nama
          ORDER BY total DESC, s.nama ASC
          LIMIT 5",
-        $studentId
+        $studentScope
     );
 
     $cohorts = dashboard_rows(
@@ -123,7 +125,7 @@ try {
          GROUP BY s.angkatan
          ORDER BY total DESC, name ASC
          LIMIT 5",
-        $studentId
+        $studentScope
     );
 
     $recent = dashboard_rows(
@@ -133,7 +135,7 @@ try {
          INNER JOIN santri s ON s.id = p.santri_id" . $whereP . "
          ORDER BY p.tanggal DESC, p.id DESC
          LIMIT 7",
-        $studentId
+        $studentScope
     );
 
     foreach (['total', 'today', 'week', 'month'] as $field) {

@@ -13,6 +13,9 @@ if ($method === 'GET') {
     try {
         $connection = db_connection();
         if ($type === 'khs' && $role !== 'admin') {
+            if (!in_array($role, academic_student_roles(), true)) {
+                json_response(['success' => false, 'error' => 'KHS hanya tersedia untuk admin dan santri pemilik akun.'], 403);
+            }
             $studentId = filter_var($user['santri_id'] ?? null, FILTER_VALIDATE_INT);
             if ($studentId === false || $studentId === null || $studentId < 1) {
                 json_response(['success' => false, 'error' => 'Akun Anda belum dihubungkan dengan data santri. Hubungi admin.'], 403);

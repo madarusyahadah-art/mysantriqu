@@ -12,7 +12,7 @@ $user = current_user();
 if ($user === null) {
     json_response(['success' => false, 'error' => 'Silakan masuk kembali.'], 401);
 }
-if (!in_array(strtolower((string) ($user['role'] ?? '')), ['admin', 'musyrif', 'supervisor', "mas'ul"], true)) {
+if (!in_array(strtolower((string) ($user['role'] ?? '')), ['admin', 'musyrif', "mas'ul"], true)) {
     json_response(['success' => false, 'error' => 'Akun ini tidak memiliki akses untuk mencatat kehadiran.'], 403);
 }
 
@@ -78,12 +78,33 @@ try {
         }
     }
 
-    $studentResult = $connection->query(
-        'SELECT id, nama, no_ktm, angkatan
-         FROM santri
-         ORDER BY nama ASC, id ASC'
-    );
+    $scopeIds = student_scope_ids($connection, $user);
+    if ($scopeIds === null) {
+        $studentResult = $connection->query(
+            'SELECT id, nama, no_ktm, angkatan
+             FROM santri
+             ORDER BY nama ASC, id ASC'
+        );
+    } elseif ($scopeIds) {
+        $studentPlaceholders = implode(',', array_fill(0, count($scopeIds), '?'));
+        $studentStatement = $connection->prepare(
+            'SELECT id, nama, no_ktm, angkatan
+             FROM santri WHERE id IN (' . $studentPlaceholders . ')
+             ORDER BY nama ASC, id ASC'
+        );
+        $studentTypes = str_repeat('i', count($scopeIds));
+        $studentStatement->bind_param($studentTypes, ...$scopeIds);
+        $studentStatement->execute();
+        $studentResult = $studentStatement->get_result();
+    } else {
+        $studentResult = $connection->query(
+            'SELECT id, nama, no_ktm, angkatan FROM santri WHERE 1 = 0'
+        );
+    }
     $students = $studentResult->fetch_all(MYSQLI_ASSOC);
+    if (isset($studentStatement)) {
+        $studentStatement->close();
+    }
     foreach ($students as &$student) {
         $student['id'] = (int) $student['id'];
         $student['attendance'] = $attendanceByStudent[$student['id']] ?? null;

@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#123c32" />
+    <meta name="description" content="Profil dan riwayat aktivitas santri." />
+    <title>Profil Santri - Recording Kemahasantrian</title>
+    <link rel="icon" href="assets/app-icon-192.png" />
+    <link rel="stylesheet" href="dashboard.css" />
+    <link rel="stylesheet" href="profil-santri.css" />
+    <script src="js/role-navigation.js" defer></script>
+    <script src="js/profil-santri.js" defer></script>
+  </head>
+  <body>
+    <div class="app-shell">
+      <button class="sidebar-scrim" id="sidebar-scrim" type="button" aria-label="Tutup menu"></button>
+      <aside class="sidebar" id="sidebar">
+        <a class="brand" href="dashboard.html" aria-label="Recording Kemahasantrian, dashboard">
+          <img src="assets/Logo.png" alt="" />
+          <span><strong>Recording</strong><small>Kemahasantrian</small></span>
+        </a>
+        <nav class="primary-nav" aria-label="Navigasi utama">
+          <p class="nav-caption">BERANDA</p>
+          <a class="nav-link" href="dashboard.html"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.5"/></svg><span>Dashboard</span></a>
+          <p class="nav-caption">KEMAHASANTRIAN</p>
+          <a class="nav-link" href="absensi-input.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4.5h14v15H5zM8 8h8M8 12h8m-8 4h5"/></svg><span>Input Kehadiran</span></a>
+          <a class="nav-link" href="pelanggaran.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5 21 20H3z"/><path d="M12 9v4m0 3h.01"/></svg><span>Data Pelanggaran</span></a>
+          <a class="nav-link" href="laporan.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3.5h14v17H5zM8 8h8m-8 4h8m-8 4h5"/></svg><span>Laporan</span></a>
+          <p class="nav-caption">AKADEMIK</p>
+          <a class="nav-link" href="kalender-akademik.html"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M7.5 3v4m9-4v4m-13 3h17"/></svg><span>Kalender Akademik</span></a>
+          <a class="nav-link" href="dokumen-akademik.html?type=khs"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5A3.5 3.5 0 0 1 7.5 2H20v17H7.5A3.5 3.5 0 0 0 4 22z"/><path d="M4 5.5v13A3.5 3.5 0 0 1 7.5 15H20M8 6h8m-8 4h7"/></svg><span>KHS</span></a>
+          <a class="nav-link" href="dokumen-akademik.html?type=jurnal"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3.5h14v17H5zM8 8h8m-8 4h8m-8 4h5"/></svg><span>Jurnal Munazharah</span></a>
+          <a class="nav-link" href="dokumen-akademik.html?type=skripsi"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5A3.5 3.5 0 0 1 7.5 2H20v17H7.5A3.5 3.5 0 0 0 4 22z"/><path d="M4 5.5v13A3.5 3.5 0 0 1 7.5 15H20m-11-8h7m-7 4h5"/></svg><span>Skripsi</span></a>
+          <p class="nav-caption admin-nav" hidden>ADMINISTRASI</p>
+          <a class="nav-link admin-nav" href="admin-users.html" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M3 20v-1.5a6 6 0 0 1 12 0V20zm13-5h7m-3.5-3.5v7"/></svg><span>Manajemen User</span></a>
+          <a class="nav-link admin-nav" href="santri.html" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M3 20v-1.5a6 6 0 0 1 12 0V20zm13-5a3.5 3.5 0 0 1 4 3.5V20h-4"/></svg><span>Data Santri</span></a>
+          <a class="nav-link admin-nav" href="asatidz.html" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M3 20v-1.5a6 6 0 0 1 12 0V20zm13-5h7m-3.5-3.5v7"/></svg><span>Data Asatidzah</span></a>
+          <a class="nav-link admin-nav" href="kegiatan.html" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M7.5 3v4m9-4v4m-13 3h17M8 14h3m2 0h3m-8 3h3"/></svg><span>Kegiatan</span></a>
+        </nav>
+        <div class="sidebar-bottom">
+          <div class="campus-mark"><span class="campus-dot"></span><span>Ma'had Aly Darusy Syahadah</span></div>
+          <div class="sidebar-user">
+            <span class="user-avatar" id="sidebar-avatar">?</span>
+            <span class="sidebar-user-copy"><strong id="sidebar-name">Memuat akun...</strong><small id="sidebar-role">Akun</small></span>
+            <button class="icon-button" id="logout-button" type="button" aria-label="Keluar" title="Keluar"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 5H5v14h5m5-3 4-4-4-4m4 4H9"/></svg></button>
+          </div>
+        </div>
+      </aside>
+      <main class="main-content">
+        <header class="topbar">
+          <div class="topbar-leading">
+            <button class="icon-button menu-button" id="menu-button" type="button" aria-label="Buka menu" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+            <div class="breadcrumb"><a href="dashboard.html">Beranda</a><span aria-hidden="true">/</span><strong>Profil Santri</strong></div>
+          </div>
+          <div class="topbar-user"><span class="today-label" id="today-label"></span><span class="user-avatar top-avatar" id="top-avatar">?</span><span class="topbar-user-name" id="topbar-name">Memuat...</span></div>
+        </header>
+        <div class="dashboard-content profile-content">
+          <section class="page-heading">
+            <div><p class="eyebrow">DATA SANTRI</p><h1>Profil Santri</h1><p class="page-description">Informasi dasar dan riwayat aktivitas dari rekap Excel.</p></div>
+            <a class="student-secondary-button profile-back-link" id="profile-back-link" href="dashboard.html">Kembali</a>
+          </section>
+          <p class="profile-message" id="profile-message" role="status" aria-live="polite" hidden></p>
+          <section class="panel profile-card" id="profile-card" hidden>
+            <div class="profile-avatar" id="profile-avatar">?</div>
+            <div class="profile-identity">
+              <p class="eyebrow">IDENTITAS SANTRI</p>
+              <h2 id="profile-name">—</h2>
+              <p id="profile-id">ID Santri</p>
+            </div>
+            <div class="profile-details">
+              <div><span>NIM / No. KTM</span><strong id="profile-ktm">—</strong></div>
+              <div><span>Asal</span><strong id="profile-origin">—</strong></div>
+              <div><span>Angkatan</span><strong id="profile-cohort">—</strong></div>
+              <div><span>Semester aktif</span><strong id="profile-semester">—</strong></div>
+            </div>
+          </section>
+          <section class="profile-summary" aria-label="Ringkasan riwayat aktivitas">
+            <article><span>Catatan aktivitas</span><strong id="profile-total">0</strong><small>Diimpor dari Excel</small></article>
+            <article><span>Bulan terekam</span><strong id="profile-months">0</strong><small>Memiliki catatan</small></article>
+            <article><span>Jenis aktivitas</span><strong id="profile-activities">0</strong><small>Dalam riwayat</small></article>
+          </section>
+          <section class="panel profile-history-panel">
+            <div class="profile-history-heading"><div><h2>Riwayat Aktivitas</h2><p>Hari yang tercantum berasal dari lembar rekap bulanan, bukan status absen.</p></div></div>
+            <div class="profile-table-wrap">
+              <table class="profile-table profile-history-table">
+                <thead><tr><th>Bulan</th><th>Aktivitas</th><th>Jumlah catatan</th><th>Tanggal tercatat</th></tr></thead>
+                <tbody id="profile-history"><tr><td class="table-state" colspan="4">Memuat riwayat aktivitas...</td></tr></tbody>
+              </table>
+            </div>
+            <p class="student-table-hint" id="profile-import-note">Riwayat ini terpisah dari absensi harian agar rekap lama tidak mengubah catatan kehadiran resmi.</p>
+          </section>
+          <footer class="content-footer">© <span id="current-year"></span> Recording Kemahasantrian <span class="footer-divider">·</span> Ma'had Aly Darusy Syahadah</footer>
+        </div>
+      </main>
+    </div>
+  </body>
+</html>

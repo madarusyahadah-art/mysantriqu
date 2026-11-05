@@ -13,7 +13,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const saveRecordButton = document.getElementById("save-violation-button");
   const saveTypeButton = document.getElementById("save-violation-type");
   const pageSize = document.getElementById("violation-page-size");
-  const allowedRoles = ["admin", "musyrif", "supervisor", "mas'ul"];
+  const allowedRoles = ["admin", "musyrif", "mas'ul"];
   const followupLabels = { belum: "Belum diproses", diproses: "Diproses", selesai: "Selesai" };
   let userRole = "";
   let records = [];
@@ -208,6 +208,12 @@ document.addEventListener("DOMContentLoaded", function () {
       points.className = "violation-points";
       points.textContent = formatNumber(record.poin) + " poin";
       typeCell.append(typeName, points);
+      if (record.absensi_id) {
+        const source = document.createElement("span");
+        source.className = "violation-subtext";
+        source.textContent = "Otomatis dari absensi alpa";
+        typeCell.appendChild(source);
+      }
 
       const noteCell = appendCell(row, "", "Catatan", "violation-note-cell");
       const note = document.createElement("span");
@@ -228,8 +234,10 @@ document.addEventListener("DOMContentLoaded", function () {
       statusCell.appendChild(status);
 
       const actionCell = appendCell(row, "", "Aksi", "violation-actions-cell");
-      actionCell.appendChild(makeAction("Edit", "edit", record.id, false));
-      if (userRole === "admin") {
+      if (!record.absensi_id) {
+        actionCell.appendChild(makeAction("Edit", "edit", record.id, false));
+      }
+      if (userRole === "admin" && !record.absensi_id) {
         actionCell.appendChild(makeAction("Hapus", "delete", record.id, true));
       }
       tableBody.appendChild(row);

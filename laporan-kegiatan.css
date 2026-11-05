@@ -1,0 +1,44 @@
+@charset "UTF-8";
+
+body { min-width: 0; }
+.activity-report-content { padding-top: 30px; }
+.activity-report-message { margin: 0 0 14px; padding: 11px 14px; border: 1px solid #d5e5d8; border-radius: 8px; color: #326546; background: #f0f8f1; font-size: .78rem; line-height: 1.5; }
+.activity-report-message[data-state="error"] { border-color: #f0c7c0; color: #913e34; background: #fff6f4; }
+.activity-report-summary { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 11px; margin: 0 0 14px; }
+.activity-report-summary article { display: grid; min-width: 0; gap: 5px; padding: 15px 16px; border: 1px solid #e8eee9; border-radius: 10px; background: #fff; box-shadow: var(--panel-shadow); }
+.activity-report-summary article span { overflow: hidden; color: #7d8c82; font-size: .65rem; font-weight: 640; text-overflow: ellipsis; white-space: nowrap; }
+.activity-report-summary article strong { color: #294335; font-size: 1.22rem; font-weight: 740; line-height: 1.1; }
+.activity-report-summary article small { overflow: hidden; color: #9aa49d; font-size: .58rem; text-overflow: ellipsis; white-space: nowrap; }
+.activity-report-panel { overflow: hidden; padding: 0; }
+.activity-report-filters { display: grid; grid-template-columns: repeat(3, minmax(130px, 1fr)); align-items: end; gap: 10px; padding: 15px 17px; }
+.activity-report-filters label { display: grid; min-width: 0; gap: 6px; }
+.activity-report-filters label > span { color: #455b4c; font-size: .65rem; font-weight: 680; }
+.activity-report-filters input, .activity-report-filters select { width: 100%; min-width: 0; min-height: 37px; padding: 0 9px; border: 1px solid #dfe8e1; border-radius: 7px; outline: 0; color: #34493c; background: #fff; font: inherit; font-size: .68rem; }
+.activity-report-filters input:focus, .activity-report-filters select:focus { border-color: #78a588; box-shadow: 0 0 0 3px rgb(52 123 92 / 10%); }
+.activity-report-search { grid-column: span 2; }
+.activity-report-button { display: inline-flex; min-height: 35px; align-items: center; justify-content: center; padding: 0 11px; border: 1px solid #dfe8e1; border-radius: 7px; color: #4a6653; background: #fff; cursor: pointer; font: inherit; font-size: .65rem; font-weight: 670; white-space: nowrap; }
+.activity-report-button:hover:not(:disabled) { border-color: #c9dbcd; background: #f5f9f5; }
+.activity-report-button:disabled { cursor: not-allowed; opacity: .5; }
+.activity-report-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 15px 18px; border-top: 1px solid #edf1ed; }
+.activity-report-toolbar h2 { margin: 0; color: #294335; font-size: .87rem; font-weight: 700; }
+.activity-report-toolbar p { margin: 5px 0 0; color: #89968e; font-size: .65rem; }
+.activity-report-table-wrap { overflow-x: auto; border-top: 1px solid #edf1ed; }
+.activity-report-table { width: 100%; border-collapse: collapse; text-align: left; }
+.activity-report-table th { height: 40px; padding: 0 11px; color: #7d8c82; background: #f8faf8; font-size: .62rem; font-weight: 680; white-space: nowrap; }
+.activity-report-table td { min-height: 50px; padding: 9px 11px; border-top: 1px solid #f0f3f0; color: #596c60; font-size: .66rem; vertical-align: middle; }
+.activity-report-table th:first-child, .activity-report-table td:first-child { padding-left: 18px; white-space: nowrap; }
+.activity-report-table tbody tr:hover { background: #fbfdfb; }
+.activity-report-table .activity-report-table-state { height: 110px; color: #87958c; text-align: center; }
+.activity-report-pagination { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 11px 18px; border-top: 1px solid #edf1ed; color: #87958c; font-size: .64rem; }
+.activity-report-pagination > div { display: flex; gap: 7px; }
+
+@media (max-width: 850px) {
+  .activity-report-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .activity-report-filters { grid-template-columns: repeat(2, minmax(125px, 1fr)); }
+}
+@media (max-width: 560px) {
+  .activity-report-filters { grid-template-columns: 1fr 1fr; padding: 12px; }
+  .activity-report-search { grid-column: span 2; }
+  #activity-report-clear { grid-column: span 2; }
+  .activity-report-toolbar, .activity-report-pagination { padding-inline: 12px; }
+}

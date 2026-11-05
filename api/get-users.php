@@ -38,6 +38,19 @@ try {
     }
     unset($student);
 
+    $assignmentResult = $connection->query(
+        'SELECT user_id, santri_id FROM staff_santri_assignments ORDER BY user_id, santri_id'
+    );
+    $assignments = [];
+    foreach ($assignmentResult->fetch_all(MYSQLI_ASSOC) as $assignment) {
+        $userId = (int) $assignment['user_id'];
+        $assignments[$userId][] = (int) $assignment['santri_id'];
+    }
+    foreach ($users as &$account) {
+        $account['assigned_santri_ids'] = $assignments[(int) $account['id']] ?? [];
+    }
+    unset($account);
+
     json_response(['success' => true, 'users' => $users, 'santri' => $students]);
 } catch (mysqli_sql_exception $error) {
     error_log('User list request failed: ' . $error->getMessage());

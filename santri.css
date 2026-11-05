@@ -3,6 +3,7 @@
 .breadcrumb a { color: #87948c; text-decoration: none; }
 .breadcrumb a:hover { color: #347b58; }
 .student-content { padding-top: 30px; }
+.student-heading-actions { display: flex; flex: 0 0 auto; align-items: center; gap: 9px; }
 .student-primary-button, .student-secondary-button, .row-action {
   display: inline-flex; min-height: 39px; align-items: center; justify-content: center; gap: 8px; padding: 0 15px;
   border: 1px solid transparent; border-radius: 8px; cursor: pointer; font-size: .76rem; font-weight: 680;
@@ -37,7 +38,7 @@
 .student-table tbody tr:hover { background: #fbfdfb; }
 .student-table th:first-child, .student-table td:first-child { padding-left: 21px; }
 .student-table .column-number { width: 48px; }
-.student-table .column-actions { width: 130px; text-align: right; padding-right: 21px; }
+.student-table .column-actions { width: 220px; text-align: right; padding-right: 21px; }
 .student-table td:last-child { text-align: right; padding-right: 21px; white-space: nowrap; }
 .student-name-cell { color: #344d3d !important; font-weight: 680; }
 .student-id-badge { display: inline-block; margin-top: 4px; color: #94a097; font-size: .59rem; font-weight: 400; }
@@ -50,6 +51,17 @@
 .student-table-hint { margin: 0; padding: 12px 21px; border-top: 1px solid #edf1ed; color: #8d9991; font-size: .65rem; }
 
 .student-dialog { width: min(510px, calc(100vw - 28px)); max-width: none; max-height: calc(100dvh - 28px); padding: 0; overflow-y: auto; border: 1px solid #e5ebe6; border-radius: 15px; color: #263a2e; background: #fff; box-shadow: 0 24px 80px rgb(17 42 27 / 25%); }
+.activity-import-dialog { width: min(980px, calc(100vw - 28px)); }
+.activity-import-fields { margin-bottom: 14px; }
+.activity-import-help { margin: 0 0 14px; color: #74837a; font-size: .69rem; line-height: 1.55; }
+.activity-import-preview { margin-top: 15px; }
+.activity-import-preview > p { margin: 0 0 10px; color: #49624f; font-size: .72rem; font-weight: 650; }
+.activity-import-preview .student-table-wrap { max-height: min(42vh, 360px); }
+.activity-import-table { min-width: 700px; }
+.activity-import-table td { height: 45px; }
+.activity-import-table select { width: 100%; min-height: 34px; padding: 0 8px; border: 1px solid #dfe8e1; border-radius: 6px; outline: 0; color: #34493c; background: #fff; font: inherit; font-size: .65rem; }
+.activity-import-table select:focus { border-color: #78a588; box-shadow: 0 0 0 3px rgb(52 123 92 / 10%); }
+.activity-import-message { margin-top: 13px; }
 .student-dialog::backdrop { background: rgb(16 37 26 / 48%); backdrop-filter: blur(2px); }
 .student-form { padding: 25px; }
 .dialog-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 22px; }
@@ -75,7 +87,8 @@
   .student-content .page-heading { align-items: center; gap: 10px; }
   .student-content .page-heading h1 { font-size: 1.45rem; }
   .student-content .page-description { max-width: 230px; }
-  .student-content .page-heading > .student-primary-button { min-height: 37px; flex: 0 0 auto; gap: 5px; padding-inline: 10px; font-size: .68rem; }
+  .student-heading-actions { align-items: stretch; flex-direction: column-reverse; gap: 6px; }
+  .student-heading-actions .student-primary-button, .student-heading-actions .student-secondary-button { min-height: 35px; gap: 5px; padding-inline: 9px; font-size: .66rem; white-space: nowrap; }
   .student-toolbar { align-items: flex-start; flex-direction: column; padding: 16px; }
   .student-controls { width: 100%; align-items: stretch; flex-direction: column; }
   .student-search { width: 100%; }
@@ -101,8 +114,8 @@
 }
 
 @media (max-width: 390px) {
-  .student-content .page-heading > .student-primary-button { padding-inline: 8px; font-size: .64rem; }
-  .student-content .page-heading > .student-primary-button > span { font-size: .95rem; }
+  .student-heading-actions .student-primary-button, .student-heading-actions .student-secondary-button { padding-inline: 8px; font-size: .62rem; }
+  .student-heading-actions .student-primary-button > span { font-size: .95rem; }
   .student-form { padding: 21px 18px; }
   .form-grid { gap: 12px 9px; }
 }
