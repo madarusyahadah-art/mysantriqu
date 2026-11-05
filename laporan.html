@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#123c32" />
+    <meta name="description" content="Rekap kehadiran dan pelanggaran santri." />
+    <title>Laporan - Recording Kemahasantrian</title>
+    <link rel="icon" href="assets/app-icon-192.png" />
+    <link rel="stylesheet" href="dashboard.css" />
+    <link rel="stylesheet" href="laporan.css" />
+    <script src="js/role-navigation.js" defer></script>
+    <script src="js/laporan.js" defer></script>
+  </head>
+  <body>
+    <div class="app-shell">
+      <button class="sidebar-scrim" id="sidebar-scrim" type="button" aria-label="Tutup menu"></button>
+      <aside class="sidebar" id="sidebar">
+        <a class="brand" href="dashboard.html" aria-label="Recording Kemahasantrian, dashboard">
+          <img src="assets/Logo.png" alt="" />
+          <span><strong>Recording</strong><small>Kemahasantrian</small></span>
+        </a>
+        <nav class="primary-nav" aria-label="Navigasi utama">
+          <p class="nav-caption">BERANDA</p>
+          <a class="nav-link" href="dashboard.html"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.5"/></svg><span>Dashboard</span></a>
+          <p class="nav-caption">KEMAHASANTRIAN</p>
+          <a class="nav-link" href="absensi-input.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4.5h14v15H5zM8 8h8M8 12h8m-8 4h5"/></svg><span>Input Kehadiran</span></a>
+          <a class="nav-link" href="pelanggaran.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5 21 20H3z"/><path d="M12 9v4m0 3h.01"/></svg><span>Data Pelanggaran</span></a>
+          <a class="nav-link active" href="laporan.html" aria-current="page"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3.5h14v17H5zM8 8h8m-8 4h8m-8 4h5"/></svg><span>Laporan</span></a>
+          <p class="nav-caption">AKADEMIK</p>
+          <a class="nav-link" href="kalender-akademik.html"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M7.5 3v4m9-4v4m-13 3h17"/></svg><span>Kalender Akademik</span></a>
+          <a class="nav-link" href="dokumen-akademik.html?type=khs"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5A3.5 3.5 0 0 1 7.5 2H20v17H7.5A3.5 3.5 0 0 0 4 22z"/><path d="M4 5.5v13A3.5 3.5 0 0 1 7.5 15H20M8 6h8m-8 4h7"/></svg><span>KHS</span></a>
+          <a class="nav-link" href="dokumen-akademik.html?type=jurnal"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3.5h14v17H5zM8 8h8m-8 4h8m-8 4h5"/></svg><span>Jurnal Munazharah</span></a>
+          <a class="nav-link" href="dokumen-akademik.html?type=skripsi"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5A3.5 3.5 0 0 1 7.5 2H20v17H7.5A3.5 3.5 0 0 0 4 22z"/><path d="M4 5.5v13A3.5 3.5 0 0 1 7.5 15H20m-11-8h7m-7 4h5"/></svg><span>Skripsi</span></a>
+          <p class="nav-caption">ADMINISTRASI</p>
+          <a class="nav-link admin-nav" href="admin-users.html" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M3 20v-1.5a6 6 0 0 1 12 0V20zm13-5h7m-3.5-3.5v7"/></svg><span>Manajemen User</span></a>
+          <a class="nav-link admin-nav" href="santri.html" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M3 20v-1.5a6 6 0 0 1 12 0V20zm13-5a3.5 3.5 0 0 1 4 3.5V20h-4"/></svg><span>Data Santri</span></a>
+          <a class="nav-link admin-nav" href="asatidz.html" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M3 20v-1.5a6 6 0 0 1 12 0V20zm13-5h7m-3.5-3.5v7"/></svg><span>Data Asatidzah</span></a>
+          <a class="nav-link admin-nav" href="kegiatan.html" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M7.5 3v4m9-4v4m-13 3h17M8 14h3m2 0h3m-8 3h3"/></svg><span>Kegiatan</span></a>
+        </nav>
+        <div class="sidebar-bottom">
+          <div class="campus-mark"><span class="campus-dot"></span><span>Ma'had Aly Darusy Syahadah</span></div>
+          <div class="sidebar-user">
+            <span class="user-avatar" id="sidebar-avatar">?</span>
+            <span class="sidebar-user-copy"><strong id="sidebar-name">Memuat akun...</strong><small id="sidebar-role">Akun</small></span>
+            <button class="icon-button" id="logout-button" type="button" aria-label="Keluar" title="Keluar"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 5H5v14h5m5-3 4-4-4-4m4 4H9"/></svg></button>
+          </div>
+        </div>
+      </aside>
+      <main class="main-content">
+        <header class="topbar">
+          <div class="topbar-leading">
+            <button class="icon-button menu-button" id="menu-button" type="button" aria-label="Buka menu" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+            <div class="breadcrumb"><a href="dashboard.html">Beranda</a><span aria-hidden="true">/</span><strong>Laporan</strong></div>
+          </div>
+          <div class="topbar-user"><span class="today-label" id="today-label"></span><span class="user-avatar top-avatar" id="top-avatar">?</span><span class="topbar-user-name" id="topbar-name">Memuat...</span></div>
+        </header>
+        <div class="dashboard-content report-content">
+          <section class="page-heading">
+            <div><p class="eyebrow">RINGKASAN KEMAHASANTRIAN</p><h1>Laporan</h1><p class="page-description">Pantau rekap kehadiran dan tindak lanjut pelanggaran santri.</p></div>
+            <a class="report-button" href="laporan-kegiatan.html">Laporan Kegiatan</a>
+          </section>
+          <p class="report-message" id="report-message" role="status" aria-live="polite" hidden></p>
+          <div class="report-tabs" role="tablist" aria-label="Jenis laporan">
+            <button class="report-tab is-active" id="attendance-tab" type="button" role="tab" aria-selected="true" aria-controls="attendance-report">Kehadiran</button>
+            <button class="report-tab" id="violation-tab" type="button" role="tab" aria-selected="false" aria-controls="violation-report">Pelanggaran</button>
+          </div>
+          <section class="report-section" id="attendance-report" role="tabpanel" aria-labelledby="attendance-tab">
+            <div class="report-summary" aria-label="Ringkasan kehadiran">
+              <article class="report-stat"><span>Total catatan</span><strong id="attendance-total">0</strong><small>Sesuai filter</small></article>
+              <article class="report-stat"><span>Hadir</span><strong id="attendance-present">0</strong><small>Santri hadir</small></article>
+              <article class="report-stat"><span>Izin</span><strong id="attendance-permission">0</strong><small>Catatan izin</small></article>
+              <article class="report-stat"><span>Sakit</span><strong id="attendance-sick">0</strong><small>Catatan sakit</small></article>
+              <article class="report-stat"><span>Alpa</span><strong id="attendance-absent">0</strong><small>Tanpa keterangan</small></article>
+            </div>
+            <section class="panel report-panel">
+              <div class="report-filters">
+                <label class="report-field"><span>Dari tanggal</span><input id="attendance-from" type="date" /></label>
+                <label class="report-field"><span>Sampai tanggal</span><input id="attendance-to" type="date" /></label>
+                <label class="report-field"><span>Kegiatan</span><select id="attendance-activity"><option value="">Semua kegiatan</option></select></label>
+                <label class="report-field"><span>Angkatan</span><select id="attendance-cohort"><option value="">Semua angkatan</option></select></label>
+                <label class="report-field"><span>Status</span><select id="attendance-status"><option value="">Semua status</option><option value="hadir">Hadir</option><option value="izin">Izin</option><option value="sakit">Sakit</option><option value="alpa">Alpa</option></select></label>
+                <label class="report-field report-search"><span>Cari</span><input id="attendance-search" type="search" placeholder="Nama, NIM, kegiatan..." autocomplete="off" /></label>
+                <button class="report-button report-clear" id="attendance-clear" type="button">Atur ulang</button>
+              </div>
+              <div class="report-toolbar"><div><h2>Rincian Kehadiran</h2><p><span id="attendance-result-count">0</span> catatan ditemukan</p></div><button class="report-button" id="attendance-export" type="button">Unduh CSV</button></div>
+              <div class="report-table-wrap"><table class="report-table"><thead><tr><th>Tanggal</th><th>Santri</th><th>Angkatan</th><th>Kegiatan</th><th>Status</th><th>Keterangan</th></tr></thead><tbody id="attendance-table"><tr><td class="report-table-state" colspan="6">Memuat laporan...</td></tr></tbody></table></div>
+              <div class="report-pagination"><span id="attendance-page-label">Halaman 1</span><div><button class="report-button" id="attendance-prev" type="button">Sebelumnya</button><button class="report-button" id="attendance-next" type="button">Berikutnya</button></div></div>
+            </section>
+          </section>
+          <section class="report-section" id="violation-report" role="tabpanel" aria-labelledby="violation-tab" hidden>
+            <div class="report-summary" aria-label="Ringkasan pelanggaran">
+              <article class="report-stat"><span>Total laporan</span><strong id="violation-total">0</strong><small>Sesuai filter</small></article>
+              <article class="report-stat"><span>Belum diproses</span><strong id="violation-pending">0</strong><small>Perlu tindak lanjut</small></article>
+              <article class="report-stat"><span>Diproses</span><strong id="violation-progress">0</strong><small>Dalam tindak lanjut</small></article>
+              <article class="report-stat"><span>Selesai</span><strong id="violation-completed">0</strong><small>Tindak lanjut selesai</small></article>
+              <article class="report-stat"><span>Total poin</span><strong id="violation-points">0</strong><small>Poin pelanggaran</small></article>
+            </div>
+            <section class="panel report-panel">
+              <div class="report-filters">
+                <label class="report-field"><span>Dari tanggal</span><input id="violation-from" type="date" /></label>
+                <label class="report-field"><span>Sampai tanggal</span><input id="violation-to" type="date" /></label>
+                <label class="report-field"><span>Angkatan</span><select id="violation-cohort"><option value="">Semua angkatan</option></select></label>
+                <label class="report-field"><span>Tindak lanjut</span><select id="violation-status"><option value="">Semua status</option><option value="belum">Belum diproses</option><option value="diproses">Diproses</option><option value="selesai">Selesai</option></select></label>
+                <label class="report-field report-search"><span>Cari</span><input id="violation-search" type="search" placeholder="Nama, NIM, jenis..." autocomplete="off" /></label>
+                <button class="report-button report-clear" id="violation-clear" type="button">Atur ulang</button>
+              </div>
+              <div class="report-toolbar"><div><h2>Rincian Pelanggaran</h2><p><span id="violation-result-count">0</span> catatan ditemukan</p></div><button class="report-button" id="violation-export" type="button">Unduh CSV</button></div>
+              <div class="report-table-wrap"><table class="report-table"><thead><tr><th>Tanggal</th><th>Santri</th><th>Angkatan</th><th>Jenis pelanggaran</th><th>Poin</th><th>Tindak lanjut</th><th>Keterangan</th></tr></thead><tbody id="violation-table"><tr><td class="report-table-state" colspan="7">Memuat laporan...</td></tr></tbody></table></div>
+              <div class="report-pagination"><span id="violation-page-label">Halaman 1</span><div><button class="report-button" id="violation-prev" type="button">Sebelumnya</button><button class="report-button" id="violation-next" type="button">Berikutnya</button></div></div>
+            </section>
+          </section>
+          <footer class="content-footer">© <span id="current-year"></span> Recording Kemahasantrian <span class="footer-divider">·</span> Ma'had Aly Darusy Syahadah</footer>
+        </div>
+      </main>
+    </div>
+  </body>
+</html>

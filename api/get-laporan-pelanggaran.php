@@ -12,7 +12,7 @@ $user = current_user();
 if ($user === null) {
     json_response(['success' => false, 'error' => 'Silakan masuk kembali.'], 401);
 }
-if (!in_array(strtolower((string) ($user['role'] ?? '')), ['admin', 'musyrif', 'supervisor', "mas'ul"], true)) {
+if (!in_array(strtolower((string) ($user['role'] ?? '')), ['admin', 'kajur', 'musyrif', 'supervisor', "mas'ul"], true)) {
     json_response(['success' => false, 'error' => 'Akun ini tidak memiliki akses ke data pelanggaran.'], 403);
 }
 
@@ -50,6 +50,16 @@ try {
     $conditions = [];
     $types = '';
     $values = [];
+    $scopeIds = student_scope_ids($connection, $user);
+    if ($scopeIds !== null) {
+        if (!$scopeIds) {
+            $conditions[] = '1 = 0';
+        } else {
+            $conditions[] = 's.id IN (' . implode(',', array_fill(0, count($scopeIds), '?')) . ')';
+            $types .= str_repeat('i', count($scopeIds));
+            array_push($values, ...$scopeIds);
+        }
+    }
     if ($query !== '') {
         $conditions[] = "(s.nama LIKE ? OR COALESCE(s.no_ktm, '') LIKE ? OR p.jenis_pelanggaran LIKE ? OR COALESCE(p.keterangan, '') LIKE ?)";
         $pattern = '%' . $query . '%';
@@ -97,7 +107,7 @@ try {
     }
 
     $listStatement = $connection->prepare(
-        'SELECT p.id, p.santri_id, p.jenis_pelanggaran_id, p.tanggal, p.jenis_pelanggaran,
+        'SELECT p.id, p.santri_id, p.absensi_id, p.jenis_pelanggaran_id, p.tanggal, p.jenis_pelanggaran,
                 p.poin, p.keterangan, p.status_tindak_lanjut, p.catatan_bk,
                 s.nama AS nama_santri, s.no_ktm, s.angkatan
          FROM pelanggaran p
@@ -117,18 +127,35 @@ try {
         foreach (['id', 'santri_id', 'poin'] as $field) {
             $record[$field] = (int) $record[$field];
         }
+        $record['absensi_id'] = $record['absensi_id'] === null ? null : (int) $record['absensi_id'];
         $record['jenis_pelanggaran_id'] = $record['jenis_pelanggaran_id'] === null
             ? null : (int) $record['jenis_pelanggaran_id'];
     }
     unset($record);
 
-    $cohortResult = $connection->query(
-        "SELECT DISTINCT angkatan FROM santri WHERE TRIM(angkatan) <> '' ORDER BY angkatan DESC"
-    );
-    $cohorts = array_map(
-        static fn (array $row): string => (string) $row['angkatan'],
-        $cohortResult->fetch_all(MYSQLI_ASSOC)
-    );
+    if ($scopeIds === null) {
+        $santri = $connection->query(
+            'SELECT id, nama, no_ktm, angkatan FROM santri ORDER BY nama ASC, id ASC'
+        )->fetch_all(MYSQLI_ASSOC);
+    } elseif ($scopeIds) {
+        $scopePlaceholders = implode(',', array_fill(0, count($scopeIds), '?'));
+        $santriStatement = $connection->prepare(
+            'SELECT id, nama, no_ktm, angkatan FROM santri
+             WHERE id IN (' . $scopePlaceholders . ') ORDER BY nama ASC, id ASC'
+        );
+        $scopeTypes = str_repeat('i', count($scopeIds));
+        $santriStatement->bind_param($scopeTypes, ...$scopeIds);
+        $santriStatement->execute();
+        $santri = $santriStatement->get_result()->fetch_all(MYSQLI_ASSOC);
+        $santriStatement->close();
+    } else {
+        $santri = [];
+    }
+    $cohorts = array_values(array_unique(array_filter(array_map(
+        static fn (array $row): string => trim((string) $row['angkatan']),
+        $santri
+    ))));
+    rsort($cohorts, SORT_NATURAL);
     json_response([
         'success' => true,
         'pelanggaran' => $records,
@@ -136,9 +163,7 @@ try {
         'limit' => $limit,
         'offset' => $offset,
         'angkatan' => $cohorts,
-        'santri' => $connection->query(
-            'SELECT id, nama, no_ktm, angkatan FROM santri ORDER BY nama ASC, id ASC'
-        )->fetch_all(MYSQLI_ASSOC),
+        'santri' => $santri,
     ]);
 } catch (mysqli_sql_exception | RuntimeException $error) {
     error_log('Read violation records failed: ' . $error->getMessage());

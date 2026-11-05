@@ -47,8 +47,22 @@ For an existing database, apply the SQL migrations in order:
 4. `mysantriqu_roles_migration.sql` if the role migration has not already been applied
 5. `mysantriqu_student_services_migration.sql`
 6. `mysantriqu_academic_documents_migration.sql`
+7. `mysantriqu_student_activity_history_migration.sql` after the `santri` and `users` tables exist
+8. `mysantriqu_staff_scope_and_auto_alpa_migration.sql` after the `users`, `santri`, `absensi`, and `pelanggaran` tables exist
 
 The full `mysantriqu_xampp.sql` schema includes the profile, role, academic-calendar, and student-service tables for new installations. Apply `mysantriqu_academic_calendar_migration.sql` once after importing the existing schema to enable draft publishing, event descriptions/categories, change history, and push subscriptions.
+
+## Import historical student activities
+
+Apply `mysantriqu_student_activity_history_migration.sql` before importing an Excel activity recap. An admin can import a workbook from **Data Santri → Impor Rekap Excel**. The importer reads the 12 monthly sheets locally in the browser, previews each name against existing santri records, and requires manual selection for names that are unmatched or ambiguous. It does not create student identities from activity rows.
+
+The monthly activity dates are stored as historical activity records, separate from the official daily attendance table. Empty cells are not treated as absences. The imported profile history is visible to the linked student and authorized staff. Multiple cohort workbooks can be imported for the same academic year: import each file separately and use the same starting year. Each file must contain different students; the API rejects a student already included in another import for that academic year, and rejects an exact file that was previously completed.
+
+## Staff roles and attendance violations
+
+Only admins see administration menus and can manage accounts, santri, activities, or imported history. Admins assign each Kajur, Musyrif, or Mas'ul the santri they are responsible for in **Manajemen User**; those staff can view reports and profiles only for their assigned santri. Musyrif and Mas'ul can also input attendance and manage manual violations for assigned santri. Kajur is read-only. Supervisors can view reports and profiles across all santri, but cannot input attendance or change violations. Staff can read the academic calendar, Jurnal Munazharah, and Skripsi library; KHS remains limited to admins and the linked santri.
+
+After applying `mysantriqu_staff_scope_and_auto_alpa_migration.sql`, saving an attendance status of **Alpa** also creates a linked, zero-point "Ketidakhadiran (Alpa)" violation. Changing that attendance to Hadir, Izin, or Sakit removes the linked automatic violation; deleting the attendance removes it as well. Izin and Sakit do not create violations. Existing Alpa attendance records are backfilled when the migration runs. Automatic records cannot be manually edited or deleted; correct the attendance record instead.
 
 ## Academic calendar and notifications
 

@@ -34,8 +34,8 @@ function require_academic_user(): array
     }
 
     $role = strtolower((string) ($user['role'] ?? ''));
-    if ($role !== 'admin' && !in_array($role, academic_student_roles(), true)) {
-        json_response(['success' => false, 'error' => 'Modul akademik hanya tersedia untuk admin dan santri.'], 403);
+    if (!in_array($role, ['admin', 'kajur', 'musyrif', 'supervisor', "mas'ul", ...academic_student_roles()], true)) {
+        json_response(['success' => false, 'error' => 'Akun ini tidak memiliki akses ke modul akademik.'], 403);
     }
     return $user;
 }

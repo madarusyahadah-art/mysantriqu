@@ -11,8 +11,12 @@ document.addEventListener("DOMContentLoaded", function () {
   const studentField = document.getElementById("user-student-field");
   const studentSelect = document.getElementById("user-student-id");
   const linkHint = document.getElementById("user-link-hint");
+  const scopeField = document.getElementById("user-scope-field");
+  const scopeSelect = document.getElementById("user-scope-students");
+  const scopeHint = document.getElementById("user-scope-hint");
   let currentUserId = 0;
   const studentRoles = ["mahasantri", "santri"];
+  const assignedStaffRoles = ["kajur", "musyrif", "mas'ul"];
   const roleLabels = {
     admin: "Admin",
     kajur: "Kajur",
@@ -115,6 +119,11 @@ document.addEventListener("DOMContentLoaded", function () {
       appendCell(row, user.santri_nama
         ? String(user.santri_nama) + (user.angkatan ? " · Angkatan " + String(user.angkatan) : "")
         : "Belum terhubung", "user-link-badge");
+      if (assignedStaffRoles.includes(String(user.role || "").toLowerCase())) {
+        row.lastElementChild.textContent = (user.assigned_santri_ids || []).length + " santri dalam tanggung jawab";
+      } else if (user.role === "supervisor") {
+        row.lastElementChild.textContent = "Pemantauan semua santri";
+      }
       const actions = document.createElement("td");
       if (Number(user.id) === currentUserId) {
         const selfLabel = document.createElement("span");
@@ -147,6 +156,10 @@ document.addEventListener("DOMContentLoaded", function () {
     studentField.hidden = !needsStudent;
     linkHint.hidden = !needsStudent;
     studentSelect.required = needsStudent;
+    const needsScope = assignedStaffRoles.includes(roleSelect.value);
+    scopeField.hidden = !needsScope;
+    scopeHint.hidden = !needsScope;
+    scopeSelect.required = needsScope;
   }
 
   function openEditDialog(id) {
@@ -173,7 +186,19 @@ document.addEventListener("DOMContentLoaded", function () {
       );
       studentSelect.add(option);
     });
+    scopeSelect.replaceChildren();
+    students.forEach(function (student) {
+      const option = new Option(
+        student.nama + (student.angkatan ? " · Angkatan " + student.angkatan : "") + " · ID " + student.id,
+        String(student.id)
+      );
+      scopeSelect.add(option);
+    });
     studentSelect.value = user.santri_id ? String(user.santri_id) : "";
+    const assignedStudentIds = new Set((user.assigned_santri_ids || []).map(String));
+    Array.from(scopeSelect.options).forEach(function (option) {
+      option.selected = assignedStudentIds.has(option.value);
+    });
     updateStudentRequirement();
     showMessage(dialogMessage, "", "");
     dialog.showModal();
@@ -200,6 +225,9 @@ document.addEventListener("DOMContentLoaded", function () {
       id: Number(document.getElementById("user-id").value),
       role: roleSelect.value,
       santri_id: studentRoles.includes(roleSelect.value) ? Number(studentSelect.value) : null,
+      assigned_santri_ids: assignedStaffRoles.includes(roleSelect.value)
+        ? Array.from(scopeSelect.selectedOptions).map(function (option) { return Number(option.value); })
+        : [],
     };
     saveButton.disabled = true;
     saveButton.textContent = "Menyimpan...";

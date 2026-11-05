@@ -12,7 +12,7 @@ $user = current_user();
 if ($user === null) {
     json_response(['success' => false, 'error' => 'Silakan masuk kembali.'], 401);
 }
-if (!in_array(strtolower((string) ($user['role'] ?? '')), ['admin', 'musyrif', 'supervisor', "mas'ul"], true)) {
+if (!in_array(strtolower((string) ($user['role'] ?? '')), ['admin', 'musyrif', "mas'ul"], true)) {
     json_response(['success' => false, 'error' => 'Akun ini tidak memiliki akses ke jenis pelanggaran.'], 403);
 }
 

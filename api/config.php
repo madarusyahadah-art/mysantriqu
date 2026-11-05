@@ -80,7 +80,84 @@ function current_user(): ?array
     if (empty($_SESSION['authenticated']) || !is_array($_SESSION['user'] ?? null)) {
         return null;
     }
-    return $_SESSION['user'];
+
+    $userId = filter_var($_SESSION['user']['id'] ?? null, FILTER_VALIDATE_INT);
+    if ($userId === false || $userId === null || $userId < 1) {
+        unset($_SESSION['user'], $_SESSION['authenticated']);
+        return null;
+    }
+
+    try {
+        $connection = db_connection();
+        $statement = $connection->prepare(
+            'SELECT id, name, email, photo, role, santri_id, role_selected
+             FROM users
+             WHERE id = ?
+             LIMIT 1'
+        );
+        $statement->bind_param('i', $userId);
+        $statement->execute();
+        $user = $statement->get_result()->fetch_assoc();
+        $statement->close();
+    } catch (mysqli_sql_exception | RuntimeException $error) {
+        error_log('Authenticated user refresh failed: ' . $error->getMessage());
+        json_response(['success' => false, 'error' => 'Sesi belum dapat diverifikasi. Coba lagi beberapa saat.'], 503);
+    }
+
+    if ($user === null) {
+        unset($_SESSION['user'], $_SESSION['authenticated']);
+        return null;
+    }
+
+    $user['id'] = (int) $user['id'];
+    $user['santri_id'] = $user['santri_id'] === null ? null : (int) $user['santri_id'];
+    $user['role_selected'] = (int) $user['role_selected'];
+    $_SESSION['user'] = $user;
+    return $user;
+}
+
+function student_scope_ids(mysqli $connection, array $user): ?array
+{
+    $role = strtolower((string) ($user['role'] ?? ''));
+    if (in_array($role, ['admin', 'supervisor'], true)) {
+        return null;
+    }
+
+    if (in_array($role, ['santri', 'mahasantri'], true)) {
+        $studentId = filter_var($user['santri_id'] ?? null, FILTER_VALIDATE_INT);
+        return $studentId === false || $studentId === null || $studentId < 1 ? [] : [(int) $studentId];
+    }
+
+    if (!in_array($role, ['kajur', 'musyrif', "mas'ul"], true)) {
+        return [];
+    }
+
+    $userId = filter_var($user['id'] ?? null, FILTER_VALIDATE_INT);
+    if ($userId === false || $userId === null || $userId < 1) {
+        return [];
+    }
+    $statement = $connection->prepare(
+        'SELECT santri_id FROM staff_santri_assignments WHERE user_id = ? ORDER BY santri_id'
+    );
+    $statement->bind_param('i', $userId);
+    $statement->execute();
+    $ids = array_map(
+        'intval',
+        array_column($statement->get_result()->fetch_all(MYSQLI_ASSOC), 'santri_id')
+    );
+    $statement->close();
+    return $ids;
+}
+
+function assert_students_in_scope(mysqli $connection, array $user, array $studentIds): void
+{
+    $scope = student_scope_ids($connection, $user);
+    if ($scope === null) {
+        return;
+    }
+    if (!$studentIds || array_diff($studentIds, $scope)) {
+        json_response(['success' => false, 'error' => 'Akun ini tidak memiliki akses ke satu atau beberapa santri yang dipilih.'], 403);
+    }
 }
 
 function normalize_phone_number(string $value): ?string

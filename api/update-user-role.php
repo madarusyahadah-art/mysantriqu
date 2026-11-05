@@ -24,14 +24,28 @@ $userId = filter_var($data['id'] ?? null, FILTER_VALIDATE_INT);
 $role = trim((string) ($data['role'] ?? ''));
 $allowedRoles = ['admin', 'kajur', 'supervisor', 'musyrif', "mas'ul", 'mahasantri', 'santri'];
 $studentRoles = ['mahasantri', 'santri'];
+$assignedStaffRoles = ['kajur', 'musyrif', "mas'ul"];
 $studentId = null;
+$assignedStudentIds = $data['assigned_santri_ids'] ?? [];
 if (in_array($role, $studentRoles, true)) {
     $studentId = filter_var($data['santri_id'] ?? null, FILTER_VALIDATE_INT);
 }
+if (!is_array($assignedStudentIds)) {
+    json_response(['success' => false, 'error' => 'Daftar santri dalam tanggung jawab tidak valid.'], 400);
+}
+$assignedStudentIds = array_map(
+    static fn (mixed $id): int|false => filter_var($id, FILTER_VALIDATE_INT),
+    $assignedStudentIds
+);
 
 if ($userId === false || $userId === null || $userId < 1
     || !in_array($role, $allowedRoles, true)
-    || (in_array($role, $studentRoles, true) && ($studentId === false || $studentId === null || $studentId < 1))) {
+    || (in_array($role, $studentRoles, true) && ($studentId === false || $studentId === null || $studentId < 1))
+    || (in_array($role, $assignedStaffRoles, true)
+        && (!$assignedStudentIds || in_array(false, $assignedStudentIds, true)
+            || count(array_unique($assignedStudentIds)) !== count($assignedStudentIds)
+            || min($assignedStudentIds) < 1))
+    || (!in_array($role, $assignedStaffRoles, true) && $assignedStudentIds)) {
     json_response(['success' => false, 'error' => 'ID akun, role, atau hubungan data santri tidak valid.'], 400);
 }
 if ((int) ($currentUser['id'] ?? 0) === $userId) {
@@ -87,6 +101,25 @@ try {
         }
     }
 
+    if ($assignedStudentIds) {
+        $placeholders = implode(',', array_fill(0, count($assignedStudentIds), '?'));
+        $studentScopeCheck = $connection->prepare(
+            'SELECT id FROM santri WHERE id IN (' . $placeholders . ') FOR UPDATE'
+        );
+        $types = str_repeat('i', count($assignedStudentIds));
+        $studentScopeCheck->bind_param($types, ...$assignedStudentIds);
+        $studentScopeCheck->execute();
+        $validStudentIds = array_map(
+            'intval',
+            array_column($studentScopeCheck->get_result()->fetch_all(MYSQLI_ASSOC), 'id')
+        );
+        $studentScopeCheck->close();
+        if (count($validStudentIds) !== count($assignedStudentIds)) {
+            $connection->rollback();
+            json_response(['success' => false, 'error' => 'Satu atau beberapa santri yang dipilih tidak ditemukan.'], 404);
+        }
+    }
+
     $update = $connection->prepare(
         'UPDATE users
          SET role = ?, santri_id = ?, role_selected = 1
@@ -95,6 +128,20 @@ try {
     $update->bind_param('sii', $role, $studentId, $userId);
     $update->execute();
     $update->close();
+    $deleteAssignments = $connection->prepare('DELETE FROM staff_santri_assignments WHERE user_id = ?');
+    $deleteAssignments->bind_param('i', $userId);
+    $deleteAssignments->execute();
+    $deleteAssignments->close();
+    if ($assignedStudentIds) {
+        $insertAssignment = $connection->prepare(
+            'INSERT INTO staff_santri_assignments (user_id, santri_id) VALUES (?, ?)'
+        );
+        foreach ($assignedStudentIds as $assignedStudentId) {
+            $insertAssignment->bind_param('ii', $userId, $assignedStudentId);
+            $insertAssignment->execute();
+        }
+        $insertAssignment->close();
+    }
     $connection->commit();
     $transactionStarted = false;
 

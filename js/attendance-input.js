@@ -14,7 +14,7 @@ document.addEventListener("DOMContentLoaded", function () {
     ["sakit", "Sakit"],
     ["alpa", "Alpa"],
   ];
-  const allowedRoles = ["admin", "musyrif", "supervisor", "mas'ul"];
+  const allowedRoles = ["admin", "musyrif", "mas'ul"];
   let students = [];
   let activities = [];
   let drafts = new Map();

@@ -17,7 +17,7 @@ document.addEventListener("DOMContentLoaded", function () {
       description: "Kumpulan skripsi santri dan alumni sebagai referensi akademik.",
       listTitle: "Pustaka Skripsi",
       searchPlaceholder: "Cari judul, penulis, atau tahun...",
-      hint: "File PDF pustaka ini dapat dibaca oleh santri yang telah masuk dan admin.",
+      hint: "File PDF pustaka ini dapat dibaca oleh santri dan petugas yang telah masuk.",
     },
     jurnal: {
       title: "Jurnal Munazharah",
@@ -25,7 +25,7 @@ document.addEventListener("DOMContentLoaded", function () {
       description: "Kumpulan jurnal karya santri dan alumni untuk bahan bacaan dan referensi.",
       listTitle: "Pustaka Jurnal Munazharah",
       searchPlaceholder: "Cari judul, penulis, atau tahun...",
-      hint: "File PDF pustaka ini dapat dibaca oleh santri yang telah masuk dan admin.",
+      hint: "File PDF pustaka ini dapat dibaca oleh santri dan petugas yang telah masuk.",
     },
   };
   const config = pageConfig[documentType];
@@ -401,7 +401,9 @@ document.addEventListener("DOMContentLoaded", function () {
     .then(function (data) {
       currentUser = data.user;
       const role = String(currentUser && currentUser.role || "").toLowerCase();
-      if (!currentUser || !["admin", "mahasantri", "santri"].includes(role)) {
+      if (!currentUser || ![
+        "admin", "kajur", "musyrif", "supervisor", "mas'ul", "mahasantri", "santri",
+      ].includes(role)) {
         window.location.replace(currentUser ? "dashboard.html" : "index.html");
         throw new Error("Modul akademik hanya tersedia untuk admin dan santri.");
       }

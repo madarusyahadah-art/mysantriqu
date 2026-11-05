@@ -448,11 +448,12 @@ document.addEventListener("DOMContentLoaded", function () {
       setText("top-avatar", initials(name));
       const isAdmin = String(user.role || "").toLowerCase() === "admin";
       const role = String(user.role || "").toLowerCase();
+      const canWriteAttendance = isAdmin || role === "musyrif" || role === "mas'ul";
       document.querySelectorAll(".admin-nav").forEach(function (item) {
         item.hidden = !isAdmin;
       });
       document.querySelectorAll(".attendance-nav").forEach(function (item) {
-        item.hidden = role === "santri" || role === "mahasantri";
+        item.hidden = !canWriteAttendance;
       });
       if (role === "santri" || role === "mahasantri") {
         document.body.classList.add("student-home-active");

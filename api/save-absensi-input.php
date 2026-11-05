@@ -12,7 +12,7 @@ $user = current_user();
 if ($user === null) {
     json_response(['success' => false, 'error' => 'Silakan masuk kembali.'], 401);
 }
-if (!in_array(strtolower((string) ($user['role'] ?? '')), ['admin', 'musyrif', 'supervisor', "mas'ul"], true)) {
+if (!in_array(strtolower((string) ($user['role'] ?? '')), ['admin', 'musyrif', "mas'ul"], true)) {
     json_response(['success' => false, 'error' => 'Akun ini tidak memiliki akses untuk mencatat kehadiran.'], 403);
 }
 $userId = filter_var($user['id'] ?? null, FILTER_VALIDATE_INT);
@@ -73,17 +73,18 @@ foreach ($submittedRecords as $record) {
 try {
     $connection = db_connection();
     $activityStatement = $connection->prepare(
-        'SELECT id FROM kegiatan WHERE id = ? AND is_active = 1 LIMIT 1'
+        'SELECT id, nama_kegiatan FROM kegiatan WHERE id = ? AND is_active = 1 LIMIT 1'
     );
     $activityStatement->bind_param('i', $activityId);
     $activityStatement->execute();
-    $activityExists = $activityStatement->get_result()->num_rows > 0;
+    $activity = $activityStatement->get_result()->fetch_assoc();
     $activityStatement->close();
-    if (!$activityExists) {
+    if ($activity === null) {
         json_response(['success' => false, 'error' => 'Kegiatan tidak ditemukan atau sudah tidak aktif.'], 404);
     }
 
     $studentIds = array_keys($records);
+    assert_students_in_scope($connection, $user, $studentIds);
     $studentCheck = $connection->query(
         'SELECT id FROM santri WHERE id IN (' . implode(',', $studentIds) . ')'
     );
@@ -105,6 +106,26 @@ try {
     $deleteStatement = $connection->prepare(
         'DELETE FROM absensi WHERE kegiatan_id = ? AND tanggal = ? AND santri_id = ?'
     );
+    $findAttendanceStatement = $connection->prepare(
+        'SELECT id FROM absensi WHERE kegiatan_id = ? AND tanggal = ? AND santri_id = ? LIMIT 1'
+    );
+    $upsertViolationStatement = $connection->prepare(
+        "INSERT INTO pelanggaran
+            (santri_id, absensi_id, jenis_pelanggaran_id, tanggal, jenis_pelanggaran, poin,
+             keterangan, status_tindak_lanjut, catatan_bk, input_by)
+         VALUES (?, ?, NULL, ?, 'Ketidakhadiran (Alpa)', 0, ?, 'belum', '', ?)
+         ON DUPLICATE KEY UPDATE
+            santri_id = VALUES(santri_id),
+            tanggal = VALUES(tanggal),
+            jenis_pelanggaran = VALUES(jenis_pelanggaran),
+            poin = 0,
+            keterangan = VALUES(keterangan),
+            input_by = VALUES(input_by),
+            updated_at = CURRENT_TIMESTAMP"
+    );
+    $removeGeneratedViolationStatement = $connection->prepare(
+        'DELETE FROM pelanggaran WHERE absensi_id = ?'
+    );
     foreach ($records as $studentId => $record) {
         if ($record['status'] === '') {
             $deleteStatement->bind_param('isi', $activityId, $date, $studentId);
@@ -121,9 +142,36 @@ try {
             $userId
         );
         $saveStatement->execute();
+        $findAttendanceStatement->bind_param('isi', $activityId, $date, $studentId);
+        $findAttendanceStatement->execute();
+        $attendanceId = (int) ($findAttendanceStatement->get_result()->fetch_assoc()['id'] ?? 0);
+        if ($attendanceId < 1) {
+            throw new RuntimeException('Saved attendance record could not be found.');
+        }
+        if ($record['status'] === 'alpa') {
+            $description = 'Tidak hadir pada kegiatan: ' . $activity['nama_kegiatan'];
+            if ($record['keterangan'] !== '') {
+                $description .= ' - ' . $record['keterangan'];
+            }
+            $upsertViolationStatement->bind_param(
+                'iissi',
+                $studentId,
+                $attendanceId,
+                $date,
+                $description,
+                $userId
+            );
+            $upsertViolationStatement->execute();
+        } elseif ($attendanceId > 0) {
+            $removeGeneratedViolationStatement->bind_param('i', $attendanceId);
+            $removeGeneratedViolationStatement->execute();
+        }
     }
     $saveStatement->close();
     $deleteStatement->close();
+    $findAttendanceStatement->close();
+    $upsertViolationStatement->close();
+    $removeGeneratedViolationStatement->close();
     $connection->commit();
 
     json_response([

@@ -314,5 +314,177 @@
     return { judul: title, nama_berkas: file.name, events: events };
   }
 
+  const monthSheets = {
+    januari: 1, jan: 1, februari: 2, feb: 2, maret: 3, mar: 3,
+    april: 4, apr: 4, mei: 5, juni: 6, jun: 6, juli: 7, jul: 7,
+    agustus: 8, agu: 8, agt: 8, september: 9, sep: 9, oktober: 10, okt: 10,
+    november: 11, nov: 11, desember: 12, des: 12,
+  };
+
+  function columnIndex(name) {
+    let index = 0;
+    for (const character of name) index = index * 26 + character.charCodeAt(0) - 64;
+    return index;
+  }
+
+  function columnLabel(index) {
+    let label = "";
+    while (index > 0) {
+      index--;
+      label = String.fromCharCode(65 + (index % 26)) + label;
+      index = Math.floor(index / 26);
+    }
+    return label;
+  }
+
+  async function parseStudentActivityXlsx(file, academicYearStart) {
+    if (!file || !/\.xlsx$/i.test(file.name)) throw new Error("Pilih berkas Excel .xlsx.");
+    if (file.size > 10 * 1024 * 1024) throw new Error("Ukuran berkas maksimal 10 MB.");
+    const startYear = Number(academicYearStart);
+    if (!Number.isInteger(startYear) || startYear < 2000 || startYear > 2099) {
+      throw new Error("Tahun awal ajaran tidak valid.");
+    }
+
+    const entries = await unzipEntries(await file.arrayBuffer());
+    const workbook = parseXml(entries.get("xl/workbook.xml"));
+    const relationships = parseXml(entries.get("xl/_rels/workbook.xml.rels"));
+    const relationshipById = new Map(descendants(relationships, "Relationship").map((item) => [
+      item.getAttribute("Id"),
+      item.getAttribute("Target"),
+    ]));
+    const sharedStrings = entries.has("xl/sharedStrings.xml")
+      ? descendants(parseXml(entries.get("xl/sharedStrings.xml")), "si").map((item) =>
+        descendants(item, "t").map((text) => text.textContent).join("")
+      )
+      : [];
+    const sheets = descendants(workbook, "sheet");
+    const parsedMonths = new Set();
+    const events = [];
+    const sourceStudents = new Map();
+    const errors = [];
+
+    for (const sheet of sheets) {
+      const month = monthSheets[normalizeHeader(sheet.getAttribute("name"))];
+      if (!month) continue;
+      if (parsedMonths.has(month)) throw new Error("Berkas memiliki lebih dari satu lembar untuk bulan yang sama.");
+      parsedMonths.add(month);
+
+      const relationId = sheet.getAttribute("r:id") || sheet.getAttributeNS(
+        "http://schemas.openxmlformats.org/officeDocument/2006/relationships",
+        "id"
+      );
+      let sheetPath = relationshipById.get(relationId);
+      if (!sheetPath) throw new Error("Lembar bulan " + sheet.getAttribute("name") + " tidak dapat ditemukan.");
+      sheetPath = sheetPath.replace(/^\//, "");
+      if (!sheetPath.startsWith("xl/")) sheetPath = "xl/" + sheetPath;
+      const normalizedParts = [];
+      sheetPath.split("/").forEach((part) => {
+        if (part === "..") normalizedParts.pop();
+        else if (part !== ".") normalizedParts.push(part);
+      });
+      const rows = readRows(parseXml(entries.get(normalizedParts.join("/"))), sharedStrings);
+      const activityHeaders = rows.get(1);
+      const slotHeaders = rows.get(2);
+      if (!activityHeaders || !slotHeaders) {
+        throw new Error("Struktur lembar " + sheet.getAttribute("name") + " tidak sesuai format rekap.");
+      }
+
+      const activities = [];
+      activityHeaders.forEach((value, column) => {
+        if (columnIndex(column) < 4 || !value) return;
+        const slots = [];
+        for (let index = 0; index < 11; index++) {
+          const slotColumn = columnLabel(columnIndex(column) + index);
+          const slot = Number(slotHeaders.get(slotColumn));
+          if (Number.isInteger(slot) && slot >= 1 && slot <= 10) {
+            slots.push({ column: slotColumn, slot: slot });
+          }
+        }
+        if (slots.length) activities.push({ name: value, slots: slots });
+      });
+      if (!activities.length) {
+        throw new Error("Kelompok kegiatan tidak ditemukan pada lembar " + sheet.getAttribute("name") + ".");
+      }
+
+      const year = month >= 7 ? startYear : startYear + 1;
+      const daysInMonth = new Date(Date.UTC(year, month, 0)).getUTCDate();
+      for (const [rowNumber, cells] of rows) {
+        if (rowNumber < 2) continue;
+        const studentName = String(cells.get("C") || "").trim();
+        if (!studentName || normalizeHeader(studentName) === "namasantri") continue;
+        const normalizedName = studentName.normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+          .toLocaleLowerCase("id")
+          .replace(/\s+/g, " ")
+          .trim();
+        const sourceKey = normalizedName;
+        const sourceStudent = sourceStudents.get(sourceKey) || {
+          nama: studentName,
+          rowsBySheet: new Map(),
+          events: [],
+        };
+        sourceStudent.rowsBySheet.set(
+          sheet.getAttribute("name"),
+          (sourceStudent.rowsBySheet.get(sheet.getAttribute("name")) || 0) + 1
+        );
+
+        for (const activity of activities) {
+          for (const slot of activity.slots) {
+            const rawValue = String(cells.get(slot.column) || "").trim();
+            if (!rawValue) continue;
+            const day = Number(rawValue);
+            if (!Number.isInteger(day) || day < 1 || day > daysInMonth) {
+              errors.push(sheet.getAttribute("name") + "!" + slot.column + rowNumber);
+              continue;
+            }
+            const date = year + "-" + String(month).padStart(2, "0") + "-" + String(day).padStart(2, "0");
+            sourceStudent.events.push({
+              nama_kegiatan: activity.name,
+              tanggal: date,
+              slot: slot.slot,
+              sheet: sheet.getAttribute("name"),
+              row: rowNumber,
+            });
+          }
+        }
+        sourceStudents.set(sourceKey, sourceStudent);
+      }
+    }
+
+    if (parsedMonths.size !== 12) {
+      throw new Error("Rekap harus memiliki 12 lembar bulanan. Ditemukan " + parsedMonths.size + ".");
+    }
+    if (errors.length) {
+      throw new Error("Ada " + errors.length + " nilai hari di luar kalender pada lembar bulanan. Contoh sel: "
+        + errors.slice(0, 5).join(", ") + ".");
+    }
+    const students = Array.from(sourceStudents.values());
+    const duplicateNames = students.filter((student) =>
+      Array.from(student.rowsBySheet.values()).some((rowCount) => rowCount > 1)
+    ).length;
+    if (duplicateNames) {
+      throw new Error(duplicateNames + " nama muncul lebih dari sekali pada lembar bulanan. Karena file tidak memuat NIM, identitasnya tidak dapat dipastikan. Perbaiki duplikasi atau tambahkan pengenal unik sebelum impor.");
+    }
+    students.forEach((student) => {
+      student.sheets = Array.from(student.rowsBySheet.keys());
+      delete student.rowsBySheet;
+    });
+    const eventCount = students.reduce((total, student) => total + student.events.length, 0);
+    if (!students.length || !eventCount) {
+      throw new Error("Tidak ada catatan aktivitas yang dapat diimpor dari lembar bulanan.");
+    }
+    if (eventCount > 150000) {
+      throw new Error("Jumlah catatan melebihi batas impor 150.000. Periksa file rekap.");
+    }
+    return {
+      tahun_ajaran_mulai: startYear,
+      nama_berkas: file.name,
+      siswa: students,
+      jumlah_catatan: eventCount,
+      jumlah_aktivitas: new Set(students.flatMap((student) => student.events.map((event) => event.nama_kegiatan))).size,
+    };
+  }
+
   window.parseAcademicCalendarXlsx = parseCalendar;
+  window.parseSantriActivityXlsx = parseStudentActivityXlsx;
 })();
