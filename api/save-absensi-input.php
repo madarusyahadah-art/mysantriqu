@@ -1,97 +1,144 @@
 <?php
-header("Content-Type: application/json; charset=UTF-8");
+declare(strict_types=1);
 
 require_once __DIR__ . '/config.php';
-$currentUser = require_role(['admin', 'supervisor']);
 
-if (!isset($conn)) {
-    http_response_code(500);
-    echo json_encode(["error" => "Database connection not established"]);
-    exit;
+if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
+    header('Allow: POST');
+    json_response(['success' => false, 'error' => 'Metode tidak didukung.'], 405);
 }
 
-$rawInput = file_get_contents('php://input');
-$data = json_decode($rawInput, true);
-
-if (!$data) {
-    http_response_code(400);
-    echo json_encode(["error" => "Invalid JSON data"]);
-    exit;
+$user = current_user();
+if ($user === null) {
+    json_response(['success' => false, 'error' => 'Silakan masuk kembali.'], 401);
+}
+if (!in_array(strtolower((string) ($user['role'] ?? '')), ['admin', 'musyrif', 'supervisor', "mas'ul"], true)) {
+    json_response(['success' => false, 'error' => 'Akun ini tidak memiliki akses untuk mencatat kehadiran.'], 403);
+}
+$userId = filter_var($user['id'] ?? null, FILTER_VALIDATE_INT);
+if ($userId === false || $userId === null || $userId < 1) {
+    json_response(['success' => false, 'error' => 'Akun tidak valid. Silakan masuk kembali.'], 401);
 }
 
-$kegiatan_id = filter_var($data['kegiatan_id'] ?? null, FILTER_VALIDATE_INT);
-$tanggal = $data['tanggal'] ?? '';
-$santri_id = filter_var($data['santri_id'] ?? null, FILTER_VALIDATE_INT);
-$status = $data['status'] ?? '';
-$keterangan = $data['keterangan'] ?? '';
-$tindak_lanjut = $data['tindak_lanjut'] ?? '';
-$user_id = (int) $currentUser['id'];
-
-$date = is_string($tanggal) ? DateTime::createFromFormat('!Y-m-d', $tanggal) : false;
-if (
-    !$kegiatan_id || $kegiatan_id < 1 ||
-    !$santri_id || $santri_id < 1 ||
-    !$date || $date->format('Y-m-d') !== $tanggal ||
-    !in_array($status, ['izin', 'sakit', 'alpha', 'izin_menginap'], true)
-) {
-    http_response_code(400);
-    echo json_encode(["success" => false, "error" => "Data absensi tidak valid"]);
-    exit;
+$payload = json_decode(file_get_contents('php://input'), true);
+if (!is_array($payload)) {
+    json_response(['success' => false, 'error' => 'Data kehadiran yang dikirim tidak valid.'], 400);
 }
 
-$session_stmt = $conn->prepare("SELECT id FROM absensi_sesi WHERE kegiatan_id = ? AND tanggal = ?");
-$session_stmt->bind_param("is", $kegiatan_id, $tanggal);
-$session_stmt->execute();
-$session_active = $session_stmt->get_result()->num_rows > 0;
-$session_stmt->close();
-if (!$session_active) {
-    http_response_code(409);
-    echo json_encode(["success" => false, "error" => "Siapkan sesi absensi lengkap terlebih dahulu"]);
-    exit;
+date_default_timezone_set('Asia/Jakarta');
+$dateValueInput = $payload['tanggal'] ?? null;
+if (!is_string($dateValueInput)) {
+    json_response(['success' => false, 'error' => 'Tanggal absensi tidak valid atau belum terjadi.'], 400);
+}
+$date = trim($dateValueInput);
+$dateValue = DateTimeImmutable::createFromFormat('!Y-m-d', $date, new DateTimeZone('Asia/Jakarta'));
+if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $date)
+    || $dateValue === false || $dateValue->format('Y-m-d') !== $date
+    || $date > date('Y-m-d')) {
+    json_response(['success' => false, 'error' => 'Tanggal absensi tidak valid atau belum terjadi.'], 400);
 }
 
-$eligibleStmt = $conn->prepare("SELECT id FROM absensi WHERE kegiatan_id = ? AND tanggal = ? AND santri_id = ?");
-$eligibleStmt->bind_param("isi", $kegiatan_id, $tanggal, $santri_id);
-$eligibleStmt->execute();
-$eligible = $eligibleStmt->get_result()->num_rows > 0;
-$eligibleStmt->close();
-if (!$eligible) {
-    json_response(["success" => false, "error" => "Santri tidak termasuk roster sesi absensi ini"], 400);
+$activityId = filter_var($payload['kegiatan_id'] ?? null, FILTER_VALIDATE_INT);
+if ($activityId === false || $activityId === null || $activityId < 1) {
+    json_response(['success' => false, 'error' => 'Pilih kegiatan yang valid.'], 400);
 }
 
-// Cek apakah sudah ada (untuk update)
-$check_stmt = $conn->prepare("SELECT id, input_by FROM absensi WHERE kegiatan_id = ? AND tanggal = ? AND santri_id = ?");
-$check_stmt->bind_param("isi", $kegiatan_id, $tanggal, $santri_id);
-$check_stmt->execute();
-$existing = $check_stmt->get_result()->fetch_assoc();
-$check_stmt->close();
+$submittedRecords = $payload['records'] ?? null;
+if (!is_array($submittedRecords) || count($submittedRecords) < 1 || count($submittedRecords) > 1000) {
+    json_response(['success' => false, 'error' => 'Pilih setidaknya satu status kehadiran yang akan disimpan.'], 400);
+}
 
-if ($existing) {
-    if ($currentUser['role'] !== 'admin') {
-        $reportStmt = $conn->prepare("SELECT dilaporkan_oleh FROM laporan_kegiatan WHERE kegiatan_id = ? AND tanggal = ?");
-        $reportStmt->bind_param("is", $kegiatan_id, $tanggal);
-        $reportStmt->execute();
-        $report = $reportStmt->get_result()->fetch_assoc();
-        $reportStmt->close();
-        if (($report && (int) $report['dilaporkan_oleh'] !== $user_id) ||
-            (!$report && !$session_active && (int) $existing['input_by'] !== $user_id)) {
-            json_response(["success" => false, "error" => "Supervisor hanya dapat mengubah laporan miliknya setelah dikirim"], 403);
+$allowedStatuses = ['hadir', 'izin', 'sakit', 'alpa'];
+$records = [];
+foreach ($submittedRecords as $record) {
+    if (!is_array($record)) {
+        json_response(['success' => false, 'error' => 'Format catatan kehadiran tidak valid.'], 400);
+    }
+    $studentId = filter_var($record['santri_id'] ?? null, FILTER_VALIDATE_INT);
+    $statusInput = $record['status'] ?? null;
+    $noteInput = $record['keterangan'] ?? '';
+    if (!is_string($statusInput) || !is_string($noteInput)) {
+        json_response(['success' => false, 'error' => 'Status, keterangan, atau data santri tidak valid. Periksa kembali isian.'], 400);
+    }
+    $status = strtolower(trim($statusInput));
+    $note = trim($noteInput);
+    if ($studentId === false || $studentId === null || $studentId < 1
+        || ($status !== '' && !in_array($status, $allowedStatuses, true))
+        || strlen($note) > 2000 || isset($records[$studentId])) {
+        json_response(['success' => false, 'error' => 'Status, keterangan, atau data santri tidak valid. Periksa kembali isian.'], 400);
+    }
+    $records[$studentId] = ['status' => $status, 'keterangan' => $note];
+}
+
+try {
+    $connection = db_connection();
+    $activityStatement = $connection->prepare(
+        'SELECT id FROM kegiatan WHERE id = ? AND is_active = 1 LIMIT 1'
+    );
+    $activityStatement->bind_param('i', $activityId);
+    $activityStatement->execute();
+    $activityExists = $activityStatement->get_result()->num_rows > 0;
+    $activityStatement->close();
+    if (!$activityExists) {
+        json_response(['success' => false, 'error' => 'Kegiatan tidak ditemukan atau sudah tidak aktif.'], 404);
+    }
+
+    $studentIds = array_keys($records);
+    $studentCheck = $connection->query(
+        'SELECT id FROM santri WHERE id IN (' . implode(',', $studentIds) . ')'
+    );
+    $validStudentCount = $studentCheck->num_rows;
+    if ($validStudentCount !== count($studentIds)) {
+        json_response(['success' => false, 'error' => 'Sebagian data santri tidak ditemukan. Muat ulang daftar sebelum menyimpan.'], 400);
+    }
+
+    $connection->begin_transaction();
+    $saveStatement = $connection->prepare(
+        'INSERT INTO absensi (kegiatan_id, tanggal, santri_id, status, keterangan, input_by)
+         VALUES (?, ?, ?, ?, ?, ?)
+         ON DUPLICATE KEY UPDATE
+           status = VALUES(status),
+           keterangan = VALUES(keterangan),
+           input_by = VALUES(input_by),
+           updated_at = CURRENT_TIMESTAMP'
+    );
+    $deleteStatement = $connection->prepare(
+        'DELETE FROM absensi WHERE kegiatan_id = ? AND tanggal = ? AND santri_id = ?'
+    );
+    foreach ($records as $studentId => $record) {
+        if ($record['status'] === '') {
+            $deleteStatement->bind_param('isi', $activityId, $date, $studentId);
+            $deleteStatement->execute();
+            continue;
+        }
+        $saveStatement->bind_param(
+            'isissi',
+            $activityId,
+            $date,
+            $studentId,
+            $record['status'],
+            $record['keterangan'],
+            $userId
+        );
+        $saveStatement->execute();
+    }
+    $saveStatement->close();
+    $deleteStatement->close();
+    $connection->commit();
+
+    json_response([
+        'success' => true,
+        'saved' => count($records),
+        'message' => 'Catatan kehadiran berhasil disimpan.',
+    ]);
+} catch (mysqli_sql_exception | RuntimeException $error) {
+    if (isset($connection) && $connection instanceof mysqli) {
+        try {
+            $connection->rollback();
+        } catch (mysqli_sql_exception $rollbackError) {
+            error_log('Attendance save rollback failed: ' . $rollbackError->getMessage());
         }
     }
-    $stmt = $conn->prepare("UPDATE absensi SET status = ?, keterangan = ?, tindak_lanjut = ?, input_by = ? WHERE id = ?");
-    $stmt->bind_param("sssii", $status, $keterangan, $tindak_lanjut, $user_id, $existing['id']);
-} else {
-    // Insert
-    $stmt = $conn->prepare("INSERT INTO absensi (kegiatan_id, tanggal, santri_id, status, keterangan, tindak_lanjut, input_by) VALUES (?, ?, ?, ?, ?, ?, ?)");
-    $stmt->bind_param("isssssi", $kegiatan_id, $tanggal, $santri_id, $status, $keterangan, $tindak_lanjut, $user_id);
+    error_log('Save attendance input failed: ' . $error->getMessage());
+    json_response(['success' => false, 'error' => 'Catatan kehadiran gagal disimpan. Periksa koneksi lalu coba lagi.'], 503);
 }
-
-if ($stmt->execute()) {
-    echo json_encode(["success" => true]);
-} else {
-    echo json_encode(["success" => false, "error" => $conn->error]);
-}
-
-$stmt->close();
-$conn->close();
-?>

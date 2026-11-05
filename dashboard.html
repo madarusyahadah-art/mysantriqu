@@ -1,855 +1,255 @@
-﻿<!DOCTYPE html>
+<!doctype html>
 <html lang="id">
   <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#114d35" />
-    <link rel="manifest" href="manifest.webmanifest" />
-    <link rel="apple-touch-icon" href="assets/app-icon-192.png" />
-    <title>Dashboard - Recording Mahasantri</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
-    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
-    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
-
-  <link rel="stylesheet" href="dashboard.css?v=20261102-2"/>
-
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#123c32" />
+    <meta name="description" content="Ringkasan kemahasantrian dan pelanggaran." />
+    <title>Dashboard - Recording Kemahasantrian</title>
+    <link rel="icon" href="assets/app-icon-192.png" />
+    <link rel="stylesheet" href="dashboard.css" />
+    <script src="js/dashboard.js" defer></script>
   </head>
-  <body data-access="authenticated" data-loading-mode="dashboard">
-    <div id="msq-loading-overlay" role="status" aria-live="polite">
-      <div class="msq-loading-spinner" aria-hidden="true"></div>
-      <div class="msq-loading-text">Memuat dashboard...</div>
+  <body>
+    <div class="app-shell">
+      <button class="sidebar-scrim" id="sidebar-scrim" type="button" aria-label="Tutup menu"></button>
+      <aside class="sidebar" id="sidebar">
+        <a class="brand" href="dashboard.html" aria-label="Recording Kemahasantrian, dashboard">
+          <img src="assets/Logo.png" alt="" />
+          <span><strong>Recording</strong><small>Kemahasantrian</small></span>
+        </a>
+        <nav class="primary-nav" aria-label="Navigasi utama">
+          <p class="nav-caption">BERANDA</p>
+          <a class="nav-link active" href="dashboard.html" aria-current="page">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.5"/></svg>
+            <span>Dashboard</span>
+          </a>
+          <p class="nav-caption">KEMAHASANTRIAN</p>
+          <a class="nav-link attendance-nav" href="absensi-input.html">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4.5h14v15H5zM8 8h8M8 12h8m-8 4h5"/></svg>
+            <span>Input Kehadiran</span>
+          </a>
+          <a class="nav-link attendance-nav" href="pelanggaran.html">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5 21 20H3z"/><path d="M12 9v4m0 3h.01"/></svg>
+            <span>Data Pelanggaran</span>
+          </a>
+          <span class="nav-link unavailable" aria-disabled="true" title="Modul ini akan dibangun berikutnya">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3.5h14v17H5zM8 8h8m-8 4h8m-8 4h5"/></svg>
+            <span>Laporan</span><small>Segera</small>
+          </span>
+          <p class="nav-caption">AKADEMIK</p>
+          <a class="nav-link" href="kalender-akademik.html">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M7.5 3v4m9-4v4m-13 3h17M8 14h3m2 0h3m-8 3h3"/></svg>
+            <span>Kalender Akademik</span>
+          </a>
+          <a class="nav-link" href="dokumen-akademik.html?type=khs">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5A3.5 3.5 0 0 1 7.5 2H20v17H7.5A3.5 3.5 0 0 0 4 22z"/><path d="M4 5.5v13A3.5 3.5 0 0 1 7.5 15H20M8 6h8m-8 4h7"/></svg>
+            <span>KHS</span>
+          </a>
+          <a class="nav-link" href="dokumen-akademik.html?type=jurnal">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3.5h14v17H5zM8 8h8m-8 4h8m-8 4h5"/></svg>
+            <span>Jurnal Munazharah</span>
+          </a>
+          <a class="nav-link" href="dokumen-akademik.html?type=skripsi">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5A3.5 3.5 0 0 1 7.5 2H20v17H7.5A3.5 3.5 0 0 0 4 22z"/><path d="M4 5.5v13A3.5 3.5 0 0 1 7.5 15H20m-11-8h7m-7 4h5"/></svg>
+            <span>Skripsi</span>
+          </a>
+          <p class="nav-caption admin-nav" hidden>ADMINISTRASI</p>
+          <a class="nav-link admin-nav" href="admin-users.html" hidden>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M3 20v-1.5a6 6 0 0 1 12 0V20zm13-15a3.5 3.5 0 0 1 0 6.8M18 8v6m-3-3h6"/></svg>
+            <span>Manajemen User</span>
+          </a>
+          <a class="nav-link admin-nav" href="santri.html" hidden>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M3 20v-1.5a6 6 0 0 1 12 0V20zm13-15a3.5 3.5 0 0 1 0 6.8m2 3a5 5 0 0 1 3 4.7V20h-3"/></svg>
+            <span>Data Santri</span>
+          </a>
+          <a class="nav-link admin-nav" href="asatidz.html" hidden>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M3 20v-1.5a6 6 0 0 1 12 0V20zm13-15a3.5 3.5 0 0 1 0 6.8m-1 6h7m-3.5-3.5v7"/></svg>
+            <span>Data Asatidzah</span>
+          </a>
+          <a class="nav-link admin-nav" href="kegiatan.html" hidden>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M7.5 3v4m9-4v4m-13 3h17M8 14h3m2 0h3m-8 3h3"/></svg>
+            <span>Kegiatan</span>
+          </a>
+        </nav>
+        <div class="sidebar-bottom">
+          <div class="campus-mark"><span class="campus-dot"></span><span>Ma'had Aly Darusy Syahadah</span></div>
+          <div class="sidebar-user">
+            <span class="user-avatar" id="sidebar-avatar">?</span>
+            <span class="sidebar-user-copy"><strong id="sidebar-name">Memuat akun...</strong><small id="sidebar-role">Akun</small></span>
+            <button class="icon-button logout-button" id="logout-button" type="button" aria-label="Keluar" title="Keluar">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 5H5v14h5m5-3 4-4-4-4m4 4H9"/></svg>
+            </button>
+          </div>
+        </div>
+      </aside>
+
+      <main class="main-content">
+        <header class="topbar">
+          <div class="topbar-leading">
+            <button class="icon-button menu-button" id="menu-button" type="button" aria-label="Buka menu" aria-expanded="false">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+            </button>
+            <div class="breadcrumb"><span>Beranda</span><span aria-hidden="true">/</span><strong>Dashboard</strong></div>
+          </div>
+          <div class="topbar-user">
+            <span class="today-label" id="today-label"></span>
+            <span class="user-avatar top-avatar" id="top-avatar">?</span>
+            <span class="topbar-user-name" id="topbar-name">Memuat...</span>
+          </div>
+        </header>
+
+        <div class="dashboard-content">
+          <section class="page-heading">
+            <div>
+              <p class="eyebrow">RINGKASAN KEMAHASANTRIAN</p>
+              <h1>Dashboard</h1>
+              <p class="page-description">Pantau catatan pelanggaran santri dalam satu tampilan.</p>
+            </div>
+            <span class="date-pill">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M7.5 3v4m9-4v4m-13 3h17"/></svg>
+              <span id="date-range">30 hari terakhir</span>
+            </span>
+          </section>
+
+          <p class="dashboard-message" id="dashboard-message" role="status" aria-live="polite" hidden></p>
+
+          <section class="student-home" id="student-home" hidden>
+            <header class="student-home-header">
+              <div>
+                <p class="student-home-greeting">Assalamu’alaikum,</p>
+                <h1 id="student-home-name">Santri</h1>
+                <p class="student-home-meta" id="student-home-meta">Memuat informasi santri...</p>
+              </div>
+              <div class="student-home-header-actions">
+                <button class="student-home-icon-button" id="student-logout-button" type="button" aria-label="Keluar" title="Keluar">↪</button>
+                <a class="student-home-avatar" href="profil-santri.html" aria-label="Buka profil santri" id="student-home-avatar">?</a>
+              </div>
+            </header>
+
+            <section class="student-home-agenda" aria-labelledby="student-agenda-title">
+              <div class="student-home-section-kicker">AGENDA BERIKUTNYA</div>
+              <h2 class="sr-only" id="student-agenda-title">Agenda berikutnya</h2>
+              <div id="student-next-event" class="student-next-event"></div>
+            </section>
+
+            <section class="student-home-progress" aria-labelledby="student-progress-title">
+              <div class="student-home-section-heading">
+                <div><p class="student-home-section-kicker">PERKEMBANGAN SAYA</p><h2 id="student-progress-title">Catatan bulanan</h2></div>
+                <label class="student-month-picker"><span class="sr-only">Pilih bulan ringkasan</span><input id="student-dashboard-month" type="month" /></label>
+              </div>
+              <div class="student-progress-grid">
+                <article class="student-progress-card">
+                  <div class="student-progress-card-heading"><h3>Kehadiran</h3><span>Persentase tercatat</span></div>
+                  <div class="student-attendance-content">
+                    <div class="attendance-ring" id="attendance-ring" role="img" aria-label="Persentase kehadiran belum tersedia"><div><strong id="attendance-percent">—</strong><span>Hadir</span></div></div>
+                    <div class="attendance-summary"><strong id="attendance-count">—</strong><span>pertemuan tercatat</span><p id="attendance-note">Memuat data kehadiran...</p></div>
+                  </div>
+                </article>
+                <article class="student-progress-card">
+                  <div class="student-progress-card-heading"><h3>Pelanggaran</h3><span id="violation-month-label">Bulan ini</span></div>
+                  <div class="violation-summary"><strong id="violation-total">—</strong><span>catatan pada bulan terpilih</span></div>
+                  <div class="student-violation-chart" id="student-violation-chart" role="img" aria-label="Grafik catatan pelanggaran per hari"></div>
+                  <div class="student-chart-labels"><span>Awal bulan</span><span id="violation-chart-end-label">Akhir bulan</span></div>
+                  <p class="student-chart-empty" id="violation-empty" hidden>Tidak ada catatan pelanggaran pada bulan terpilih.</p>
+                </article>
+              </div>
+            </section>
+
+            <section class="student-home-shortcuts" aria-label="Menu akademik">
+              <a class="student-shortcut" href="kalender-akademik.html"><span class="student-shortcut-icon">▦</span><span>Kalender</span></a>
+              <a class="student-shortcut" href="dokumen-akademik.html?type=khs"><span class="student-shortcut-icon">▤</span><span>KHS</span></a>
+              <a class="student-shortcut" href="dokumen-akademik.html?type=jurnal"><span class="student-shortcut-icon">▧</span><span>Jurnal</span></a>
+              <a class="student-shortcut" href="dokumen-akademik.html?type=skripsi"><span class="student-shortcut-icon">▨</span><span>Skripsi</span></a>
+            </section>
+
+            <section class="student-home-update" id="student-home-update" aria-labelledby="student-update-title" hidden>
+              <div class="student-home-section-heading"><div><p class="student-home-section-kicker">INFORMASI AKADEMIK</p><h2 id="student-update-title">Pembaruan terbaru</h2></div><a href="kalender-akademik.html">Lihat kalender <span aria-hidden="true">›</span></a></div>
+              <p id="student-update-copy"></p>
+              <small id="student-update-date"></small>
+            </section>
+
+            <section class="student-home-activities" id="student-home-activities" aria-labelledby="student-activities-title">
+              <div class="student-home-section-heading"><div><p class="student-home-section-kicker">KEMAHASANTRIAN</p><h2 id="student-activities-title">Kegiatan Ma’had</h2></div><a href="kalender-akademik.html">Kalender lengkap <span aria-hidden="true">›</span></a></div>
+              <div id="student-mahad-events" class="student-mahad-events"></div>
+            </section>
+
+            <nav class="student-bottom-nav" aria-label="Navigasi santri">
+              <a class="is-active" href="dashboard.html" aria-current="page"><span aria-hidden="true">⌂</span><small>Beranda</small></a>
+              <a href="kalender-akademik.html"><span aria-hidden="true">▦</span><small>Akademik</small></a>
+              <a href="#student-home-activities"><span aria-hidden="true">◇</span><small>Kemahasantrian</small></a>
+              <a href="profil-santri.html"><span aria-hidden="true">◉</span><small>Profil</small></a>
+            </nav>
+          </section>
+
+          <div id="legacy-dashboard" hidden>
+
+          <section class="stats-grid" aria-label="Ringkasan pelanggaran">
+            <article class="stat-card stat-total">
+              <div class="stat-top"><span class="stat-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5 21 20H3z"/><path d="M12 9v4m0 3h.01"/></svg></span><span class="stat-period">Keseluruhan</span></div>
+              <p class="stat-label">Total Pelanggaran</p><p class="stat-value" id="stat-total">—</p>
+              <p class="stat-foot"><span class="status-dot"></span> Tercatat dalam sistem</p>
+            </article>
+            <article class="stat-card">
+              <div class="stat-top"><span class="stat-icon icon-mint"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 7v5l3 2"/></svg></span><span class="stat-period">Hari ini</span></div>
+              <p class="stat-label">Pelanggaran Hari Ini</p><p class="stat-value" id="stat-today">—</p>
+              <p class="stat-foot">Diperbarui otomatis</p>
+            </article>
+            <article class="stat-card">
+              <div class="stat-top"><span class="stat-icon icon-gold"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M7.5 3v4m9-4v4m-13 3h17"/></svg></span><span class="stat-period">7 hari</span></div>
+              <p class="stat-label">Pekan Ini</p><p class="stat-value" id="stat-week">—</p>
+              <p class="stat-foot">Senin hingga hari ini</p>
+            </article>
+            <article class="stat-card">
+              <div class="stat-top"><span class="stat-icon icon-lilac"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19.5h16M6.5 16V10m5 6V5m5 11v-4"/></svg></span><span class="stat-period">Bulan ini</span></div>
+              <p class="stat-label">Pelanggaran Bulan Ini</p><p class="stat-value" id="stat-month">—</p>
+              <p class="stat-foot">Sejak tanggal 1</p>
+            </article>
+          </section>
+
+          <section class="charts-grid" aria-label="Grafik pelanggaran">
+            <article class="panel trend-panel">
+              <div class="panel-heading"><div><h2>Tren Pelanggaran</h2><p>Perubahan jumlah dalam 30 hari terakhir</p></div><span class="panel-mark">30 HARI</span></div>
+              <div class="chart-wrap">
+                <div class="chart-y-labels" aria-hidden="true"><span>—</span><span>—</span><span>—</span><span>0</span></div>
+                <svg class="trend-chart" id="trend-chart" viewBox="0 0 700 220" role="img" aria-label="Grafik tren pelanggaran 30 hari">
+                  <g class="chart-grid-lines"><path d="M0 20H700M0 75H700M0 130H700M0 185H700"/></g>
+                  <path class="chart-area" id="trend-area" d=""></path><path class="chart-line" id="trend-line" d=""></path><g id="trend-points"></g>
+                </svg>
+              </div>
+              <div class="chart-x-labels" id="trend-labels"><span>30 hari lalu</span><span>Hari ini</span></div>
+              <p class="chart-empty" id="trend-empty" hidden>Belum ada data pelanggaran pada periode ini.</p>
+            </article>
+            <article class="panel category-panel">
+              <div class="panel-heading"><div><h2>Jenis Pelanggaran</h2><p>Proporsi berdasarkan kategori</p></div><span class="panel-mark">KATEGORI</span></div>
+              <div class="donut-layout">
+                <div class="donut-chart" id="category-chart" role="img" aria-label="Grafik kategori pelanggaran">
+                  <div class="donut-hole"><strong id="category-total">0</strong><span>kasus</span></div>
+                </div>
+                <ul class="legend-list" id="category-legend"></ul>
+              </div>
+              <p class="chart-empty category-empty" id="category-empty" hidden>Belum ada kategori untuk ditampilkan.</p>
+            </article>
+          </section>
+
+          <section class="insights-grid" aria-label="Rincian pelanggaran">
+            <article class="panel insight-panel">
+              <div class="panel-heading"><div><h2>Santri dengan Catatan Terbanyak</h2><p>Akumulasi pelanggaran yang tercatat</p></div><span class="subtle-count">5 TERATAS</span></div>
+              <div class="rank-list" id="top-students"></div><p class="chart-empty" id="students-empty" hidden>Data santri akan muncul setelah pelanggaran dicatat.</p>
+            </article>
+            <article class="panel insight-panel">
+              <div class="panel-heading"><div><h2>Ringkasan per Angkatan</h2><p>Jumlah catatan pelanggaran</p></div></div>
+              <div class="cohort-list" id="cohort-list"></div><p class="chart-empty" id="cohort-empty" hidden>Belum ada data angkatan untuk ditampilkan.</p>
+            </article>
+            <article class="panel recent-panel">
+              <div class="panel-heading"><div><h2>Catatan Terbaru</h2><p>Entri terakhir yang tercatat</p></div><span class="subtle-count">TERKINI</span></div>
+              <div class="recent-list" id="recent-list"></div><p class="chart-empty" id="recent-empty" hidden>Belum ada catatan pelanggaran.</p>
+            </article>
+          </section>
+          <footer class="content-footer">© <span id="current-year"></span> Recording Kemahasantrian <span class="footer-divider">·</span> Ma'had Aly Darusy Syahadah</footer>
+          </div>
+        </div>
+      </main>
     </div>
-    <nav class="navbar">
-      <div class="nav-brand">
-        <img src="assets/Logo.png" alt="Logo" class="nav-logo" />
-        <ion-icon name="school-outline" aria-hidden="true"></ion-icon>
-        <span>MaSantriQu</span>
-      </div>
-
-      <div class="nav-user">
-        <img id="user-photo" src="assets/Logo.png" alt="User" class="user-photo" />
-        <span class="user-name" id="user-name">Loading...</span>
-        <span id="user-role" class="badge-role">Santri</span>
-      </div>
-    </nav>
-
-    <main class="dashboard-content">
-      <section id="role-dashboard" class="role-dashboard" aria-live="polite">
-        <a id="role-academic-calendar-link" class="role-button" href="kalender-akademik.html" hidden>Lihat Kalender Akademik</a>
-        <p id="role-dashboard-warning" role="alert" hidden></p>
-        <section class="role-card" aria-labelledby="role-student-count-heading">
-          <h2 id="role-student-count-heading">Total Mahasantri Terdata</h2>
-          <div class="role-student-count">
-            <ion-icon name="people-outline" aria-hidden="true"></ion-icon>
-            <strong id="role-student-count">0</strong>
-            <p>Mahasantri sudah diinput oleh admin.</p>
-          </div>
-        </section>
-        <section id="mahasantri-dashboard" class="role-card" hidden>
-          <div class="role-profile">
-            <img id="role-profile-photo" class="role-profile-photo" src="assets/Logo.png" alt="Foto Mahasantri" />
-            <div>
-              <h1 id="role-profile-name">Profil Mahasantri</h1>
-              <p id="role-profile-email"></p>
-              <div id="profile-facts" class="profile-facts"></div>
-              <form id="profile-photo-form" class="photo-form">
-                <label class="role-button" for="profile-photo-input">Ubah foto</label>
-                <input id="profile-photo-input" type="file" accept="image/jpeg,image/png,image/webp" required />
-                <button class="role-button" type="submit">Simpan foto</button>
-                <span id="photo-message" role="status"></span>
-              </form>
-            </div>
-          </div>
-        </section>
-
-        <section id="activities-card" class="role-card" hidden>
-          <h2>Kegiatan & fitur Mahasantri</h2>
-          <p class="role-empty" id="activities-intro">Pilih kegiatan untuk melihat laporan dan absensi Anda.</p>
-          <p class="account-notice" id="student-profile-link-notice" role="status" hidden>
-            Profil santri belum dihubungkan. Hubungi admin agar laporan pribadi dan layanan akademik dapat digunakan.
-          </p>
-          <div id="activity-tiles" class="activity-tiles"></div>
-        </section>
-
-        <section id="student-journal-card" class="role-card student-service-card" hidden>
-          <h2>Jurnal & Munazarah</h2>
-          <form id="student-journal-form" class="student-service-form">
-            <label for="journal-date">Tanggal</label>
-            <input id="journal-date" type="date" required>
-            <label for="journal-title">Judul catatan</label>
-            <input id="journal-title" type="text" maxlength="255" required>
-            <label for="journal-content">Catatan</label>
-            <textarea id="journal-content" maxlength="10000" rows="5" required></textarea>
-            <button class="role-button" type="submit">Simpan jurnal</button>
-            <p id="journal-message" class="student-service-message" role="status"></p>
-          </form>
-          <div id="student-journal-list" class="record-list"></div>
-        </section>
-
-        <section id="student-thesis-card" class="role-card student-service-card" hidden>
-          <h2>Pengumpulan Skripsi</h2>
-          <form id="student-thesis-form" class="student-service-form">
-            <label for="thesis-title">Judul skripsi</label>
-            <input id="thesis-title" type="text" maxlength="255" required>
-            <label for="thesis-file">File skripsi (PDF, maksimal 10 MB)</label>
-            <input id="thesis-file" type="file" accept="application/pdf,.pdf" required>
-            <button class="role-button" type="submit">Kirim skripsi</button>
-            <p id="thesis-message" class="student-service-message" role="status"></p>
-          </form>
-          <div id="student-thesis-list" class="record-list"></div>
-        </section>
-
-        <section id="student-khs-card" class="role-card student-service-card" hidden>
-          <h2>KHS Pribadi</h2>
-          <p class="role-empty">Dokumen KHS PDF yang telah diunggah admin untuk akun Anda.</p>
-          <div id="student-khs-list" class="record-list"></div>
-        </section>
-
-        <section id="kajur-dashboard" class="role-card" hidden>
-          <h2>Pemantauan Mahasantri</h2>
-          <div class="kajur-filters">
-            <label for="kajur-search">Cari nama
-              <input id="kajur-search" type="search" placeholder="Nama Mahasantri" />
-            </label>
-            <label for="kajur-angkatan">Angkatan
-              <select id="kajur-angkatan"><option value="">Semua angkatan</option></select>
-            </label>
-            <label for="kajur-order">Urutkan
-              <select id="kajur-order"><option value="nama">Nama A-Z</option><option value="angkatan">Angkatan</option></select>
-            </label>
-            <label for="report-start">Mulai bulan
-              <input id="report-start" type="month" />
-            </label>
-            <label for="report-end">Sampai bulan
-              <input id="report-end" type="month" />
-            </label>
-            <button id="apply-kajur-filters" class="role-button" type="button">Terapkan</button>
-          </div>
-          <div class="kajur-layout">
-            <div id="kajur-student-list" class="student-list" aria-label="Daftar Mahasantri"></div>
-            <div id="kajur-student-detail" class="role-empty">Pilih Mahasantri untuk melihat rincian laporan.</div>
-          </div>
-        </section>
-
-        <section id="student-report-card" class="role-card" hidden>
-          <h2 id="report-heading">Laporan Bulanan</h2>
-          <div id="student-month-controls" class="report-controls" hidden>
-            <label for="student-report-month">Bulan laporan
-              <input id="student-report-month" type="month" />
-            </label>
-            <button id="load-student-month" class="role-button" type="button">Tampilkan</button>
-          </div>
-          <div id="report-summary" class="summary-chips"></div>
-          <div class="report-layout">
-            <div>
-              <div id="attendance-calendar" class="calendar"></div>
-              <p class="role-empty">Tanggal berwarna memiliki catatan ketidakhadiran. Pilih status untuk memfilter tanggal dan rincian.</p>
-            </div>
-            <div>
-              <h3>Rincian absensi</h3>
-              <div id="attendance-records" class="record-list"></div>
-              <h3 style="margin-top:1.2rem">Pelanggaran dan tindak lanjut</h3>
-              <div id="violation-records" class="record-list"></div>
-            </div>
-          </div>
-        </section>
-      </section>
-
-      <section class="welcome-section legacy-dashboard">
-        <h1><ion-icon name="sunny-outline" aria-hidden="true"></ion-icon> Selamat Datang, <span id="welcome-name">Santri</span></h1>
-        <p>Email: <span id="user-email">-</span></p>
-        <p class="account-notice" id="account-notice" role="status" hidden>
-          <ion-icon name="information-circle-outline" aria-hidden="true"></ion-icon>
-          <span>Profil Mahasantri Anda belum dihubungkan oleh admin. Hubungi admin agar data pribadi dan laporan dapat ditampilkan.</span>
-        </p>
-        <p id="dashboard-error" role="alert" style="display: none; margin-top: 10px; color: #fecaca;"></p>
-      </section>
-
-      <section class="activity-showcase legacy-dashboard" aria-label="Aktivitas pesantren slideshow">
-        <div id="activitySlides"></div>
-        <div class="slide-dots" id="activityDots" aria-label="Slider indicators"></div>
-        <button type="button" class="slide-autoplay-button" id="toggleSlideAutoplay" aria-pressed="false">
-          <ion-icon name="pause-outline" aria-hidden="true"></ion-icon>
-          <span>Jeda</span>
-        </button>
-        <button type="button" class="slide-arrow previous" id="previousSlide" aria-label="Slide sebelumnya"><ion-icon name="chevron-back-outline"></ion-icon></button>
-        <button type="button" class="slide-arrow next" id="nextSlide" aria-label="Slide berikutnya"><ion-icon name="chevron-forward-outline"></ion-icon></button>
-        <button type="button" class="slide-edit-button" id="editSlideButton"><ion-icon name="create-outline"></ion-icon> Edit slide</button>
-      </section>
-
-      <div class="slide-modal legacy-dashboard" id="slideEditModal" aria-hidden="true">
-        <section class="slide-modal-card" role="dialog" aria-modal="true" aria-labelledby="slideEditTitle">
-          <h2 id="slideEditTitle">Edit slide</h2>
-          <form class="slide-edit-form" id="slideEditForm">
-            <label>Judul slide
-              <input type="text" id="slideTitleInput" maxlength="100" required />
-            </label>
-            <label>Deskripsi
-              <textarea id="slideDescriptionInput" maxlength="1000"></textarea>
-            </label>
-            <label>URL gambar (opsional)
-              <input type="text" id="slideImageInput" maxlength="500" placeholder="https://... atau kosongkan" />
-            </label>
-            <label>Unggah gambar (opsional)
-              <input type="file" id="slideImageFileInput" accept="image/jpeg,image/png,image/webp" />
-            </label>
-            <label class="slide-apply-all">
-              <input type="checkbox" id="slideApplyAllInput" />
-              Terapkan gambar ini ke semua slide
-            </label>
-            <label>Urutan slide
-              <input type="number" id="slideOrderInput" min="0" step="1" required />
-            </label>
-            <p id="slideEditMessage" class="slide-edit-message" role="status" aria-live="polite"></p>
-            <div class="slide-modal-actions">
-              <button type="submit">Simpan ke database</button>
-              <button type="button" id="cancelSlideEdit">Batal</button>
-            </div>
-          </form>
-        </section>
-      </div>
-
-      <section class="stats-grid legacy-dashboard">
-        <div class="stat-card total-santri">
-          <h3><ion-icon name="people-outline" aria-hidden="true"></ion-icon> Total Santri</h3>
-          <p id="total-santri">0</p>
-        </div>
-        <div class="stat-card kegiatan">
-          <h3><ion-icon name="calendar-outline" aria-hidden="true"></ion-icon> Kegiatan Diabsen</h3>
-          <p id="total-kegiatan">0</p>
-        </div>
-        <div class="stat-card tidak-hadir">
-          <h3><ion-icon name="person-remove-outline" aria-hidden="true"></ion-icon> Tidak Hadir</h3>
-          <p id="total-tidak-hadir">0</p>
-        </div>
-        <div class="stat-card izin">
-          <h3><ion-icon name="time-outline" aria-hidden="true"></ion-icon> Izin</h3>
-          <p id="total-izin">0</p>
-        </div>
-        <div class="stat-card sakit">
-          <h3><ion-icon name="medkit-outline" aria-hidden="true"></ion-icon> Sakit</h3>
-          <p id="total-sakit">0</p>
-        </div>
-        <div class="stat-card alpha">
-          <h3><ion-icon name="close-circle-outline" aria-hidden="true"></ion-icon> Alpha</h3>
-          <p id="total-alpha">0</p>
-        </div>
-        <div class="stat-card pelanggaran">
-          <h3><ion-icon name="alert-circle-outline" aria-hidden="true"></ion-icon> Total Pelanggaran</h3>
-          <p id="total-pelanggaran">0</p>
-        </div>
-        <div class="stat-card poin">
-          <h3><ion-icon name="ribbon-outline" aria-hidden="true"></ion-icon> Total Poin</h3>
-          <p id="total-poin">0</p>
-        </div>
-      </section>
-
-      <section class="menu-grid legacy-dashboard">
-        <div class="menu-card supervisor-menu" id="menu-absensi-input" style="display: none;" onclick="window.location.href='absensi-input.html'">
-          <span class="menu-icon"><ion-icon name="clipboard-outline" aria-hidden="true"></ion-icon></span>
-          <h3>Absensi Santri</h3>
-          <p>Siapkan sesi lengkap, lalu catat yang tidak hadir</p>
-        </div>
-        <div class="menu-card supervisor-menu" id="menu-pelanggaran" style="display: none;" onclick="window.location.href='pelanggaran.html'">
-          <span class="menu-icon"><ion-icon name="alert-circle-outline" aria-hidden="true"></ion-icon></span>
-          <h3>Pelanggaran</h3>
-          <p>Catat pelanggaran santri</p>
-        </div>
-        <div class="menu-card" onclick="window.location.href='laporan.html'">
-          <span class="menu-icon"><ion-icon name="stats-chart-outline" aria-hidden="true"></ion-icon></span>
-          <h3>Laporan</h3>
-          <p>Lihat rekap kegiatan</p>
-        </div>
-        <div class="menu-card supervisor-menu" id="menu-monitor" style="display: none;" onclick="window.location.href='pemantauan.html'">
-          <span class="menu-icon"><ion-icon name="eye-outline" aria-hidden="true"></ion-icon></span>
-          <h3>Pemantauan Ketidakhadiran</h3>
-          <p>Lihat laporan kegiatan dan nama peserta yang tidak hadir</p>
-        </div>
-        <div class="menu-card supervisor-menu" id="menu-activity-report" style="display: none;" onclick="window.location.href='laporan-kegiatan.html'">
-          <span class="menu-icon"><ion-icon name="documents-outline" aria-hidden="true"></ion-icon></span>
-          <h3>Laporan Kegiatan Gabungan</h3>
-          <p>Rekap absensi santri dan asatidz per kegiatan</p>
-        </div>
-        <div class="menu-card admin-menu" id="menu-santri" style="display: none;" onclick="window.location.href='santri.html'">
-          <span class="menu-icon"><ion-icon name="people-outline" aria-hidden="true"></ion-icon></span>
-          <h3>Data Santri</h3>
-          <p>Kelola data santri</p>
-        </div>
-        <div class="menu-card admin-menu" id="menu-student-services" style="display: none;" onclick="window.location.href='student-academic-admin.html'">
-          <span class="menu-icon"><ion-icon name="documents-outline" aria-hidden="true"></ion-icon></span>
-          <h3>Dokumen Akademik</h3>
-          <p>Input skripsi dan jurnal Munazharah, tinjau pengumpulan, serta unggah KHS</p>
-        </div>
-        <div class="menu-card admin-menu" id="menu-asatidz" style="display: none;" onclick="window.location.href='asatidz.html'">
-          <span class="menu-icon"><ion-icon name="school-outline" aria-hidden="true"></ion-icon></span>
-          <h3>Data Asatidz</h3>
-          <p>Kelola nama, mata pelajaran, jabatan, dan penugasan kegiatan</p>
-        </div>
-        <div class="menu-card" id="menu-kegiatan" style="display: none;" onclick="window.location.href='kegiatan.html'">
-          <span class="menu-icon"><ion-icon name="calendar-outline" aria-hidden="true"></ion-icon></span>
-          <h3>Kegiatan</h3>
-          <p>Kelola kegiatan pesantren</p>
-        </div>
-        <div class="menu-card" id="menu-academic-calendar" onclick="window.location.href='kalender-akademik.html'">
-          <span class="menu-icon"><ion-icon name="calendar-outline" aria-hidden="true"></ion-icon></span>
-          <h3>Kalender Akademik</h3>
-          <p>Lihat jadwal Kaldik dan impor kalender untuk Admin</p>
-        </div>
-        <div class="menu-card" id="menu-admin" style="display: none;" onclick="window.location.href='admin-users.html'">
-          <span class="menu-icon"><ion-icon name="person-add-outline" aria-hidden="true"></ion-icon></span>
-          <h3>Manajemen User</h3>
-          <p>Kelola role dan jabatan</p>
-        </div>
-      </section>
-
-      <section class="menu-grid legacy-dashboard" id="section-profil-sendiri" style="display: none;">
-        <div class="menu-card" id="menu-profil-sendiri" onclick="window.location.href='profil-santri.html'">
-          <span class="menu-icon"><ion-icon name="person-circle-outline" aria-hidden="true"></ion-icon></span>
-          <h3>Profil Saya</h3>
-          <p>Lihat dan unduh profil pribadi</p>
-        </div>
-      </section>
-
-      <section class="riwayat-section legacy-dashboard">
-        <h2><ion-icon name="time-outline" aria-hidden="true"></ion-icon> Riwayat Absensi Terakhir</h2>
-        <table class="riwayat-table">
-          <thead>
-            <tr>
-              <th>Tanggal</th>
-              <th>Kegiatan</th>
-              <th>Status</th>
-              <th>Keterangan</th>
-            </tr>
-          </thead>
-          <tbody id="riwayat-body">
-            <tr><td colspan="4">Memuat riwayat...</td></tr>
-          </tbody>
-        </table>
-      </section>
-
-      <section class="riwayat-section legacy-dashboard" id="riwayat-asatidz-section" style="display: none;">
-        <h2><ion-icon name="school-outline" aria-hidden="true"></ion-icon> Riwayat Ketidakhadiran Ustadz Terakhir</h2>
-        <table class="riwayat-table">
-          <thead>
-            <tr>
-              <th>Tanggal</th>
-              <th>Kegiatan</th>
-              <th>Nama Ustadz</th>
-              <th>Mata Pelajaran</th>
-              <th>Status</th>
-              <th>Keterangan</th>
-            </tr>
-          </thead>
-          <tbody id="riwayat-asatidz-body">
-            <tr><td colspan="6">Belum ada data.</td></tr>
-          </tbody>
-        </table>
-      </section>
-    </main>
-
-    <script src="js/role-dashboard.js?v=20261102-1"></script>
-    <script>
-      function hideDashboardLoading() {
-        document.body.dataset.dashboardReady = "true";
-        if (window.msqHideLoading) {
-          window.msqHideLoading();
-          return;
-        }
-
-        const overlay = document.getElementById("msq-loading-overlay");
-        if (overlay) {
-          overlay.classList.add("msq-loading-hidden");
-          window.setTimeout(() => overlay.remove(), 400);
-        }
-      }
-
-      const slidesContainer = document.getElementById("activitySlides");
-      const dotsContainer = document.getElementById("activityDots");
-      let currentSlide = 0;
-      let activities = [];
-      let dashboardUser = null;
-      let slideStateDate = "";
-      let slideEditActivity = null;
-      let slideTimer = null;
-      let slideDayTimer = null;
-      let touchStartX = null;
-      let slideSaveQueue = Promise.resolve();
-      let slidePaused = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-      function applyDashboardAccess(user) {
-        dashboardUser = user;
-        const role = (user.role || "santri").toLowerCase();
-        document.getElementById("user-name").textContent = user.name || "Pengguna";
-        document.getElementById("welcome-name").textContent = user.name || "Pengguna";
-        document.getElementById("user-email").textContent = user.email || "-";
-        document.getElementById("user-photo").src = user.picture || user.photo || "assets/Logo.png";
-        const roleLabels = {
-          santri: "MAHASANTRI",
-          supervisor: "SUPERVISOR",
-          "mas'ul": "MAS'UL",
-          mahasantri: "MAHASANTRI",
-          musyrif: "MUSYRIF",
-          kajur: "KAJUR",
-          kepala: "KAJUR"
-        };
-        document.getElementById("user-role").textContent = roleLabels[role] || role.toUpperCase();
-
-        const isAdmin = role === "admin";
-        const isMahasantri = role === "santri" || role === "mahasantri";
-        document.querySelectorAll(".admin-menu").forEach((menu) => {
-          menu.style.display = isAdmin ? "block" : "none";
-        });
-        document.querySelectorAll(".supervisor-menu").forEach((menu) => {
-          menu.style.display = isAdmin || ["supervisor", "musyrif", "mas'ul"].includes(role) ? "block" : "none";
-        });
-        document.getElementById("menu-admin").style.display = isAdmin ? "block" : "none";
-        document.getElementById("menu-kegiatan").style.display = isAdmin ? "block" : "none";
-        document.getElementById("section-profil-sendiri").style.display =
-          user.santri_id && (isMahasantri || role === "kepala" || role === "kajur") ? "grid" : "none";
-        document.getElementById("account-notice").hidden = !isMahasantri || Boolean(user.santri_id);
-        document.getElementById("editSlideButton").classList.toggle("visible", isAdmin);
-      }
-
-      window.addEventListener("verified-session", function(event) {
-        applyDashboardAccess(event.detail);
-      });
-
-      function renderSlides() {
-        slidesContainer.textContent = "";
-        dotsContainer.textContent = "";
-        const hasMultipleSlides = activities.length > 1;
-        document.getElementById("previousSlide").hidden = !hasMultipleSlides;
-        document.getElementById("nextSlide").hidden = !hasMultipleSlides;
-        document.getElementById("toggleSlideAutoplay").hidden = !hasMultipleSlides;
-        updateSlideAutoplayButton();
-
-        if (!activities.length) {
-          const emptyState = document.createElement("div");
-          emptyState.className = "slide-empty-state";
-          const icon = document.createElement("ion-icon");
-          icon.setAttribute("name", "sparkles-outline");
-          icon.setAttribute("aria-hidden", "true");
-          const title = document.createElement("h2");
-          title.textContent = "Mulai isi aktivitas pesantren";
-          const description = document.createElement("p");
-          description.textContent = dashboardUser && dashboardUser.role === "admin"
-            ? "Belum ada kegiatan aktif. Tambahkan kegiatan dan data Mahasantri agar ringkasan serta laporan dashboard mulai terisi."
-            : "Belum ada kegiatan aktif yang ditampilkan. Minta Admin menambahkan kegiatan dan data Mahasantri.";
-          emptyState.append(icon, title, description);
-
-          if (dashboardUser && dashboardUser.role === "admin") {
-            const actions = document.createElement("div");
-            actions.className = "empty-state-actions";
-            [
-              ["kegiatan.html", "calendar-outline", "Tambah Kegiatan"],
-              ["santri.html", "people-outline", "Tambah Mahasantri"]
-            ].forEach(([href, iconName, label]) => {
-              const link = document.createElement("a");
-              link.href = href;
-              const linkIcon = document.createElement("ion-icon");
-              linkIcon.setAttribute("name", iconName);
-              linkIcon.setAttribute("aria-hidden", "true");
-              link.append(linkIcon, document.createTextNode(label));
-              actions.appendChild(link);
-            });
-            emptyState.appendChild(actions);
-          }
-
-          slidesContainer.appendChild(emptyState);
-          return;
-        }
-
-        activities.forEach((activity, index) => {
-          const slide = document.createElement("div");
-          slide.className = "activity-slide" + (index === 0 ? " active" : "");
-          slide.setAttribute("role", "group");
-          slide.setAttribute("aria-roledescription", "slide");
-          slide.setAttribute("aria-label", (index + 1) + " dari " + activities.length);
-          const background = document.createElement("img");
-          background.className = "slide-background";
-          background.alt = "";
-          const fallbackImage = new URL("assets/background.png", window.location.href).href;
-          background.addEventListener("error", () => {
-            if (background.src !== fallbackImage) background.src = fallbackImage;
-          }, { once: true });
-          try {
-            const imageUrl = activity.slide_image
-              ? new URL(activity.slide_image, window.location.href)
-              : new URL(fallbackImage);
-            background.src = ["http:", "https:"].includes(imageUrl.protocol) ? imageUrl.href : fallbackImage;
-          } catch (error) {
-            background.src = fallbackImage;
-          }
-          slide.appendChild(background);
-
-          const content = document.createElement("div");
-          content.className = "slide-content";
-          const title = document.createElement("h3");
-          title.textContent = activity.slide_title || activity.nama_kegiatan || "Kegiatan Pesantren";
-          content.appendChild(title);
-
-          const alpha = (activity.santri_alpha || 0) + (activity.asatidz_alpha || 0);
-          const sakit = (activity.santri_sakit || 0) + (activity.asatidz_sakit || 0);
-          const izin = (activity.santri_izin || 0) + (activity.asatidz_izin || 0);
-          if (alpha > 0 || sakit > 0 || izin > 0) {
-            const absence = document.createElement("p");
-            absence.className = "slide-absence";
-            const parts = [];
-            if (alpha > 0) parts.push("Alpa: " + alpha);
-            if (sakit > 0) parts.push("Sakit: " + sakit);
-            if (izin > 0) parts.push("Izin: " + izin);
-            absence.textContent = parts.join(" · ");
-            content.appendChild(absence);
-          }
-
-          slide.appendChild(content);
-          slidesContainer.appendChild(slide);
-
-          const dot = document.createElement("button");
-          dot.type = "button";
-          dot.className = index === currentSlide ? "active" : "";
-          dot.setAttribute("aria-current", index === currentSlide ? "true" : "false");
-          dot.setAttribute("aria-label", "Slide " + (index + 1) + ": " + title.textContent);
-          dot.addEventListener("click", () => showSlide(index));
-          dotsContainer.appendChild(dot);
-        });
-        showSlide(currentSlide, false);
-      }
-
-      function persistSlidePosition() {
-        if (!slideStateDate || activities.length < 2) return;
-        const activeIndex = currentSlide;
-        const stateDate = slideStateDate;
-        slideSaveQueue = slideSaveQueue.catch(() => {}).then(async () => {
-          const response = await fetch("api/dashboard-slide-state.php", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ active_index: activeIndex, state_date: stateDate })
-          });
-          const data = await response.json();
-          if (!response.ok || !data.success) throw new Error(data.error || "Posisi slideshow gagal disimpan.");
-        }).catch((error) => {
-          console.error("Posisi slideshow belum tersimpan:", error);
-        });
-      }
-
-      function showSlide(index, persist = true) {
-        if (!activities.length) return;
-        currentSlide = ((index % activities.length) + activities.length) % activities.length;
-        const slides = Array.from(document.querySelectorAll(".activity-slide"));
-        const dots = Array.from(document.querySelectorAll(".slide-dots button"));
-
-        slides.forEach((slide, idx) => {
-          slide.classList.toggle("active", idx === currentSlide);
-        });
-
-        dots.forEach((dot, idx) => {
-          dot.classList.toggle("active", idx === currentSlide);
-          dot.setAttribute("aria-current", idx === currentSlide ? "true" : "false");
-        });
-        if (persist) persistSlidePosition();
-      }
-
-      function updateSlideAutoplayButton() {
-        const button = document.getElementById("toggleSlideAutoplay");
-        const icon = button.querySelector("ion-icon");
-        const label = button.querySelector("span");
-        button.setAttribute("aria-pressed", String(slidePaused));
-        button.setAttribute("aria-label", slidePaused ? "Lanjutkan slideshow otomatis" : "Jeda slideshow otomatis");
-        icon.setAttribute("name", slidePaused ? "play-outline" : "pause-outline");
-        label.textContent = slidePaused ? "Lanjutkan" : "Jeda";
-      }
-
-      async function loadActivities() {
-        const [activityResponse, stateResponse] = await Promise.all([
-          fetch("api/get-dashboard-activities.php"),
-          fetch("api/dashboard-slide-state.php")
-        ]);
-        const [data, state] = await Promise.all([activityResponse.json(), stateResponse.json()]);
-        if (!activityResponse.ok || !data.success || !Array.isArray(data.kegiatan)) {
-          throw new Error(data.error || "Gagal memuat status laporan kegiatan.");
-        }
-        if (!stateResponse.ok || !state.success) throw new Error(state.error || "Posisi slideshow gagal dimuat.");
-
-        const selectedActivityId = activities[currentSlide] && activities[currentSlide].id;
-        activities = data.kegiatan;
-        slideStateDate = state.state_date;
-        const selectedIndex = selectedActivityId === undefined
-          ? -1
-          : activities.findIndex((activity) => String(activity.id) === String(selectedActivityId));
-        currentSlide = activities.length
-          ? selectedIndex >= 0 ? selectedIndex : Math.min(state.active_index, activities.length - 1)
-          : 0;
-        renderSlides();
-        if (slideTimer) clearInterval(slideTimer);
-        if (slideDayTimer) clearInterval(slideDayTimer);
-        slideTimer = setInterval(() => {
-          const showcase = document.querySelector(".activity-showcase");
-          const pauseForFocus = showcase.matches(":focus-within") && !document.getElementById("toggleSlideAutoplay").matches(":focus");
-          if (!document.hidden && !slidePaused && !showcase.matches(":hover") && !pauseForFocus && activities.length > 1) {
-            showSlide(currentSlide + 1);
-          }
-        }, 4000);
-        slideDayTimer = setInterval(async () => {
-          if (document.hidden) return;
-          try {
-            const response = await fetch("api/dashboard-slide-state.php");
-            const state = await response.json();
-            if (!response.ok || !state.success) throw new Error(state.error || "Posisi slideshow gagal diperbarui.");
-            if (state.state_date !== slideStateDate) {
-              slideStateDate = state.state_date;
-              showSlide(0, false);
-            }
-            await loadActivities();
-          } catch (error) {
-            console.error("Tanggal reset slideshow gagal diperiksa:", error);
-          }
-        }, 60000);
-      }
-
-      function openSlideEditor() {
-        const activity = activities[currentSlide];
-        if (!activity || !dashboardUser || dashboardUser.role !== "admin") return;
-        slideEditActivity = activity;
-        document.getElementById("slideTitleInput").value = activity.slide_title || activity.nama_kegiatan || "";
-        document.getElementById("slideDescriptionInput").value = activity.slide_description || "";
-        document.getElementById("slideImageInput").value = activity.slide_image || "";
-        document.getElementById("slideOrderInput").value = activity.slide_order || activity.id;
-        document.getElementById("slideEditMessage").textContent = "";
-         const slideFileInput = document.getElementById("slideImageFileInput");
-         if (slideFileInput) slideFileInput.value = "";
-         const applyAllInput = document.getElementById("slideApplyAllInput");
-         if (applyAllInput) applyAllInput.checked = false;
-        document.getElementById("slideEditModal").classList.add("open");
-        document.getElementById("slideEditModal").setAttribute("aria-hidden", "false");
-        document.getElementById("slideTitleInput").focus();
-      }
-
-      function closeSlideEditor() {
-        document.getElementById("slideEditModal").classList.remove("open");
-        document.getElementById("slideEditModal").setAttribute("aria-hidden", "true");
-        slideEditActivity = null;
-      }
-
-      async function loadDashboard(userId) {
-        const response = await fetch("api/dashboard.php?user_id=" + encodeURIComponent(userId));
-        const data = await response.json();
-        if (!response.ok || !data.success) {
-          throw new Error(data.error || "Gagal memuat laporan dashboard.");
-        }
-
-        document.getElementById("total-santri").textContent = data.total_santri;
-        document.getElementById("total-kegiatan").textContent = data.total_kegiatan_diabsen;
-        document.getElementById("total-tidak-hadir").textContent = data.absensi_stats.total_tidak_hadir;
-        document.getElementById("total-izin").textContent = data.absensi_stats.izin;
-        document.getElementById("total-sakit").textContent = data.absensi_stats.sakit;
-        document.getElementById("total-alpha").textContent = data.absensi_stats.alpha;
-        document.getElementById("total-pelanggaran").textContent = data.pelanggaran_stats.total_pelanggaran;
-        document.getElementById("total-poin").textContent = data.pelanggaran_stats.total_poin;
-
-        const tbody = document.getElementById("riwayat-body");
-        tbody.textContent = "";
-        if (!data.riwayat_absensi.length) {
-          const row = tbody.insertRow();
-          const cell = row.insertCell();
-          cell.colSpan = 4;
-          cell.textContent = "Belum ada laporan absensi.";
-        } else {
-          data.riwayat_absensi.forEach((item) => {
-            const row = tbody.insertRow();
-            [item.tanggal, item.nama_kegiatan || "-", null, item.keterangan || "-"].forEach((value, index) => {
-              const cell = row.insertCell();
-              if (index === 2) {
-                const badge = document.createElement("span");
-                badge.className = "badge badge-" + item.status;
-                badge.textContent = item.status;
-                cell.appendChild(badge);
-              } else {
-                cell.textContent = value;
-              }
-            });
-          });
-        }
-      }
-
-      async function initializeDashboard() {
-        try {
-          const response = await fetch("api/session.php", { credentials: "same-origin" });
-          const session = await response.json();
-          if (!response.ok || !session.success || !session.user) {
-            window.location.href = "index.html";
-            return;
-          }
-
-          const currentUser = session.user;
-          if (session.academic_calendar_warning) {
-            const warning = document.getElementById("role-dashboard-warning");
-            if (warning) {
-              warning.textContent = session.academic_calendar_warning;
-              warning.hidden = false;
-            }
-            const legacyWarning = document.getElementById("dashboard-error");
-            if (legacyWarning) {
-              legacyWarning.textContent = session.academic_calendar_warning;
-              legacyWarning.style.display = "block";
-            }
-          }
-          const userId = String(currentUser.id);
-          localStorage.setItem("user_id", userId);
-          localStorage.setItem("user_role", currentUser.role || "santri");
-          localStorage.removeItem("user_data");
-          applyDashboardAccess(currentUser);
-
-          if (document.body.dataset.access === "authenticated") {
-            document.querySelectorAll(".login-box").forEach((el) => el.remove());
-          }
-
-          if (["mahasantri", "santri", "kajur", "kepala"].includes(currentUser.role)) {
-            try {
-              await window.initializeRoleDashboard(currentUser);
-              document.body.classList.add("role-dashboard-active");
-            } catch (error) {
-              console.error("Gagal inisialisasi role dashboard:", error);
-              const errorMessage = document.getElementById("dashboard-error");
-              if (errorMessage) {
-                errorMessage.textContent = error.message || String(error);
-                errorMessage.style.display = "block";
-              }
-            } finally {
-              hideDashboardLoading();
-            }
-            return;
-          }
-
-          try {
-            await loadDashboard(userId);
-          } catch (error) {
-            console.error("Gagal memuat dashboard:", error);
-            const errorMessage = document.getElementById("dashboard-error");
-            if (errorMessage) {
-              errorMessage.textContent = error.message || String(error);
-              errorMessage.style.display = "block";
-            }
-          }
-          try {
-            await loadActivities();
-          } catch (error) {
-            console.error("Gagal memuat kegiatan:", error);
-            activities = [];
-            renderSlides();
-            const errorMessage = document.getElementById("dashboard-error");
-            if (errorMessage) {
-              errorMessage.textContent = error.message || String(error);
-              errorMessage.style.display = "block";
-            }
-          } finally {
-            hideDashboardLoading();
-          }
-        } catch (error) {
-          console.error("Gagal memuat dashboard:", error);
-          window.location.href = "index.html";
-        }
-      }
-
-      initializeDashboard();
-
-      document.getElementById("previousSlide").addEventListener("click", () => showSlide(currentSlide - 1));
-      document.getElementById("nextSlide").addEventListener("click", () => showSlide(currentSlide + 1));
-      document.getElementById("editSlideButton").addEventListener("click", openSlideEditor);
-      document.getElementById("cancelSlideEdit").addEventListener("click", closeSlideEditor);
-      document.getElementById("slideEditModal").addEventListener("click", (event) => {
-        if (event.target === event.currentTarget) closeSlideEditor();
-      });
-      document.addEventListener("keydown", (event) => {
-        if (document.getElementById("slideEditModal").classList.contains("open")) {
-          if (event.key === "Escape") closeSlideEditor();
-          return;
-        }
-        if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
-        if (event.target instanceof HTMLElement &&
-            (event.target.isContentEditable || event.target.matches("input, textarea, select, button, a, [role='button']"))) return;
-        if (event.key === "ArrowLeft") showSlide(currentSlide - 1);
-        if (event.key === "ArrowRight") showSlide(currentSlide + 1);
-      });
-      document.querySelector(".activity-showcase").addEventListener("touchstart", (event) => {
-        if (event.changedTouches.length !== 1 || event.target.closest("a, button")) {
-          touchStartX = null;
-          return;
-        }
-        touchStartX = event.changedTouches[0].clientX;
-      }, { passive: true });
-      document.querySelector(".activity-showcase").addEventListener("touchend", (event) => {
-        if (touchStartX === null) return;
-        const distance = event.changedTouches[0].clientX - touchStartX;
-        if (Math.abs(distance) > 45) showSlide(currentSlide + (distance < 0 ? 1 : -1));
-        touchStartX = null;
-      }, { passive: true });
-      document.getElementById("toggleSlideAutoplay").addEventListener("click", () => {
-        slidePaused = !slidePaused;
-        updateSlideAutoplayButton();
-      });
-      document.getElementById("slideEditForm").addEventListener("submit", async (event) => {
-        event.preventDefault();
-        if (!slideEditActivity) return;
-        const message = document.getElementById("slideEditMessage");
-        const button = event.currentTarget.querySelector('button[type="submit"]');
-        button.disabled = true;
-        message.textContent = "Menyimpan...";
-        try {
-          let imageUrl = document.getElementById("slideImageInput").value.trim();
-const fileInput = document.getElementById("slideImageFileInput");
-if (fileInput && fileInput.files && fileInput.files[0]) {
-  message.textContent = "Mengunggah gambar...";
-  const form = new FormData();
-  form.append("image", fileInput.files[0]);
-  const oldImage = document.getElementById("slideImageInput").value.trim();
-  if (oldImage) form.append("old_image", oldImage);
-  const uploadResponse = await fetch("api/upload-slide-image.php", { method: "POST", credentials: "same-origin", body: form });
-  const uploadResult = await uploadResponse.json();
-  if (!uploadResponse.ok || !uploadResult.success) throw new Error(uploadResult.error || "Gambar gagal diunggah.");
-  imageUrl = uploadResult.image;
-  document.getElementById("slideImageInput").value = imageUrl;
-}
-message.textContent = "Menyimpan...";
-const applyAll = document.getElementById("slideApplyAllInput");
-if (applyAll && applyAll.checked) {
-  const bulkResponse = await fetch("api/update-all-slide-images.php", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    credentials: "same-origin",
-    body: JSON.stringify({ slide_image: imageUrl })
-  });
-  const bulkResult = await bulkResponse.json();
-  if (!bulkResponse.ok || !bulkResult.success) throw new Error(bulkResult.error || "Gagal menerapkan gambar ke semua slide.");
-}
-const response = await fetch("api/update-slide.php", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              id: Number(slideEditActivity.id),
-              slide_title: document.getElementById("slideTitleInput").value.trim(),
-              slide_description: document.getElementById("slideDescriptionInput").value.trim(),
-              slide_image: imageUrl,
-              slide_order: Number(document.getElementById("slideOrderInput").value)
-            })
-          });
-          const data = await response.json();
-          if (!response.ok || !data.success) throw new Error(data.error || "Perubahan slide gagal disimpan.");
-          message.textContent = "Perubahan tersimpan.";
-          closeSlideEditor();
-          await loadActivities();
-        } catch (error) {
-          message.textContent = error.message;
-        } finally {
-          button.disabled = false;
-        }
-      });
-
-    </script>
-    <script src="js/role-guard.js?v=20261023-4"></script>
-    <script src="js/theme.js?v=20261102-2"></script>
-    <script src="js/student-services.js?v=20261102-1"></script>
   </body>
 </html>

@@ -1,305 +1,100 @@
-﻿<!DOCTYPE html>
+<!doctype html>
 <html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#114d35">
-    <title>Manajemen Asatidz - MySantriQu</title>
-    <link rel="stylesheet" href="asatidz.css"/>
-    >
-    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
-    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
-    
-</head>
-<body data-access="admin">
-    <nav class="navbar">
-        <div class="nav-brand">
-            <img src="assets/Logo.png" alt="Logo" class="nav-logo">
-            <ion-icon name="school-outline" aria-hidden="true"></ion-icon>
-            <span>Recording Mahasantri</span>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#123c32" />
+    <meta name="description" content="Kelola data Asatidzah Ma'had Aly Darusy Syahadah." />
+    <title>Data Asatidzah - Recording Kemahasantrian</title>
+    <link rel="icon" href="assets/app-icon-192.png" />
+    <link rel="stylesheet" href="dashboard.css" />
+    <link rel="stylesheet" href="asatidz.css" />
+    <script src="js/asatidz.js" defer></script>
+  </head>
+  <body>
+    <div class="app-shell">
+      <button class="sidebar-scrim" id="sidebar-scrim" type="button" aria-label="Tutup menu"></button>
+      <aside class="sidebar" id="sidebar">
+        <a class="brand" href="dashboard.html" aria-label="Recording Kemahasantrian, dashboard">
+          <img src="assets/Logo.png" alt="" />
+          <span><strong>Recording</strong><small>Kemahasantrian</small></span>
+        </a>
+        <nav class="primary-nav" aria-label="Navigasi utama">
+          <p class="nav-caption">BERANDA</p>
+          <a class="nav-link" href="dashboard.html"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.5"/></svg><span>Dashboard</span></a>
+          <p class="nav-caption">KEMAHASANTRIAN</p>
+          <a class="nav-link" href="absensi-input.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4.5h14v15H5zM8 8h8M8 12h8m-8 4h5"/></svg><span>Input Kehadiran</span></a>
+          <a class="nav-link" href="pelanggaran.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5 21 20H3z"/><path d="M12 9v4m0 3h.01"/></svg><span>Data Pelanggaran</span></a>
+          <span class="nav-link unavailable" aria-disabled="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3.5h14v17H5zM8 8h8m-8 4h8m-8 4h5"/></svg><span>Laporan</span><small>Segera</small></span>
+          <p class="nav-caption">AKADEMIK</p>
+          <a class="nav-link" href="kalender-akademik.html"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M7.5 3v4m9-4v4m-13 3h17"/></svg><span>Kalender Akademik</span></a>
+          <a class="nav-link" href="dokumen-akademik.html?type=khs"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5A3.5 3.5 0 0 1 7.5 2H20v17H7.5A3.5 3.5 0 0 0 4 22z"/><path d="M4 5.5v13A3.5 3.5 0 0 1 7.5 15H20M8 6h8m-8 4h7"/></svg><span>KHS</span></a>
+          <a class="nav-link" href="dokumen-akademik.html?type=jurnal"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3.5h14v17H5zM8 8h8m-8 4h8m-8 4h5"/></svg><span>Jurnal Munazharah</span></a>
+          <a class="nav-link" href="dokumen-akademik.html?type=skripsi"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5A3.5 3.5 0 0 1 7.5 2H20v17H7.5A3.5 3.5 0 0 0 4 22z"/><path d="M4 5.5v13A3.5 3.5 0 0 1 7.5 15H20m-11-8h7m-7 4h5"/></svg><span>Skripsi</span></a>
+          <p class="nav-caption">ADMINISTRASI</p>
+          <a class="nav-link" href="admin-users.html"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M3 20v-1.5a6 6 0 0 1 12 0V20zm13-5h7m-3.5-3.5v7"/></svg><span>Manajemen User</span></a>
+          <a class="nav-link" href="santri.html"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M3 20v-1.5a6 6 0 0 1 12 0V20zm13-5a3.5 3.5 0 0 1 4 3.5V20h-4"/></svg><span>Data Santri</span></a>
+          <a class="nav-link active" href="asatidz.html" aria-current="page"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M3 20v-1.5a6 6 0 0 1 12 0V20zm13-5h7m-3.5-3.5v7"/></svg><span>Data Asatidzah</span></a>
+          <a class="nav-link" href="kegiatan.html"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M7.5 3v4m9-4v4m-13 3h17"/></svg><span>Kegiatan</span></a>
+        </nav>
+        <div class="sidebar-bottom">
+          <div class="campus-mark"><span class="campus-dot"></span><span>Ma'had Aly Darusy Syahadah</span></div>
+          <div class="sidebar-user">
+            <span class="user-avatar" id="sidebar-avatar">?</span>
+            <span class="sidebar-user-copy"><strong id="sidebar-name">Memuat akun...</strong><small id="sidebar-role">Akun</small></span>
+            <button class="icon-button" id="logout-button" type="button" aria-label="Keluar" title="Keluar"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 5H5v14h5m5-3 4-4-4-4m4 4H9"/></svg></button>
+          </div>
         </div>
-        <div class="nav-user">
-            <img id="user-photo" src="assets/Logo.png" alt="" class="user-photo">
-            <span id="user-name">Loading...</span>
-            <button id="btn-logout" class="btn-logout" type="button">Logout</button>
+      </aside>
+      <main class="main-content">
+        <header class="topbar">
+          <div class="topbar-leading">
+            <button class="icon-button menu-button" id="menu-button" type="button" aria-label="Buka menu" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+            <div class="breadcrumb"><a href="dashboard.html">Beranda</a><span aria-hidden="true">/</span><strong>Data Asatidzah</strong></div>
+          </div>
+          <div class="topbar-user"><span class="today-label" id="today-label"></span><span class="user-avatar top-avatar" id="top-avatar">?</span><span class="topbar-user-name" id="topbar-name">Memuat...</span></div>
+        </header>
+        <div class="dashboard-content student-content">
+          <section class="page-heading">
+            <div><p class="eyebrow">ADMINISTRASI</p><h1>Data Asatidzah</h1><p class="page-description">Kelola profil pengajar, mata pelajaran, dan jabatan.</p></div>
+            <button class="student-primary-button" id="add-teacher-button" type="button"><span aria-hidden="true">+</span> Tambah Asatidzah</button>
+          </section>
+          <p class="student-message" id="teacher-message" role="status" aria-live="polite" hidden></p>
+          <section class="panel student-panel">
+            <div class="student-toolbar">
+              <div><h2>Daftar Asatidzah</h2><p><span id="teacher-count">0</span> data terdaftar</p></div>
+              <label class="student-search">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.8"/><path d="m16 16 4.5 4.5"/></svg>
+                <input id="teacher-search-input" type="search" placeholder="Cari nama, mata pelajaran, jabatan..." autocomplete="off" />
+              </label>
+            </div>
+            <div class="student-table-wrap">
+              <table class="student-table teacher-table">
+                <thead><tr><th class="column-number">No.</th><th>Nama Asatidzah</th><th>Mata Pelajaran</th><th>Jabatan</th><th class="column-actions">Aksi</th></tr></thead>
+                <tbody id="teacher-table-body"><tr><td class="table-state" colspan="5">Memuat data Asatidzah...</td></tr></tbody>
+              </table>
+            </div>
+            <p class="student-table-hint">Data Asatidzah digunakan untuk pencatatan pengajar dan kehadiran.</p>
+          </section>
+          <footer class="content-footer">© <span id="current-year"></span> Recording Kemahasantrian <span class="footer-divider">·</span> Ma'had Aly Darusy Syahadah</footer>
         </div>
-    </nav>
-
-    <main class="container">
-        <a href="dashboard.html" class="btn-back"><ion-icon name="arrow-back-outline" aria-hidden="true"></ion-icon> Kembali ke Dashboard</a>
-        <h1><span class="page-heading-icon"><ion-icon name="people-outline" aria-hidden="true"></ion-icon></span> Manajemen Asatidz</h1>
-        <section class="card">
-            <div class="page-toolbar">
-                <div>
-                    <h2>Daftar Asatidz</h2>
-                    <p class="help-text">Mata pelajaran dan jabatan bersifat opsional. Satu asatidz dapat ditugaskan ke beberapa kegiatan dengan peran berbeda.</p>
-                </div>
-                <button class="btn btn-primary" id="add-button" type="button">+ Tambah Asatidz</button>
-            </div>
-            <div class="table-wrap">
-                <table>
-                    <thead><tr><th>No</th><th>Nama lengkap</th><th>Mata pelajaran</th><th>Jabatan manajerial</th><th>Penugasan kegiatan</th><th>Aksi</th></tr></thead>
-                    <tbody id="asatidz-body"><tr><td colspan="6" class="empty-state">Memuat data...</td></tr></tbody>
-                </table>
-            </div>
-            <p id="page-error" role="alert" style="display:none"></p>
-        </section>
-    </main>
-
-    <div class="modal" id="asatidz-modal" aria-hidden="true">
-        <section class="modal-content" role="dialog" aria-modal="true" aria-labelledby="modal-title">
-            <div class="modal-header">
-                <h2 id="modal-title">Tambah Asatidz</h2>
-                <button class="close-btn" id="close-modal" type="button" aria-label="Tutup">&times;</button>
-            </div>
-            <form id="asatidz-form">
-                <input type="hidden" id="asatidz-id">
-                <div class="form-group">
-                    <label for="asatidz-nama">Nama lengkap *</label>
-                    <input id="asatidz-nama" type="text" maxlength="255" required>
-                </div>
-                <div class="form-group">
-                    <label for="asatidz-mapel">Mata pelajaran (opsional)</label>
-                    <input id="asatidz-mapel" type="text" maxlength="150" placeholder="Contoh: Tahfidz, Matematika">
-                </div>
-                <div class="form-group">
-                    <label for="asatidz-jabatan">Jabatan manajerial (opsional)</label>
-                    <input id="asatidz-jabatan" type="text" maxlength="150" placeholder="Contoh: Kepala bidang, koordinator">
-                </div>
-                <div class="form-group">
-                    <label>Penugasan kegiatan</label>
-                    <p class="help-text">Centang kegiatan yang diampu, lalu pilih peran. Kosongkan jika asatidz tidak terlibat dalam kegiatan tertentu.</p>
-                    <div id="assignment-list" class="assignment-list"></div>
-                </div>
-                <p id="form-error" role="alert" style="display:none"></p>
-                <button class="btn btn-primary" id="save-button" type="submit">Simpan</button>
-            </form>
-        </section>
+      </main>
     </div>
-
-    <script>
-        const roles = [
-            { value: "masul", label: "Mas'ul" },
-            { value: "musyrif", label: "Musyrif" },
-            { value: "pengampu", label: "Pengampu" }
-        ];
-        let activities = [];
-
-        function showError(element, message) {
-            element.textContent = message;
-            element.style.display = message ? "block" : "none";
-        }
-
-        async function requestJson(url, options) {
-            const response = await fetch(url, options || {});
-            const data = await response.json();
-            if (!response.ok || !data.success) throw new Error(data.error || "Permintaan gagal.");
-            return data;
-        }
-
-        function makeAssignmentRows(assignments) {
-            const selected = new Map((assignments || []).map(item => [String(item.kegiatan_id), item.peran]));
-            const list = document.getElementById("assignment-list");
-            list.textContent = "";
-            if (!activities.length) {
-                const empty = document.createElement("p");
-                empty.className = "empty-state";
-                empty.textContent = "Belum ada kegiatan terdaftar.";
-                list.appendChild(empty);
-                return;
-            }
-            activities.forEach(activity => {
-                const row = document.createElement("div");
-                row.className = "assignment-row";
-                const label = document.createElement("label");
-                label.className = "assignment-activity";
-                const checkbox = document.createElement("input");
-                checkbox.type = "checkbox";
-                checkbox.className = "activity-assignment";
-                checkbox.value = activity.id;
-                checkbox.checked = selected.has(String(activity.id));
-                const name = document.createElement("span");
-                name.textContent = activity.nama_kegiatan;
-                label.append(checkbox, name);
-
-                const select = document.createElement("select");
-                select.className = "activity-role";
-                select.setAttribute("aria-label", "Peran pada " + activity.nama_kegiatan);
-                roles.forEach(role => {
-                    const option = document.createElement("option");
-                    option.value = role.value;
-                    option.textContent = role.label;
-                    select.appendChild(option);
-                });
-                select.value = selected.get(String(activity.id)) || "pengampu";
-                select.disabled = !checkbox.checked;
-                checkbox.addEventListener("change", () => { select.disabled = !checkbox.checked; });
-                row.append(label, select);
-                list.appendChild(row);
-            });
-        }
-
-        function collectAssignments() {
-            return Array.from(document.querySelectorAll(".assignment-row")).reduce((result, row) => {
-                const checkbox = row.querySelector(".activity-assignment");
-                if (checkbox.checked) {
-                    result.push({ kegiatan_id: Number(checkbox.value), peran: row.querySelector(".activity-role").value });
-                }
-                return result;
-            }, []);
-        }
-
-        async function loadAsatidz() {
-            const tbody = document.getElementById("asatidz-body");
-            try {
-                const data = await requestJson("api/get-asatidz.php");
-                tbody.textContent = "";
-                if (!data.asatidz.length) {
-                    const row = tbody.insertRow();
-                    const cell = row.insertCell();
-                    cell.colSpan = 6;
-                    cell.className = "empty-state";
-                    cell.textContent = "Belum ada data asatidz.";
-                    return;
-                }
-                data.asatidz.forEach((person, index) => {
-                    const row = tbody.insertRow();
-                    [index + 1, person.nama, person.mata_pelajaran || "-", person.jabatan || "-", person.penugasan_label || "Belum ditugaskan"].forEach(value => {
-                        row.insertCell().textContent = value;
-                    });
-                    const actions = row.insertCell();
-                    actions.className = "action-buttons";
-                    const edit = document.createElement("button");
-                    edit.type = "button";
-                    edit.className = "btn btn-warning btn-sm";
-                    edit.textContent = "Edit";
-                    edit.addEventListener("click", () => openEditor(person.id));
-                    const remove = document.createElement("button");
-                    remove.type = "button";
-                    remove.className = "btn btn-danger btn-sm";
-                    remove.textContent = "Hapus";
-                    remove.addEventListener("click", () => deleteAsatidz(person.id, person.nama));
-                    actions.append(edit, remove);
-                });
-            } catch (error) {
-                showError(document.getElementById("page-error"), error.message);
-                const row = tbody.insertRow();
-                const cell = row.insertCell();
-                cell.colSpan = 6;
-                cell.className = "empty-state";
-                cell.textContent = "Data asatidz gagal dimuat.";
-            }
-        }
-
-        function closeEditor() {
-            document.getElementById("asatidz-modal").classList.remove("active");
-            document.getElementById("asatidz-modal").setAttribute("aria-hidden", "true");
-        }
-
-        async function openEditor(id) {
-            const form = document.getElementById("asatidz-form");
-            form.reset();
-            document.getElementById("asatidz-id").value = "";
-            showError(document.getElementById("form-error"), "");
-            let assignments = [];
-            if (id) {
-                try {
-                    const result = await requestJson("api/get-asatidz.php?id=" + encodeURIComponent(id));
-                    const person = result.asatidz;
-                    document.getElementById("asatidz-id").value = person.id;
-                    document.getElementById("asatidz-nama").value = person.nama;
-                    document.getElementById("asatidz-mapel").value = person.mata_pelajaran || "";
-                    document.getElementById("asatidz-jabatan").value = person.jabatan || "";
-                    assignments = person.penugasan;
-                } catch (error) {
-                    alert(error.message);
-                    return;
-                }
-            }
-            makeAssignmentRows(assignments);
-            document.getElementById("modal-title").textContent = id ? "Edit Asatidz" : "Tambah Asatidz";
-            document.getElementById("asatidz-modal").classList.add("active");
-            document.getElementById("asatidz-modal").setAttribute("aria-hidden", "false");
-        }
-
-        async function deleteAsatidz(id, name) {
-            if (!confirm("Hapus data " + name + "? Riwayat absensi lama akan tetap disimpan.")) return;
-            try {
-                await requestJson("api/delete-asatidz.php", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ id: id })
-                });
-                await loadAsatidz();
-            } catch (error) {
-                alert(error.message);
-            }
-        }
-
-        document.getElementById("asatidz-form").addEventListener("submit", async event => {
-            event.preventDefault();
-            const id = document.getElementById("asatidz-id").value;
-            const button = document.getElementById("save-button");
-            const payload = {
-                nama: document.getElementById("asatidz-nama").value.trim(),
-                mata_pelajaran: document.getElementById("asatidz-mapel").value.trim(),
-                jabatan: document.getElementById("asatidz-jabatan").value.trim(),
-                penugasan: collectAssignments()
-            };
-            if (id) payload.id = Number(id);
-            button.disabled = true;
-            try {
-                await requestJson(id ? "api/update-asatidz.php" : "api/add-asatidz.php", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(payload)
-                });
-                closeEditor();
-                await loadAsatidz();
-            } catch (error) {
-                showError(document.getElementById("form-error"), error.message);
-            } finally {
-                button.disabled = false;
-            }
-        });
-
-        document.getElementById("add-button").addEventListener("click", () => openEditor());
-        document.getElementById("close-modal").addEventListener("click", closeEditor);
-        document.getElementById("asatidz-modal").addEventListener("click", event => {
-            if (event.target === event.currentTarget) closeEditor();
-        });
-        document.getElementById("btn-logout").addEventListener("click", async () => {
-            try { await fetch("api/logout.php", { method: "POST" }); } catch (error) { console.error(error); }
-            localStorage.removeItem("user_data");
-            localStorage.removeItem("user_id");
-            localStorage.removeItem("user_role");
-            window.location.href = "index.html";
-        });
-
-        (async function initialize() {
-            try {
-                const session = await requestJson("api/session.php");
-                if (!session.user || session.user.role !== "admin") {
-                    window.location.href = "dashboard.html";
-                    return;
-                }
-                document.getElementById("user-name").textContent = session.user.name || "Admin";
-                document.getElementById("user-photo").src = session.user.photo || "assets/Logo.png";
-                localStorage.setItem("user_id", String(session.user.id));
-                localStorage.setItem("user_role", session.user.role);
-                const kegiatan = await requestJson("api/get-kegiatan.php");
-                activities = kegiatan.kegiatan;
-                await loadAsatidz();
-            } catch (error) {
-                showError(document.getElementById("page-error"), error.message);
-            }
-        })();
-    </script>
-    <script src="js/auth.js?v=20261023-4"></script>
-    <script src="js/role-guard.js?v=20261023-4"></script>
-    <script src="js/theme.js?v=20261023-12"></script>
-</body>
+    <dialog class="student-dialog" id="teacher-dialog" aria-labelledby="teacher-dialog-title">
+      <form class="student-form" id="teacher-form">
+        <div class="dialog-heading">
+          <div><p class="eyebrow">DATA PENGAJAR</p><h2 id="teacher-dialog-title">Tambah Asatidzah</h2><p>Lengkapi informasi Asatidzah di bawah ini.</p></div>
+          <button class="dialog-close" id="close-teacher-dialog" type="button" aria-label="Tutup">×</button>
+        </div>
+        <input id="teacher-id" name="id" type="hidden" />
+        <label class="form-field full-field"><span>Nama lengkap <b>*</b></span><input id="teacher-name" name="nama" type="text" maxlength="255" autocomplete="name" required placeholder="Nama lengkap Asatidzah" /></label>
+        <div class="form-grid">
+          <label class="form-field"><span>Mata pelajaran</span><input id="teacher-subject" name="mata_pelajaran" type="text" maxlength="150" placeholder="Mata pelajaran yang diampu" /></label>
+          <label class="form-field"><span>Jabatan</span><input id="teacher-position" name="jabatan" type="text" maxlength="150" placeholder="Jabatan di ma'had" /></label>
+        </div>
+        <p class="dialog-message" id="teacher-dialog-message" role="status" aria-live="polite" hidden></p>
+        <div class="dialog-actions"><button class="student-secondary-button" id="cancel-teacher-dialog" type="button">Batal</button><button class="student-primary-button" id="save-teacher-button" type="submit">Simpan data</button></div>
+      </form>
+    </dialog>
+  </body>
 </html>
-
-
-

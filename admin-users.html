@@ -1,185 +1,127 @@
-﻿<!DOCTYPE html>
+<!doctype html>
 <html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#114d35">
-    <link rel="manifest" href="manifest.webmanifest">
-    <link rel="apple-touch-icon" href="assets/app-icon-192.png">
-    <title>Manajemen User - Recording Mahasantri</title>
-    
-    <link rel="stylesheet" href="admin-users.css"/>
-    >
-    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
-    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
-</head>
-<body data-access="admin">
-    <nav class="navbar">
-        <div class="nav-brand">
-            <img src="assets/Logo.png" alt="Logo" class="nav-logo">
-            <ion-icon name="school-outline" aria-hidden="true"></ion-icon>
-            <span>Recording Mahasantri</span>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#123c32" />
+    <meta name="description" content="Kelola akun dan role pengguna Recording Kemahasantrian." />
+    <title>Manajemen User - Recording Kemahasantrian</title>
+    <link rel="icon" href="assets/app-icon-192.png" />
+    <link rel="stylesheet" href="dashboard.css" />
+    <link rel="stylesheet" href="admin-users.css" />
+    <script src="js/admin-users.js" defer></script>
+  </head>
+  <body>
+    <div class="app-shell">
+      <button class="sidebar-scrim" id="sidebar-scrim" type="button" aria-label="Tutup menu"></button>
+      <aside class="sidebar" id="sidebar">
+        <a class="brand" href="dashboard.html" aria-label="Recording Kemahasantrian, dashboard">
+          <img src="assets/Logo.png" alt="" />
+          <span><strong>Recording</strong><small>Kemahasantrian</small></span>
+        </a>
+        <nav class="primary-nav" aria-label="Navigasi utama">
+          <p class="nav-caption">BERANDA</p>
+          <a class="nav-link" href="dashboard.html"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.5"/></svg><span>Dashboard</span></a>
+          <p class="nav-caption">KEMAHASANTRIAN</p>
+          <a class="nav-link" href="absensi-input.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4.5h14v15H5zM8 8h8M8 12h8m-8 4h5"/></svg><span>Input Kehadiran</span></a>
+          <a class="nav-link" href="pelanggaran.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5 21 20H3z"/><path d="M12 9v4m0 3h.01"/></svg><span>Data Pelanggaran</span></a>
+          <span class="nav-link unavailable" aria-disabled="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3.5h14v17H5zM8 8h8m-8 4h8m-8 4h5"/></svg><span>Laporan</span><small>Segera</small></span>
+          <p class="nav-caption">AKADEMIK</p>
+          <a class="nav-link" href="kalender-akademik.html"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M7.5 3v4m9-4v4m-13 3h17"/></svg><span>Kalender Akademik</span></a>
+          <a class="nav-link" href="dokumen-akademik.html?type=khs"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5A3.5 3.5 0 0 1 7.5 2H20v17H7.5A3.5 3.5 0 0 0 4 22z"/><path d="M4 5.5v13A3.5 3.5 0 0 1 7.5 15H20M8 6h8m-8 4h7"/></svg><span>KHS</span></a>
+          <a class="nav-link" href="dokumen-akademik.html?type=jurnal"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3.5h14v17H5zM8 8h8m-8 4h8m-8 4h5"/></svg><span>Jurnal Munazharah</span></a>
+          <a class="nav-link" href="dokumen-akademik.html?type=skripsi"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5A3.5 3.5 0 0 1 7.5 2H20v17H7.5A3.5 3.5 0 0 0 4 22z"/><path d="M4 5.5v13A3.5 3.5 0 0 1 7.5 15H20m-11-8h7m-7 4h5"/></svg><span>Skripsi</span></a>
+          <p class="nav-caption">ADMINISTRASI</p>
+          <a class="nav-link active" href="admin-users.html" aria-current="page"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M3 20v-1.5a6 6 0 0 1 12 0V20zm13-5h7m-3.5-3.5v7"/></svg><span>Manajemen User</span></a>
+          <a class="nav-link" href="santri.html"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M3 20v-1.5a6 6 0 0 1 12 0V20zm13-5a3.5 3.5 0 0 1 4 3.5V20h-4"/></svg><span>Data Santri</span></a>
+          <a class="nav-link" href="asatidz.html"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M3 20v-1.5a6 6 0 0 1 12 0V20zm13-5h7m-3.5-3.5v7"/></svg><span>Data Asatidzah</span></a>
+          <a class="nav-link" href="kegiatan.html"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M7.5 3v4m9-4v4m-13 3h17"/></svg><span>Kegiatan</span></a>
+        </nav>
+        <div class="sidebar-bottom">
+          <div class="campus-mark"><span class="campus-dot"></span><span>Ma'had Aly Darusy Syahadah</span></div>
+          <div class="sidebar-user">
+            <span class="user-avatar" id="sidebar-avatar">?</span>
+            <span class="sidebar-user-copy"><strong id="sidebar-name">Memuat akun...</strong><small id="sidebar-role">Akun</small></span>
+            <button class="icon-button" id="logout-button" type="button" aria-label="Keluar" title="Keluar"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 5H5v14h5m5-3 4-4-4-4m4 4H9"/></svg></button>
+          </div>
         </div>
-        <div class="nav-user">
-            <img id="user-photo" src="" alt="User" class="user-photo">
-            <span id="user-name">Loading...</span>
-            <button id="btn-logout" class="btn-logout"><ion-icon name="log-out-outline" aria-hidden="true"></ion-icon> Logout</button>
+      </aside>
+      <main class="main-content">
+        <header class="topbar">
+          <div class="topbar-leading">
+            <button class="icon-button menu-button" id="menu-button" type="button" aria-label="Buka menu" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+            <div class="breadcrumb"><a href="dashboard.html">Beranda</a><span aria-hidden="true">/</span><strong>Manajemen User</strong></div>
+          </div>
+          <div class="topbar-user"><span class="today-label" id="today-label"></span><span class="user-avatar top-avatar" id="top-avatar">?</span><span class="topbar-user-name" id="topbar-name">Memuat...</span></div>
+        </header>
+        <div class="dashboard-content student-content">
+          <section class="page-heading">
+            <div><p class="eyebrow">ADMINISTRASI</p><h1>Manajemen User</h1><p class="page-description">Atur role akun dan hubungkan akun mahasantri dengan data santri.</p></div>
+          </section>
+          <p class="student-message" id="user-message" role="status" aria-live="polite" hidden></p>
+          <section class="panel student-panel">
+            <div class="student-toolbar">
+              <div><h2>Daftar Akun</h2><p><span id="user-count">0</span> akun terdaftar</p></div>
+              <div class="user-controls">
+                <label class="student-search">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.8"/><path d="m16 16 4.5 4.5"/></svg>
+                  <input id="user-search-input" type="search" placeholder="Cari nama atau email..." autocomplete="off" />
+                </label>
+                <label class="user-filter">
+                  <span class="visually-hidden">Filter role</span>
+                  <select id="user-role-filter" aria-label="Filter akun berdasarkan role">
+                    <option value="all">Semua role</option>
+                    <option value="admin">Admin</option>
+                    <option value="kajur">Kajur</option>
+                    <option value="supervisor">Supervisor</option>
+                    <option value="musyrif">Musyrif</option>
+                    <option value="mas'ul">Mas'ul</option>
+                    <option value="mahasantri">Mahasantri</option>
+                    <option value="santri">Santri</option>
+                  </select>
+                </label>
+              </div>
+            </div>
+            <div class="student-table-wrap">
+              <table class="student-table user-table">
+                <thead><tr><th class="column-number">No.</th><th>Nama Akun</th><th>Email</th><th>Role</th><th>Data Santri</th><th class="column-actions">Aksi</th></tr></thead>
+                <tbody id="user-table-body"><tr><td class="table-state" colspan="6">Memuat daftar akun...</td></tr></tbody>
+              </table>
+            </div>
+            <p class="student-table-hint">Pengaturan akun tidak mengubah kata sandi atau metode login. Akun Anda sendiri tidak dapat diubah dari halaman ini.</p>
+          </section>
+          <footer class="content-footer">© <span id="current-year"></span> Recording Kemahasantrian <span class="footer-divider">·</span> Ma'had Aly Darusy Syahadah</footer>
         </div>
-    </nav>
-
-    <div class="container">
-        <a href="dashboard.html" class="btn-back"><ion-icon name="arrow-back-outline" aria-hidden="true"></ion-icon> Kembali ke Dashboard</a>
-        <h1><span class="page-heading-icon"><ion-icon name="people-outline" aria-hidden="true"></ion-icon></span> Manajemen User</h1>
-        
-        <div class="card">
-            <h2>Daftar User</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Nama</th>
-                        <th>Email</th>
-                        <th>Role</th>
-                        <th>Profil Santri</th>
-                        <th>Aksi</th>
-                    </tr>
-                </thead>
-                <tbody id="user-table-body">
-                    <tr><td colspan="6">Memuat data...</td></tr>
-                </tbody>
-            </table>
-        </div>
+      </main>
     </div>
-
-    <script>
-        console.log("Admin Users page loaded");
-        
-        const user_id = localStorage.getItem("user_id");
-        
-        if (!user_id) {
-            window.location.href = "index.html";
-        }
-        
-        
-        // Load semua user
-        function loadUsers() {
-            fetch('api/get-users.php')
-                .then(function(res) { return res.json(); })
-                .then(function(data) {
-                    console.log("Data users:", data);
-                    
-                    if (data.success) {
-                        var tbody = document.getElementById("user-table-body");
-                        
-                        if (data.users.length === 0) {
-                            tbody.innerHTML = '<tr><td colspan="6">Tidak ada user</td></tr>';
-                        } else {
-                            tbody.textContent = '';
-                            data.users.forEach(function(u) {
-                                var row = tbody.insertRow();
-                                [u.id, u.name, u.email].forEach(function(value) {
-                                    row.insertCell().textContent = value;
-                                });
-
-                                var roleCell = row.insertCell();
-                                var roleSelect = document.createElement('select');
-                                roleSelect.id = 'role-' + u.id;
-                                [
-                                    ['admin', 'Admin'],
-                                    ['kajur', 'Kajur'],
-                                    ['musyrif', 'Musyrif'],
-                                    ["mas'ul", "Mas'ul"],
-                                    ['mahasantri', 'Mahasantri']
-                                ].forEach(function(role) {
-                                    var option = document.createElement('option');
-                                    option.value = role[0];
-                                    option.textContent = role[1];
-                                    option.selected = u.role === role[0];
-                                    roleSelect.appendChild(option);
-                                });
-                                roleCell.appendChild(roleSelect);
-
-                                var santriCell = row.insertCell();
-                                var santriSelect = document.createElement('select');
-                                santriSelect.id = 'santri-' + u.id;
-                                var emptyOption = document.createElement('option');
-                                emptyOption.value = '';
-                                emptyOption.textContent = '-- Pilih profil santri --';
-                                santriSelect.appendChild(emptyOption);
-                                (data.santri_options || []).forEach(function(s) {
-                                    var option = document.createElement('option');
-                                    option.value = s.id;
-                                    option.textContent = s.nama + (s.angkatan ? ' (' + s.angkatan + ')' : '');
-                                    option.selected = String(u.santri_id || '') === String(s.id);
-                                    santriSelect.appendChild(option);
-                                });
-                                santriSelect.style.display = roleSelect.value === 'mahasantri' ? '' : 'none';
-                                roleSelect.addEventListener('change', function() {
-                                    santriSelect.style.display = this.value === 'mahasantri' ? '' : 'none';
-                                });
-                                santriCell.appendChild(santriSelect);
-
-                                var actionCell = row.insertCell();
-                                var saveButton = document.createElement('button');
-                                saveButton.type = 'button';
-                                saveButton.className = 'btn btn-primary btn-sm';
-                                saveButton.textContent = 'Simpan';
-                                saveButton.addEventListener('click', function() { updateUser(u.id); });
-                                actionCell.appendChild(saveButton);
-                            });
-                        }
-                    } else {
-                        console.error('Error:', data.error);
-                    }
-                })
-                .catch(function(error) {
-                    console.error('Error:', error);
-                });
-        }
-        
-        loadUsers();
-        
-        // Update role
-        function updateUser(userId) {
-            var newRole = document.getElementById('role-' + userId).value;
-            var santriId = document.getElementById('santri-' + userId).value;
-            if (confirm('Yakin ingin mengubah role user ini menjadi ' + newRole.toUpperCase() + '?')) {
-                fetch('api/update-user-role.php', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ user_id: userId, role: newRole, santri_id: santriId })
-                })
-                .then(function(res) { return res.json(); })
-                .then(function(data) {
-                    if (data.success) {
-                        alert('Role berhasil diupdate!');
-                        loadUsers();
-                    } else {
-                        alert('Error: ' + data.error);
-                    }
-                })
-                .catch(function(error) {
-                    console.error('Error:', error);
-                    alert('Terjadi kesalahan');
-                });
-            } else {
-                loadUsers(); // Reload untuk reset dropdown
-            }
-        }
-        
-        // Logout
-        document.getElementById("btn-logout").addEventListener("click", function() {
-            localStorage.removeItem("user_data");
-            localStorage.removeItem("user_id");
-            localStorage.removeItem("user_role");
-            window.location.href = "index.html";
-        });
-    </script>
-    <script src="js/role-guard.js?v=20261023-4"></script>
-    <script src="js/auth.js?v=20261023-4"></script>
-    <script src="js/theme.js?v=20261023-12"></script>
-</body>
+    <dialog class="student-dialog" id="user-dialog" aria-labelledby="user-dialog-title">
+      <form class="student-form" id="user-form">
+        <div class="dialog-heading">
+          <div><p class="eyebrow">PENGATURAN AKUN</p><h2 id="user-dialog-title">Atur Akun</h2><p id="user-dialog-description">Perbarui role atau kaitkan akun dengan data santri.</p></div>
+          <button class="dialog-close" id="close-user-dialog" type="button" aria-label="Tutup">×</button>
+        </div>
+        <input id="user-id" name="id" type="hidden" />
+        <p class="user-account-summary" id="user-account-summary"></p>
+        <label class="form-field full-field"><span>Role akun <b>*</b></span>
+          <select id="user-role" name="role" required>
+            <option value="admin">Admin</option>
+            <option value="kajur">Kajur</option>
+            <option value="supervisor">Supervisor</option>
+            <option value="musyrif">Musyrif</option>
+            <option value="mas'ul">Mas'ul</option>
+            <option value="mahasantri">Mahasantri</option>
+            <option value="santri">Santri</option>
+          </select>
+        </label>
+        <label class="form-field full-field" id="user-student-field" hidden><span>Hubungkan data santri <b>*</b></span>
+          <select id="user-student-id" name="santri_id">
+            <option value="">Pilih data santri</option>
+          </select>
+        </label>
+        <p class="user-form-hint" id="user-link-hint" hidden>Akun dengan role Mahasantri atau Santri harus dihubungkan ke data santri.</p>
+        <p class="dialog-message" id="user-dialog-message" role="status" aria-live="polite" hidden></p>
+        <div class="dialog-actions"><button class="student-secondary-button" id="cancel-user-dialog" type="button">Batal</button><button class="student-primary-button" id="save-user-button" type="submit">Simpan perubahan</button></div>
+      </form>
+    </dialog>
+  </body>
 </html>
-
-
-

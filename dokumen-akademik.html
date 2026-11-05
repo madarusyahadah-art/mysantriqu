@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#123c32" />
+    <meta name="description" content="KHS santri dan pustaka karya akademik Ma'had Aly Darusy Syahadah." />
+    <title>Dokumen Akademik - Recording Kemahasantrian</title>
+    <link rel="icon" href="assets/app-icon-192.png" />
+    <link rel="stylesheet" href="dashboard.css" />
+    <link rel="stylesheet" href="dokumen-akademik.css" />
+    <script src="js/dokumen-akademik.js" defer></script>
+  </head>
+  <body>
+    <div class="app-shell">
+      <button class="sidebar-scrim" id="sidebar-scrim" type="button" aria-label="Tutup menu"></button>
+      <aside class="sidebar" id="sidebar">
+        <a class="brand" href="dashboard.html" aria-label="Recording Kemahasantrian, dashboard">
+          <img src="assets/Logo.png" alt="" />
+          <span><strong>Recording</strong><small>Kemahasantrian</small></span>
+        </a>
+        <nav class="primary-nav" aria-label="Navigasi utama">
+          <p class="nav-caption">BERANDA</p>
+          <a class="nav-link" href="dashboard.html"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.5"/></svg><span>Dashboard</span></a>
+          <p class="nav-caption">KEMAHASANTRIAN</p>
+          <a class="nav-link" href="absensi-input.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4.5h14v15H5zM8 8h8M8 12h8m-8 4h5"/></svg><span>Input Kehadiran</span></a>
+          <a class="nav-link" href="pelanggaran.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5 21 20H3z"/><path d="M12 9v4m0 3h.01"/></svg><span>Data Pelanggaran</span></a>
+          <span class="nav-link unavailable" aria-disabled="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3.5h14v17H5zM8 8h8m-8 4h8m-8 4h5"/></svg><span>Laporan</span><small>Segera</small></span>
+          <p class="nav-caption">AKADEMIK</p>
+          <a class="nav-link" href="kalender-akademik.html"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M7.5 3v4m9-4v4m-13 3h17"/></svg><span>Kalender Akademik</span></a>
+          <a class="nav-link" data-academic-type="khs" href="dokumen-akademik.html?type=khs"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5A3.5 3.5 0 0 1 7.5 2H20v17H7.5A3.5 3.5 0 0 0 4 22z"/><path d="M4 5.5v13A3.5 3.5 0 0 1 7.5 15H20M8 6h8m-8 4h7"/></svg><span>KHS</span></a>
+          <a class="nav-link" data-academic-type="jurnal" href="dokumen-akademik.html?type=jurnal"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3.5h14v17H5zM8 8h8m-8 4h8m-8 4h5"/></svg><span>Jurnal Munazharah</span></a>
+          <a class="nav-link" data-academic-type="skripsi" href="dokumen-akademik.html?type=skripsi"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5A3.5 3.5 0 0 1 7.5 2H20v17H7.5A3.5 3.5 0 0 0 4 22z"/><path d="M4 5.5v13A3.5 3.5 0 0 1 7.5 15H20m-11-8h7m-7 4h5"/></svg><span>Skripsi</span></a>
+          <p class="nav-caption admin-nav" hidden>ADMINISTRASI</p>
+          <a class="nav-link admin-nav" href="admin-users.html" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M3 20v-1.5a6 6 0 0 1 12 0V20zm13-5h7m-3.5-3.5v7"/></svg><span>Manajemen User</span></a>
+          <a class="nav-link admin-nav" href="santri.html" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M3 20v-1.5a6 6 0 0 1 12 0V20zm13-5a3.5 3.5 0 0 1 4 3.5V20h-4"/></svg><span>Data Santri</span></a>
+          <a class="nav-link admin-nav" href="asatidz.html" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M3 20v-1.5a6 6 0 0 1 12 0V20zm13-5h7m-3.5-3.5v7"/></svg><span>Data Asatidzah</span></a>
+          <a class="nav-link admin-nav" href="kegiatan.html" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M7.5 3v4m9-4v4m-13 3h17"/></svg><span>Kegiatan</span></a>
+        </nav>
+        <div class="sidebar-bottom">
+          <div class="campus-mark"><span class="campus-dot"></span><span>Ma'had Aly Darusy Syahadah</span></div>
+          <div class="sidebar-user">
+            <span class="user-avatar" id="sidebar-avatar">?</span>
+            <span class="sidebar-user-copy"><strong id="sidebar-name">Memuat akun...</strong><small id="sidebar-role">Akun</small></span>
+            <button class="icon-button" id="logout-button" type="button" aria-label="Keluar" title="Keluar"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 5H5v14h5m5-3 4-4-4-4m4 4H9"/></svg></button>
+          </div>
+        </div>
+      </aside>
+      <main class="main-content">
+        <header class="topbar">
+          <div class="topbar-leading">
+            <button class="icon-button menu-button" id="menu-button" type="button" aria-label="Buka menu" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+            <div class="breadcrumb"><a href="dashboard.html">Beranda</a><span aria-hidden="true">/</span><strong id="breadcrumb-title">Dokumen Akademik</strong></div>
+          </div>
+          <div class="topbar-user"><span class="today-label" id="today-label"></span><span class="user-avatar top-avatar" id="top-avatar">?</span><span class="topbar-user-name" id="topbar-name">Memuat...</span></div>
+        </header>
+        <div class="dashboard-content student-content">
+          <section class="page-heading academic-heading">
+            <div><p class="eyebrow">AKADEMIK</p><h1 id="page-title">Dokumen Akademik</h1><p class="page-description" id="page-description">Dokumen akademik santri.</p></div>
+            <button class="student-primary-button" id="add-document-button" type="button" hidden><span aria-hidden="true">+</span> Unggah PDF</button>
+          </section>
+          <p class="student-message" id="page-message" role="status" aria-live="polite" hidden></p>
+          <section class="panel student-panel academic-documents-panel">
+            <div class="student-toolbar">
+              <div><h2 id="list-title">Daftar Dokumen</h2><p><span id="document-count">0</span> dokumen</p></div>
+              <label class="student-search">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.8"/><path d="m16 16 4.5 4.5"/></svg>
+                <input id="document-search" type="search" placeholder="Cari dokumen..." autocomplete="off" />
+              </label>
+            </div>
+            <div class="academic-document-grid" id="document-list" aria-live="polite">
+              <p class="academic-empty">Memuat dokumen...</p>
+            </div>
+            <p class="student-table-hint" id="list-hint"></p>
+          </section>
+          <footer class="content-footer">© <span id="current-year"></span> Recording Kemahasantrian <span class="footer-divider">·</span> Ma'had Aly Darusy Syahadah</footer>
+        </div>
+      </main>
+    </div>
+    <dialog class="student-dialog" id="document-dialog" aria-labelledby="dialog-title">
+      <form class="student-form" id="document-form" enctype="multipart/form-data">
+        <div class="dialog-heading">
+          <div><p class="eyebrow">DOKUMEN AKADEMIK</p><h2 id="dialog-title">Unggah PDF</h2><p id="dialog-description">Pilih file PDF maksimal 20 MB.</p></div>
+          <button class="dialog-close" id="close-dialog" type="button" aria-label="Tutup">×</button>
+        </div>
+        <label class="form-field full-field"><span id="title-label">Judul dokumen <b>*</b></span><input id="document-title" name="title" type="text" maxlength="255" required /></label>
+        <label class="form-field full-field" id="student-field" hidden><span>Santri <b>*</b></span><select id="document-student" name="student_id"><option value="">Pilih santri</option></select></label>
+        <label class="form-field full-field" id="period-field" hidden><span>Periode KHS <b>*</b></span><input id="document-period" name="academic_period" type="text" maxlength="50" placeholder="Contoh: 2026/2027 - Semester 1" /></label>
+        <label class="form-field full-field" id="author-field" hidden><span>Nama penulis (santri/alumni) <b>*</b></span><input id="document-author" name="author_name" type="text" maxlength="255" placeholder="Nama sesuai karya" /></label>
+        <label class="form-field full-field" id="author-status-field" hidden><span>Status penulis <b>*</b></span><select id="document-author-status" name="author_status"><option value="aktif">Santri aktif</option><option value="alumni">Alumni</option></select></label>
+        <div class="form-grid" id="publication-fields" hidden>
+          <label class="form-field full-field"><span>Tahun terbit <b>*</b></span><input id="publication-year" name="publication_year" type="number" min="1900" max="2100" /></label>
+        </div>
+        <label class="form-field full-field" id="description-field" hidden><span>Deskripsi singkat</span><textarea id="document-description" name="description" maxlength="5000" rows="3" placeholder="Ringkasan atau keterangan karya"></textarea></label>
+        <label class="form-field full-field"><span>File PDF <b>*</b></span><input id="document-pdf" name="pdf" type="file" accept="application/pdf,.pdf" required /><small class="academic-file-note">PDF maksimal 20 MB.</small></label>
+        <p class="dialog-message" id="dialog-message" role="status" aria-live="polite" hidden></p>
+        <div class="dialog-actions"><button class="student-secondary-button" id="cancel-dialog" type="button">Batal</button><button class="student-primary-button" id="save-document" type="submit">Unggah PDF</button></div>
+      </form>
+    </dialog>
+  </body>
+</html>
