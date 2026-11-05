@@ -1,0 +1,25 @@
+@charset "UTF-8";
+@import url("santri.css");
+
+.user-controls { display: flex; width: min(100%, 520px); align-items: center; justify-content: flex-end; gap: 10px; }
+.user-filter { display: flex; min-height: 38px; flex: 0 0 auto; align-items: center; }
+.user-filter select { min-height: 38px; padding: 0 28px 0 10px; border: 1px solid #e1e9e3; border-radius: 7px; outline: 0; color: #34493c; background: #fff; font: inherit; font-size: .7rem; cursor: pointer; }
+.user-filter select:focus { border-color: #78a588; box-shadow: 0 0 0 3px rgb(52 123 92 / 10%); }
+.visually-hidden { position: absolute; width: 1px; height: 1px; padding: 0; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; clip-path: inset(50%); }
+.user-table td:nth-child(3), .user-table td:nth-child(4), .user-table td:nth-child(5) { min-width: 135px; }
+.user-role-badge { display: inline-flex; min-height: 23px; align-items: center; padding: 0 8px; border-radius: 5px; color: #52775b; background: #edf5ee; font-size: .63rem; white-space: nowrap; }
+.user-link-badge { color: #5e6f64; font-size: .68rem; }
+.user-self-label { color: #929e96; font-size: .65rem; }
+.user-account-summary { margin: 0 0 17px; padding: 11px 13px; border: 1px solid #e9eee9; border-radius: 8px; color: #526357; background: #f8faf8; font-size: .75rem; line-height: 1.5; overflow-wrap: anywhere; }
+.user-form-hint { margin: -6px 0 0; color: #7d8c82; font-size: .68rem; line-height: 1.5; }
+.form-field[hidden], .user-form-hint[hidden] { display: none; }
+
+@media (max-width: 760px) {
+  .user-controls { width: 100%; align-items: stretch; flex-direction: column; }
+  .user-filter select { width: 100%; }
+  .user-table td:nth-child(3), .user-table td:nth-child(4), .user-table td:nth-child(5) { grid-column: 1; min-width: 0; }
+  .user-table td:nth-child(3)::before { content: "Email · "; }
+  .user-table td:nth-child(4)::before { content: "Role · "; }
+  .user-table td:nth-child(5)::before { content: "Data santri · "; }
+  .user-table td:last-child { grid-row: 2 / span 3; }
+}

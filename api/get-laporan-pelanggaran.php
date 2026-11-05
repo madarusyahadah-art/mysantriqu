@@ -1,269 +1,146 @@
 <?php
-header("Content-Type: application/json; charset=UTF-8");
+declare(strict_types=1);
 
 require_once __DIR__ . '/config.php';
-$currentUser = require_role(['admin', 'kepala', 'santri', 'supervisor']);
 
-if (!isset($conn)) {
-    http_response_code(500);
-    echo json_encode(["error" => "Database connection not established"]);
-    exit;
+if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'GET') {
+    header('Allow: GET');
+    json_response(['success' => false, 'error' => 'Metode tidak didukung.'], 405);
 }
 
-// Ambil parameter filter
-$tanggal_mulai = $_GET['tanggal_mulai'] ?? '';
-$tanggal_selesai = $_GET['tanggal_selesai'] ?? '';
-$jenis_pelanggaran = $_GET['jenis_pelanggaran'] ?? '';
-$santri_id = $_GET['santri_id'] ?? '';
+$user = current_user();
+if ($user === null) {
+    json_response(['success' => false, 'error' => 'Silakan masuk kembali.'], 401);
+}
+if (!in_array(strtolower((string) ($user['role'] ?? '')), ['admin', 'musyrif', 'supervisor', "mas'ul"], true)) {
+    json_response(['success' => false, 'error' => 'Akun ini tidak memiliki akses ke data pelanggaran.'], 403);
+}
 
-if ($currentUser['role'] === 'mahasantri') {
-    if (empty($currentUser['santri_id'])) {
-        json_response(["success" => false, "error" => "Akun Santri belum dihubungkan oleh admin"], 403);
+$query = trim((string) ($_GET['q'] ?? ''));
+$cohort = trim((string) ($_GET['angkatan'] ?? ''));
+$status = trim((string) ($_GET['status'] ?? ''));
+$from = trim((string) ($_GET['dari'] ?? ''));
+$to = trim((string) ($_GET['sampai'] ?? ''));
+$limit = filter_var($_GET['limit'] ?? 50, FILTER_VALIDATE_INT);
+$offset = filter_var($_GET['offset'] ?? 0, FILTER_VALIDATE_INT);
+$allowedStatuses = ['', 'belum', 'diproses', 'selesai'];
+
+if (strlen($query) > 120 || strlen($cohort) > 50
+    || !in_array($status, $allowedStatuses, true)
+    || $limit === false || $limit < 1 || $limit > 100
+    || $offset === false || $offset < 0 || $offset > 100000) {
+    json_response(['success' => false, 'error' => 'Filter data pelanggaran tidak valid.'], 400);
+}
+foreach (['dari' => $from, 'sampai' => $to] as $dateLabel => $date) {
+    if ($date === '') {
+        continue;
     }
-    $santri_id = $currentUser['santri_id'];
+    $dateValue = DateTimeImmutable::createFromFormat('!Y-m-d', $date);
+    if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $date)
+        || $dateValue === false || $dateValue->format('Y-m-d') !== $date) {
+        json_response(['success' => false, 'error' => 'Rentang tanggal tidak valid.'], 400);
+    }
+}
+if ($from !== '' && $to !== '' && $from > $to) {
+    json_response(['success' => false, 'error' => 'Tanggal awal tidak boleh melewati tanggal akhir.'], 400);
 }
 
-// Validasi tanggal
-if (empty($tanggal_mulai) || empty($tanggal_selesai)) {
-    $tanggal_selesai = date('Y-m-d');
-    $tanggal_mulai = date('Y-m-d', strtotime('-30 days'));
+try {
+    $connection = db_connection();
+    $conditions = [];
+    $types = '';
+    $values = [];
+    if ($query !== '') {
+        $conditions[] = "(s.nama LIKE ? OR COALESCE(s.no_ktm, '') LIKE ? OR p.jenis_pelanggaran LIKE ? OR COALESCE(p.keterangan, '') LIKE ?)";
+        $pattern = '%' . $query . '%';
+        array_push($values, $pattern, $pattern, $pattern, $pattern);
+        $types .= 'ssss';
+    }
+    if ($cohort !== '') {
+        $conditions[] = 's.angkatan = ?';
+        $values[] = $cohort;
+        $types .= 's';
+    }
+    if ($status !== '') {
+        $conditions[] = 'p.status_tindak_lanjut = ?';
+        $values[] = $status;
+        $types .= 's';
+    }
+    if ($from !== '') {
+        $conditions[] = 'p.tanggal >= ?';
+        $values[] = $from;
+        $types .= 's';
+    }
+    if ($to !== '') {
+        $conditions[] = 'p.tanggal <= ?';
+        $values[] = $to;
+        $types .= 's';
+    }
+    $where = $conditions ? ' WHERE ' . implode(' AND ', $conditions) : '';
+
+    $countStatement = $connection->prepare(
+        "SELECT COUNT(*) AS total,
+                COALESCE(SUM(p.status_tindak_lanjut = 'belum'), 0) AS belum,
+                COALESCE(SUM(p.status_tindak_lanjut = 'diproses'), 0) AS diproses,
+                COALESCE(SUM(p.status_tindak_lanjut = 'selesai'), 0) AS selesai,
+                COALESCE(SUM(p.poin), 0) AS poin
+         FROM pelanggaran p INNER JOIN santri s ON s.id = p.santri_id" . $where
+    );
+    if ($values) {
+        $countStatement->bind_param($types, ...$values);
+    }
+    $countStatement->execute();
+    $summary = $countStatement->get_result()->fetch_assoc();
+    $countStatement->close();
+    foreach (['total', 'belum', 'diproses', 'selesai', 'poin'] as $field) {
+        $summary[$field] = (int) ($summary[$field] ?? 0);
+    }
+
+    $listStatement = $connection->prepare(
+        'SELECT p.id, p.santri_id, p.jenis_pelanggaran_id, p.tanggal, p.jenis_pelanggaran,
+                p.poin, p.keterangan, p.status_tindak_lanjut, p.catatan_bk,
+                s.nama AS nama_santri, s.no_ktm, s.angkatan
+         FROM pelanggaran p
+         INNER JOIN santri s ON s.id = p.santri_id' . $where . '
+         ORDER BY p.tanggal DESC, p.id DESC
+         LIMIT ? OFFSET ?'
+    );
+    $listTypes = $types . 'ii';
+    $listValues = $values;
+    $listValues[] = $limit;
+    $listValues[] = $offset;
+    $listStatement->bind_param($listTypes, ...$listValues);
+    $listStatement->execute();
+    $records = $listStatement->get_result()->fetch_all(MYSQLI_ASSOC);
+    $listStatement->close();
+    foreach ($records as &$record) {
+        foreach (['id', 'santri_id', 'poin'] as $field) {
+            $record[$field] = (int) $record[$field];
+        }
+        $record['jenis_pelanggaran_id'] = $record['jenis_pelanggaran_id'] === null
+            ? null : (int) $record['jenis_pelanggaran_id'];
+    }
+    unset($record);
+
+    $cohortResult = $connection->query(
+        "SELECT DISTINCT angkatan FROM santri WHERE TRIM(angkatan) <> '' ORDER BY angkatan DESC"
+    );
+    $cohorts = array_map(
+        static fn (array $row): string => (string) $row['angkatan'],
+        $cohortResult->fetch_all(MYSQLI_ASSOC)
+    );
+    json_response([
+        'success' => true,
+        'pelanggaran' => $records,
+        'ringkasan' => $summary,
+        'limit' => $limit,
+        'offset' => $offset,
+        'angkatan' => $cohorts,
+        'santri' => $connection->query(
+            'SELECT id, nama, no_ktm, angkatan FROM santri ORDER BY nama ASC, id ASC'
+        )->fetch_all(MYSQLI_ASSOC),
+    ]);
+} catch (mysqli_sql_exception | RuntimeException $error) {
+    error_log('Read violation records failed: ' . $error->getMessage());
+    json_response(['success' => false, 'error' => 'Data pelanggaran belum dapat dimuat. Coba beberapa saat lagi.'], 503);
 }
-
-if (
-    !preg_match('/^\d{4}-\d{2}-\d{2}$/', $tanggal_mulai) ||
-    !preg_match('/^\d{4}-\d{2}-\d{2}$/', $tanggal_selesai) ||
-    $tanggal_mulai > $tanggal_selesai ||
-    !checkdate((int) substr($tanggal_mulai, 5, 2), (int) substr($tanggal_mulai, 8, 2), (int) substr($tanggal_mulai, 0, 4)) ||
-    !checkdate((int) substr($tanggal_selesai, 5, 2), (int) substr($tanggal_selesai, 8, 2), (int) substr($tanggal_selesai, 0, 4))
-) {
-    json_response(["success" => false, "error" => "Rentang tanggal tidak valid"], 400);
-}
-
-// 1. Ranking Santri (Total Poin Tertinggi)
-$sql_ranking = "
-    SELECT 
-        s.id as santri_id,
-        s.nama,
-        s.angkatan,
-        COUNT(p.id) as total_pelanggaran,
-        COALESCE(SUM(p.poin), 0) as total_poin
-    FROM santri s
-    LEFT JOIN pelanggaran p ON s.id = p.santri_id 
-        AND p.tanggal BETWEEN ? AND ?
-";
-
-$params = [$tanggal_mulai, $tanggal_selesai];
-$types = "ss";
-
-if (!empty($jenis_pelanggaran)) {
-    $sql_ranking .= " AND p.jenis_pelanggaran = ?";
-    $params[] = $jenis_pelanggaran;
-    $types .= "s";
-}
-
-$sql_ranking .= " WHERE 1=1";
-
-if (!empty($santri_id)) {
-    $sql_ranking .= " AND s.id = ?";
-    $params[] = $santri_id;
-    $types .= "i";
-}
-
-$sql_ranking .= " GROUP BY s.id, s.nama, s.angkatan 
-                 ORDER BY total_poin DESC, total_pelanggaran DESC";
-
-$stmt_ranking = $conn->prepare($sql_ranking);
-$stmt_ranking->bind_param($types, ...$params);
-$stmt_ranking->execute();
-$result_ranking = $stmt_ranking->get_result();
-
-$ranking = [];
-while ($row = $result_ranking->fetch_assoc()) {
-    $ranking[] = $row;
-}
-
-// 2. Persentase per jenis dibanding semua pelanggaran dalam populasi terpilih.
-$sql_total_jenis = "SELECT COUNT(*) AS total FROM pelanggaran WHERE tanggal BETWEEN ? AND ?";
-$params_total_jenis = [$tanggal_mulai, $tanggal_selesai];
-$types_total_jenis = "ss";
-if (!empty($santri_id)) {
-    $sql_total_jenis .= " AND santri_id = ?";
-    $params_total_jenis[] = $santri_id;
-    $types_total_jenis .= "i";
-}
-$stmt_total_jenis = $conn->prepare($sql_total_jenis);
-$stmt_total_jenis->bind_param($types_total_jenis, ...$params_total_jenis);
-$stmt_total_jenis->execute();
-$total_jenis = (int) $stmt_total_jenis->get_result()->fetch_assoc()['total'];
-$stmt_total_jenis->close();
-
-$sql_jenis = "
-    SELECT 
-        p.jenis_pelanggaran,
-        COUNT(*) as jumlah
-    FROM pelanggaran p
-    WHERE p.tanggal BETWEEN ? AND ?
-";
-
-$params_jenis = [$tanggal_mulai, $tanggal_selesai];
-$types_jenis = "ss";
-
-if (!empty($santri_id)) {
-    $sql_jenis .= " AND p.santri_id = ?";
-    $params_jenis[] = $santri_id;
-    $types_jenis .= "i";
-}
-
-$sql_jenis .= " GROUP BY p.jenis_pelanggaran ORDER BY jumlah DESC";
-
-$stmt_jenis = $conn->prepare($sql_jenis);
-$stmt_jenis->bind_param($types_jenis, ...$params_jenis);
-$stmt_jenis->execute();
-$result_jenis = $stmt_jenis->get_result();
-
-$persentase_jenis = [];
-while ($row = $result_jenis->fetch_assoc()) {
-    $row['persentase'] = $total_jenis > 0
-        ? round(((int) $row['jumlah'] * 100) / $total_jenis, 2)
-        : 0;
-    $persentase_jenis[] = $row;
-}
-
-// 2b. Perkembangan jumlah pelanggaran per hari, pekan, atau bulan sesuai rentang.
-$rangeDays = (int) ((strtotime($tanggal_selesai) - strtotime($tanggal_mulai)) / 86400) + 1;
-if ($rangeDays <= 31) {
-    $trendBucket = "DATE(p.tanggal)";
-    $trendGranularity = 'hari';
-    $periodStep = 'P1D';
-    $periodStart = new DateTimeImmutable($tanggal_mulai);
-} elseif ($rangeDays <= 180) {
-    $trendBucket = "DATE_SUB(p.tanggal, INTERVAL WEEKDAY(p.tanggal) DAY)";
-    $trendGranularity = 'pekan';
-    $periodStep = 'P1W';
-    $periodStart = (new DateTimeImmutable($tanggal_mulai))->modify('monday this week');
-} else {
-    $trendBucket = "DATE_FORMAT(p.tanggal, '%Y-%m-01')";
-    $trendGranularity = 'bulan';
-    $periodStep = 'P1M';
-    $periodStart = new DateTimeImmutable((new DateTimeImmutable($tanggal_mulai))->format('Y-m-01'));
-}
-
-$sql_trend = "SELECT $trendBucket AS periode, COUNT(*) AS jumlah FROM pelanggaran p
-    WHERE p.tanggal BETWEEN ? AND ?";
-$params_trend = [$tanggal_mulai, $tanggal_selesai];
-$types_trend = "ss";
-if (!empty($jenis_pelanggaran)) {
-    $sql_trend .= " AND p.jenis_pelanggaran = ?";
-    $params_trend[] = $jenis_pelanggaran;
-    $types_trend .= "s";
-}
-if (!empty($santri_id)) {
-    $sql_trend .= " AND p.santri_id = ?";
-    $params_trend[] = $santri_id;
-    $types_trend .= "i";
-}
-$sql_trend .= " GROUP BY periode ORDER BY periode ASC";
-$stmt_trend = $conn->prepare($sql_trend);
-$stmt_trend->bind_param($types_trend, ...$params_trend);
-$stmt_trend->execute();
-$result_trend = $stmt_trend->get_result();
-$trendCounts = [];
-while ($row = $result_trend->fetch_assoc()) {
-    $trendCounts[$row['periode']] = (int) $row['jumlah'];
-}
-
-$perkembangan = [];
-$periodEnd = new DateTimeImmutable($tanggal_selesai);
-for ($period = $periodStart; $period <= $periodEnd; $period = $period->add(new DateInterval($periodStep))) {
-    $periodKey = $period->format('Y-m-d');
-    $perkembangan[] = [
-        "periode" => $periodKey,
-        "jumlah" => $trendCounts[$periodKey] ?? 0
-    ];
-}
-
-// 3. Detail Pelanggaran (untuk tabel lengkap)
-$sql_detail = "
-    SELECT 
-        p.id,
-        p.santri_id,
-        p.tanggal,
-        s.nama as nama_santri,
-        s.angkatan,
-        p.jenis_pelanggaran,
-        p.poin,
-        p.keterangan,
-        p.status_tindak_lanjut,
-        p.catatan_bk,
-        u.name as input_by_name
-    FROM pelanggaran p
-    LEFT JOIN santri s ON p.santri_id = s.id
-    LEFT JOIN users u ON p.input_by = u.id
-    WHERE p.tanggal BETWEEN ? AND ?
-";
-
-$params_detail = [$tanggal_mulai, $tanggal_selesai];
-$types_detail = "ss";
-
-if (!empty($jenis_pelanggaran)) {
-    $sql_detail .= " AND p.jenis_pelanggaran = ?";
-    $params_detail[] = $jenis_pelanggaran;
-    $types_detail .= "s";
-}
-
-if (!empty($santri_id)) {
-    $sql_detail .= " AND p.santri_id = ?";
-    $params_detail[] = $santri_id;
-    $types_detail .= "i";
-}
-
-$sql_detail .= " ORDER BY p.tanggal DESC, p.id DESC";
-
-$stmt_detail = $conn->prepare($sql_detail);
-$stmt_detail->bind_param($types_detail, ...$params_detail);
-$stmt_detail->execute();
-$result_detail = $stmt_detail->get_result();
-
-$detail_pelanggaran = [];
-while ($row = $result_detail->fetch_assoc()) {
-    $detail_pelanggaran[] = $row;
-}
-
-// 4. Daftar santri untuk filter
-if ($currentUser['role'] === 'mahasantri') {
-    $santri_stmt = $conn->prepare("SELECT id, nama FROM santri WHERE id = ? ORDER BY nama ASC");
-    $santri_stmt->bind_param("i", $santri_id);
-} else {
-    $santri_stmt = $conn->prepare("SELECT id, nama FROM santri ORDER BY nama ASC");
-}
-$santri_stmt->execute();
-$santri_list = $santri_stmt->get_result()->fetch_all(MYSQLI_ASSOC);
-
-// 5. Daftar jenis pelanggaran (unik)
-$jenis_stmt = $conn->prepare("SELECT DISTINCT jenis_pelanggaran FROM pelanggaran ORDER BY jenis_pelanggaran ASC");
-$jenis_stmt->execute();
-$jenis_list = $jenis_stmt->get_result()->fetch_all(MYSQLI_ASSOC);
-
-echo json_encode([
-    "success" => true,
-    "ranking" => $ranking,
-    "persentase_jenis" => $persentase_jenis,
-    "perkembangan" => $perkembangan,
-    "trend_granularity" => $trendGranularity,
-    "detail_pelanggaran" => $detail_pelanggaran,
-    "santri_list" => $santri_list,
-    "jenis_list" => $jenis_list,
-    "filter" => [
-        "tanggal_mulai" => $tanggal_mulai,
-        "tanggal_selesai" => $tanggal_selesai,
-        "jenis_pelanggaran" => $jenis_pelanggaran,
-        "santri_id" => $santri_id
-    ]
-]);
-
-$stmt_ranking->close();
-$stmt_jenis->close();
-$stmt_trend->close();
-$stmt_detail->close();
-$conn->close();
-?>

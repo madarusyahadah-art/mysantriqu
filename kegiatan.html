@@ -1,373 +1,110 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#114d35">
-    <link rel="manifest" href="manifest.webmanifest">
-    <link rel="apple-touch-icon" href="assets/app-icon-192.png">
-    <title>Manajemen Kegiatan - Recording Mahasantri</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f5f5; }
-        .navbar {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 1rem 2rem; background: #2d5016; color: white;
-        }
-        .nav-brand { display: flex; align-items: center; gap: 10px; font-size: 1.2rem; font-weight: bold; }
-        .nav-logo { width: 40px; height: 40px; }
-        .nav-user { display: flex; align-items: center; gap: 15px; }
-        .user-photo { width: 35px; height: 35px; border-radius: 50%; }
-        .btn-logout { padding: 8px 16px; background: #dc3545; color: white; border: none; border-radius: 5px; cursor: pointer; }
-        .container { max-width: 1200px; margin: 2rem auto; padding: 0 2rem; }
-        h1 { margin-bottom: 1.5rem; color: #2d5016; }
-        .btn-back {
-            display: inline-block; margin-bottom: 1rem; padding: 10px 20px;
-            background: #2d5016; color: white; text-decoration: none; border-radius: 5px;
-        }
-        .btn { padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-size: 14px; }
-        .btn-primary { background: #28a745; color: white; }
-        .btn-danger { background: #dc3545; color: white; }
-        .btn-warning { background: #ffc107; color: #000; }
-        .btn-sm { padding: 5px 10px; font-size: 12px; }
-        .card {
-            background: white; border-radius: 10px; padding: 20px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 20px;
-        }
-        .form-group { margin-bottom: 15px; }
-        .form-group label { display: block; margin-bottom: 5px; font-weight: bold; color: #333; }
-        .form-group input, .form-group select {
-            width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px;
-        }
-        table { width: 100%; border-collapse: collapse; }
-        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #eee; }
-        th { background: #f8f9fa; font-weight: bold; color: #2d5016; }
-        .badge { padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: bold; display: inline-block; }
-        .badge-wajib { background: #dc3545; color: white; }
-        .badge-sunnah { background: #28a745; color: white; }
-        .badge-opsional { background: #6c757d; color: white; }
-        .badge-active { background: #28a745; color: white; }
-        .badge-inactive { background: #dc3545; color: white; }
-        .modal {
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center;
-        }
-        .modal.active { display: flex; }
-        .modal-content {
-            background: white; padding: 30px; border-radius: 10px; width: 90%; max-width: 500px;
-        }
-        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .modal-header h2 { color: #2d5016; }
-        .close-btn { background: none; border: none; font-size: 24px; cursor: pointer; }
-        .toggle-switch {
-            position: relative; display: inline-block; width: 50px; height: 24px;
-        }
-        .toggle-switch input { opacity: 0; width: 0; height: 0; }
-        .slider {
-            position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
-            background-color: #ccc; transition: .4s; border-radius: 24px;
-        }
-        .slider:before {
-            position: absolute; content: ""; height: 16px; width: 16px;
-            left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%;
-        }
-        input:checked + .slider { background-color: #28a745; }
-        input:checked + .slider:before { transform: translateX(26px); }
-    </style>
-    <link rel="stylesheet" href="style.css?v=20261023-4">
-    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
-    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
-</head>
-<body data-access="admin">
-    <nav class="navbar">
-        <div class="nav-brand">
-            <img src="assets/Logo.png" alt="Logo" class="nav-logo">
-            <ion-icon name="school-outline" aria-hidden="true"></ion-icon>
-            <span>Recording Mahasantri</span>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#123c32" />
+    <meta name="description" content="Kelola kegiatan Ma'had Aly Darusy Syahadah." />
+    <title>Data Kegiatan - Recording Kemahasantrian</title>
+    <link rel="icon" href="assets/app-icon-192.png" />
+    <link rel="stylesheet" href="dashboard.css" />
+    <link rel="stylesheet" href="kegiatan.css" />
+    <script src="js/kegiatan.js" defer></script>
+  </head>
+  <body>
+    <div class="app-shell">
+      <button class="sidebar-scrim" id="sidebar-scrim" type="button" aria-label="Tutup menu"></button>
+      <aside class="sidebar" id="sidebar">
+        <a class="brand" href="dashboard.html" aria-label="Recording Kemahasantrian, dashboard">
+          <img src="assets/Logo.png" alt="" />
+          <span><strong>Recording</strong><small>Kemahasantrian</small></span>
+        </a>
+        <nav class="primary-nav" aria-label="Navigasi utama">
+          <p class="nav-caption">BERANDA</p>
+          <a class="nav-link" href="dashboard.html"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.5"/></svg><span>Dashboard</span></a>
+          <p class="nav-caption">KEMAHASANTRIAN</p>
+          <a class="nav-link" href="absensi-input.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4.5h14v15H5zM8 8h8M8 12h8m-8 4h5"/></svg><span>Input Kehadiran</span></a>
+          <a class="nav-link" href="pelanggaran.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5 21 20H3z"/><path d="M12 9v4m0 3h.01"/></svg><span>Data Pelanggaran</span></a>
+          <span class="nav-link unavailable" aria-disabled="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3.5h14v17H5zM8 8h8m-8 4h8m-8 4h5"/></svg><span>Laporan</span><small>Segera</small></span>
+          <p class="nav-caption">AKADEMIK</p>
+          <a class="nav-link" href="kalender-akademik.html"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M7.5 3v4m9-4v4m-13 3h17"/></svg><span>Kalender Akademik</span></a>
+          <a class="nav-link" href="dokumen-akademik.html?type=khs"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5A3.5 3.5 0 0 1 7.5 2H20v17H7.5A3.5 3.5 0 0 0 4 22z"/><path d="M4 5.5v13A3.5 3.5 0 0 1 7.5 15H20M8 6h8m-8 4h7"/></svg><span>KHS</span></a>
+          <a class="nav-link" href="dokumen-akademik.html?type=jurnal"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3.5h14v17H5zM8 8h8m-8 4h8m-8 4h5"/></svg><span>Jurnal Munazharah</span></a>
+          <a class="nav-link" href="dokumen-akademik.html?type=skripsi"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5A3.5 3.5 0 0 1 7.5 2H20v17H7.5A3.5 3.5 0 0 0 4 22z"/><path d="M4 5.5v13A3.5 3.5 0 0 1 7.5 15H20m-11-8h7m-7 4h5"/></svg><span>Skripsi</span></a>
+          <p class="nav-caption">ADMINISTRASI</p>
+          <a class="nav-link" href="admin-users.html"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M3 20v-1.5a6 6 0 0 1 12 0V20zm13-5h7m-3.5-3.5v7"/></svg><span>Manajemen User</span></a>
+          <a class="nav-link" href="santri.html"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M3 20v-1.5a6 6 0 0 1 12 0V20zm13-5a3.5 3.5 0 0 1 4 3.5V20h-4"/></svg><span>Data Santri</span></a>
+          <a class="nav-link" href="asatidz.html"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M3 20v-1.5a6 6 0 0 1 12 0V20zm13-5h7m-3.5-3.5v7"/></svg><span>Data Asatidzah</span></a>
+          <a class="nav-link active" href="kegiatan.html" aria-current="page"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M7.5 3v4m9-4v4m-13 3h17M8 14h3m2 0h3m-8 3h3"/></svg><span>Kegiatan</span></a>
+        </nav>
+        <div class="sidebar-bottom">
+          <div class="campus-mark"><span class="campus-dot"></span><span>Ma'had Aly Darusy Syahadah</span></div>
+          <div class="sidebar-user">
+            <span class="user-avatar" id="sidebar-avatar">?</span>
+            <span class="sidebar-user-copy"><strong id="sidebar-name">Memuat akun...</strong><small id="sidebar-role">Akun</small></span>
+            <button class="icon-button" id="logout-button" type="button" aria-label="Keluar" title="Keluar"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 5H5v14h5m5-3 4-4-4-4m4 4H9"/></svg></button>
+          </div>
         </div>
-        <div class="nav-user">
-            <img id="user-photo" src="" alt="User" class="user-photo">
-            <span id="user-name">Loading...</span>
-            <button id="btn-logout" class="btn-logout"><ion-icon name="log-out-outline" aria-hidden="true"></ion-icon> Logout</button>
-        </div>
-    </nav>
-
-    <div class="container">
-        <a href="dashboard.html" class="btn-back"><ion-icon name="arrow-back-outline" aria-hidden="true"></ion-icon> Kembali ke Dashboard</a>
-        <h1><span class="page-heading-icon"><ion-icon name="book-outline" aria-hidden="true"></ion-icon></span> Manajemen Kegiatan</h1>
-        
-        <div class="card">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                <h2>Daftar Kegiatan</h2>
-                <button class="btn btn-primary" onclick="openModal()">+ Tambah Kegiatan</button>
+      </aside>
+      <main class="main-content">
+        <header class="topbar">
+          <div class="topbar-leading">
+            <button class="icon-button menu-button" id="menu-button" type="button" aria-label="Buka menu" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+            <div class="breadcrumb"><a href="dashboard.html">Beranda</a><span aria-hidden="true">/</span><strong>Kegiatan</strong></div>
+          </div>
+          <div class="topbar-user"><span class="today-label" id="today-label"></span><span class="user-avatar top-avatar" id="top-avatar">?</span><span class="topbar-user-name" id="topbar-name">Memuat...</span></div>
+        </header>
+        <div class="dashboard-content student-content">
+          <section class="page-heading">
+            <div><p class="eyebrow">ADMINISTRASI</p><h1>Data Kegiatan</h1><p class="page-description">Atur jenis dan frekuensi kegiatan untuk pencatatan kemahasantrian.</p></div>
+            <button class="student-primary-button" id="add-activity-button" type="button"><span aria-hidden="true">+</span> Tambah Kegiatan</button>
+          </section>
+          <p class="student-message" id="activity-message" role="status" aria-live="polite" hidden></p>
+          <section class="panel student-panel">
+            <div class="student-toolbar">
+              <div><h2>Daftar Kegiatan</h2><p><span id="activity-count">0</span> data terdaftar</p></div>
+              <div class="activity-controls">
+                <label class="student-search">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.8"/><path d="m16 16 4.5 4.5"/></svg>
+                  <input id="activity-search-input" type="search" placeholder="Cari nama atau kategori..." autocomplete="off" />
+                </label>
+                <label class="activity-filter">
+                  <span class="visually-hidden">Tampilkan status</span>
+                  <select id="activity-status-filter" aria-label="Filter status kegiatan">
+                    <option value="all">Semua status</option>
+                    <option value="active">Aktif</option>
+                    <option value="inactive">Nonaktif</option>
+                  </select>
+                </label>
+              </div>
             </div>
-            
-            <table>
-                <thead>
-                    <tr>
-                        <th>No</th>
-                        <th>Nama Kegiatan</th>
-                        <th>Kategori</th>
-                        <th>Frekuensi</th>
-                        <th>Semester peserta</th>
-                        <th>Status</th>
-                        <th>Aksi</th>
-                    </tr>
-                </thead>
-                <tbody id="kegiatan-table-body">
-                    <tr><td colspan="6">Memuat data...</td></tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
-
-    <!-- Modal Tambah/Edit Kegiatan -->
-    <div class="modal" id="kegiatanModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2 id="modalTitle">Tambah Kegiatan</h2>
-                <button class="close-btn" onclick="closeModal()">&times;</button>
+            <div class="student-table-wrap">
+              <table class="student-table activity-table">
+                <thead><tr><th class="column-number">No.</th><th>Nama Kegiatan</th><th>Kategori</th><th>Frekuensi</th><th>Status</th><th class="column-actions">Aksi</th></tr></thead>
+                <tbody id="activity-table-body"><tr><td class="table-state" colspan="6">Memuat data kegiatan...</td></tr></tbody>
+              </table>
             </div>
-            <form id="kegiatanForm">
-                <input type="hidden" id="kegiatanId">
-                <div class="form-group">
-                    <label>Nama Kegiatan *</label>
-                    <input type="text" id="kegiatanNama" required placeholder="Contoh: Tahfidz Pagi">
-                </div>
-                <div class="form-group">
-                    <label>Kategori *</label>
-                    <select id="kegiatanKategori" required>
-                        <option value="wajib">Wajib</option>
-                        <option value="sunnah">Sunnah</option>
-                        <option value="opsional">Opsional</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Frekuensi *</label>
-                    <select id="kegiatanFrekuensi" required>
-                        <option value="harian">Harian (setiap hari)</option>
-                        <option value="mingguan">Mingguan (sekali seminggu)</option>
-                        <option value="bulanan">Bulanan (sekali sebulan)</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Status</label>
-                    <label class="toggle-switch">
-                        <input type="checkbox" id="kegiatanActive" checked>
-                        <span class="slider"></span>
-                    </label>
-                    <span style="margin-left: 10px;" id="activeLabel">Aktif</span>
-                </div>
-                <fieldset class="form-group">
-                    <legend>Semester peserta yang memenuhi syarat</legend>
-                    <p>Kosongkan pilihan agar semua semester dapat mengikuti.</p>
-                    <div id="semester-options">
-                        <label><input type="checkbox" value="1"> Semester 1</label>
-                        <label><input type="checkbox" value="2"> Semester 2</label>
-                        <label><input type="checkbox" value="3"> Semester 3</label>
-                        <label><input type="checkbox" value="4"> Semester 4</label>
-                        <label><input type="checkbox" value="5"> Semester 5</label>
-                        <label><input type="checkbox" value="6"> Semester 6</label>
-                    </div>
-                </fieldset>
-                <button type="submit" class="btn btn-primary" style="width: 100%;">Simpan</button>
-            </form>
+            <p class="student-table-hint">Kegiatan yang dinonaktifkan tidak dihapus; riwayat absensi dan laporan sebelumnya tetap tersimpan.</p>
+          </section>
+          <footer class="content-footer">© <span id="current-year"></span> Recording Kemahasantrian <span class="footer-divider">·</span> Ma'had Aly Darusy Syahadah</footer>
         </div>
+      </main>
     </div>
-
-    <script>
-        console.log("Kegiatan page loaded");
-
-        function escapeHtml(value) {
-            return String(value == null ? '' : value).replace(/[&<>"']/g, function(character) {
-                return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[character];
-            });
-        }
-        
-        const user_id = localStorage.getItem("user_id");
-        
-        if (!user_id) {
-            window.location.href = "index.html";
-        }
-        
-    
-        
-        // Load kegiatan
-        function loadKegiatan() {
-            console.log("Memuat kegiatan...");
-            
-            fetch('api/get-kegiatan.php')
-                .then(function(response) {
-                    console.log("Response status:", response.status);
-                    return response.json();
-                })
-                .then(function(data) {
-                    console.log("Data kegiatan:", data);
-                    
-                    if (data.success) {
-                        var tbody = document.getElementById("kegiatan-table-body");
-                        
-                        if (data.kegiatan.length === 0) {
-                            tbody.innerHTML = '<tr><td colspan="7">Belum ada data kegiatan</td></tr>';
-                        } else {
-                            var html = '';
-                            for (var i = 0; i < data.kegiatan.length; i++) {
-                                var k = data.kegiatan[i];
-                                var nomor = i + 1;
-                                var kategoriClass = ['wajib', 'sunnah', 'opsional'].includes(k.kategori) ? 'badge-' + k.kategori : 'badge-opsional';
-                                var frekuensiLabel = k.frekuensi ? k.frekuensi.charAt(0).toUpperCase() + k.frekuensi.slice(1) : 'Harian';
-                                var semesters = k.semester_eligible ? 'Semester ' + escapeHtml(k.semester_eligible.split(',').join(', ')) : 'Semua';
-                                var statusBadge = k.is_active == 1 
-                                    ? '<span class="badge badge-active">Aktif</span>' 
-                                    : '<span class="badge badge-inactive">Nonaktif</span>';
-                                
-                                html += '<tr>';
-                                html += '<td>' + nomor + '</td>';
-                                html += '<td>' + escapeHtml(k.nama_kegiatan) + '</td>';
-                                html += '<td><span class="badge ' + kategoriClass + '">' + escapeHtml(k.kategori) + '</span></td>';
-                                html += '<td>' + escapeHtml(frekuensiLabel) + '</td>';
-                                html += '<td>' + semesters + '</td>';
-                                html += '<td>' + statusBadge + '</td>';
-                                html += '<td>';
-                                html += '<button class="btn btn-warning btn-sm" data-edit-index="' + i + '">Edit</button> ';
-                                html += '<button class="btn btn-danger btn-sm" data-delete-id="' + Number(k.id) + '">Hapus</button>';
-                                html += '</td>';
-                                html += '</tr>';
-                            }
-                            tbody.innerHTML = html;
-                            tbody.querySelectorAll("[data-edit-index]").forEach(function(button) {
-                                button.addEventListener("click", function() {
-                                    var k = data.kegiatan[Number(button.dataset.editIndex)];
-                                    editKegiatan(Number(k.id), k.nama_kegiatan, k.kategori, k.frekuensi || 'harian',
-                                        Number(k.is_active), k.semester_eligible || '');
-                                });
-                            });
-                            tbody.querySelectorAll("[data-delete-id]").forEach(function(button) {
-                                button.addEventListener("click", function() {
-                                    deleteKegiatan(Number(button.dataset.deleteId));
-                                });
-                            });
-                        }
-                    } else {
-                        console.error('Error dari API:', data.error);
-                    }
-                })
-                .catch(function(error) {
-                    console.error('Error fetch:', error);
-                });
-        }
-        
-        // Panggil fungsi load saat halaman dimuat
-        loadKegiatan();
-        
-        // Modal functions
-        function openModal() {
-            document.getElementById("modalTitle").textContent = "Tambah Kegiatan";
-            document.getElementById("kegiatanForm").reset();
-            document.getElementById("kegiatanId").value = "";
-            document.getElementById("kegiatanFrekuensi").value = "harian";
-            document.getElementById("kegiatanActive").checked = true;
-            document.getElementById("activeLabel").textContent = "Aktif";
-            document.querySelectorAll("#semester-options input").forEach(function(input) { input.checked = false; });
-            document.getElementById("kegiatanModal").classList.add("active");
-        }
-        
-        function closeModal() {
-            document.getElementById("kegiatanModal").classList.remove("active");
-        }
-        
-        function editKegiatan(id, nama, kategori, frekuensi, isActive, semesterEligible) {
-            document.getElementById("modalTitle").textContent = "Edit Kegiatan";
-            document.getElementById("kegiatanId").value = id;
-            document.getElementById("kegiatanNama").value = nama;
-            document.getElementById("kegiatanKategori").value = kategori;
-            document.getElementById("kegiatanFrekuensi").value = frekuensi || 'harian';
-            document.getElementById("kegiatanActive").checked = isActive == 1;
-            document.getElementById("activeLabel").textContent = isActive == 1 ? "Aktif" : "Nonaktif";
-            var selectedSemesters = (semesterEligible || "").split(",");
-            document.querySelectorAll("#semester-options input").forEach(function(input) {
-                input.checked = selectedSemesters.includes(input.value);
-            });
-            document.getElementById("kegiatanModal").classList.add("active");
-        }
-        
-        // Toggle label
-        document.getElementById("kegiatanActive").addEventListener("change", function() {
-            document.getElementById("activeLabel").textContent = this.checked ? "Aktif" : "Nonaktif";
-        });
-        
-        // Form submit
-        document.getElementById("kegiatanForm").addEventListener("submit", function(e) {
-            e.preventDefault();
-            
-            var id = document.getElementById("kegiatanId").value;
-            var nama = document.getElementById("kegiatanNama").value;
-            var kategori = document.getElementById("kegiatanKategori").value;
-            var frekuensi = document.getElementById("kegiatanFrekuensi").value;
-            var isActive = document.getElementById("kegiatanActive").checked ? 1 : 0;
-            var semester_eligible = Array.from(document.querySelectorAll("#semester-options input:checked"))
-                .map(function(input) { return Number(input.value); });
-            
-            var url = id ? 'api/update-kegiatan.php' : 'api/add-kegiatan.php';
-            var body = id 
-                ? { id: id, nama_kegiatan: nama, kategori: kategori, frekuensi: frekuensi, is_active: isActive, semester_eligible: semester_eligible }
-                : { nama_kegiatan: nama, kategori: kategori, frekuensi: frekuensi, is_active: isActive, semester_eligible: semester_eligible };
-            
-            fetch(url, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(body)
-            })
-            .then(function(res) { return res.json(); })
-            .then(function(data) {
-                if (data.success) {
-                    alert(id ? 'Kegiatan berhasil diupdate!' : 'Kegiatan berhasil ditambahkan!');
-                    closeModal();
-                    loadKegiatan();
-                } else {
-                    alert('Error: ' + data.error);
-                }
-            })
-            .catch(function(error) {
-                console.error('Error:', error);
-                alert('Terjadi kesalahan');
-            });
-        });
-        
-        // Delete kegiatan
-        function deleteKegiatan(id) {
-            if (confirm('Yakin ingin menghapus kegiatan ini?')) {
-                fetch('api/delete-kegiatan.php', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ id: id })
-                })
-                .then(function(res) { return res.json(); })
-                .then(function(data) {
-                    if (data.success) {
-                        alert('Kegiatan berhasil dihapus!');
-                        loadKegiatan();
-                    } else {
-                        alert('Error: ' + data.error);
-                    }
-                })
-                .catch(function(error) {
-                    console.error('Error:', error);
-                    alert('Terjadi kesalahan');
-                });
-            }
-        }
-        
-        // Logout
-        document.getElementById("btn-logout").addEventListener("click", function() {
-            localStorage.removeItem("user_data");
-            localStorage.removeItem("user_id");
-            localStorage.removeItem("user_role");
-            window.location.href = "index.html";
-        });
-    </script>
-    <script src="js/role-guard.js?v=20261023-4"></script>
-    <script src="js/auth.js?v=20261023-4"></script>
-    <script src="js/theme.js?v=20261023-9"></script>
-</body>
+    <dialog class="student-dialog" id="activity-dialog" aria-labelledby="activity-dialog-title">
+      <form class="student-form" id="activity-form">
+        <div class="dialog-heading">
+          <div><p class="eyebrow">DATA KEGIATAN</p><h2 id="activity-dialog-title">Tambah Kegiatan</h2><p>Lengkapi informasi kegiatan di bawah ini.</p></div>
+          <button class="dialog-close" id="close-activity-dialog" type="button" aria-label="Tutup">×</button>
+        </div>
+        <input id="activity-id" name="id" type="hidden" />
+        <label class="form-field full-field"><span>Nama kegiatan <b>*</b></span><input id="activity-name" name="nama_kegiatan" type="text" maxlength="255" required placeholder="Contoh: Shalat berjamaah" /></label>
+        <div class="form-grid">
+          <label class="form-field"><span>Kategori <b>*</b></span><input id="activity-category" name="kategori" type="text" maxlength="50" required placeholder="Contoh: wajib" /></label>
+          <label class="form-field"><span>Frekuensi <b>*</b></span><select id="activity-frequency" name="frekuensi" required><option value="harian">Harian</option><option value="mingguan">Mingguan</option><option value="bulanan">Bulanan</option></select></label>
+        </div>
+        <p class="dialog-message" id="activity-dialog-message" role="status" aria-live="polite" hidden></p>
+        <div class="dialog-actions"><button class="student-secondary-button" id="cancel-activity-dialog" type="button">Batal</button><button class="student-primary-button" id="save-activity-button" type="submit">Simpan data</button></div>
+      </form>
+    </dialog>
+  </body>
 </html>

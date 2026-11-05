@@ -1,0 +1,35 @@
+@charset "UTF-8";
+@import url("santri.css");
+
+.academic-documents-panel { overflow: visible; }
+.academic-documents-panel .student-toolbar { border-bottom: 1px solid #edf1ed; }
+.academic-documents-panel .student-search { width: min(100%, 340px); }
+.academic-document-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr)); gap: 14px; padding: 18px 21px; }
+.academic-document-card { display: flex; min-width: 0; flex-direction: column; padding: 17px; border: 1px solid #e8eee9; border-radius: 11px; background: #fff; transition: border-color 130ms ease, box-shadow 130ms ease; }
+.academic-document-card:hover { border-color: #c9dbcD; box-shadow: 0 6px 20px rgb(25 58 38 / 6%); }
+.academic-document-card-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.academic-document-icon { display: grid; width: 38px; height: 42px; flex: 0 0 auto; place-items: center; border-radius: 8px; color: #397455; background: #edf5ee; font-size: .68rem; font-weight: 750; }
+.academic-document-icon svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+.academic-document-card h3 { margin: 15px 0 6px; color: #294335; font-size: .88rem; line-height: 1.5; overflow-wrap: anywhere; }
+.academic-document-meta { display: grid; gap: 5px; margin: 0; color: #78877d; font-size: .68rem; line-height: 1.5; }
+.academic-document-meta strong { color: #526357; font-weight: 650; }
+.academic-document-description { margin: 11px 0 0; color: #78877d; font-size: .7rem; line-height: 1.55; overflow-wrap: anywhere; }
+.academic-document-card-footer { display: flex; align-items: center; justify-content: space-between; gap: 9px; margin-top: auto; padding-top: 16px; }
+.academic-pdf-link { display: inline-flex; min-height: 32px; align-items: center; justify-content: center; padding: 0 11px; border: 1px solid #dce8df; border-radius: 7px; color: #2e7453; background: #f7faf7; font-size: .68rem; font-weight: 680; text-decoration: none; }
+.academic-pdf-link:hover { border-color: #9dbcaa; background: #eff6f0; }
+.academic-file-size { color: #96a198; font-size: .62rem; }
+.academic-delete-button { min-height: 29px; padding: 0 9px; border: 1px solid #f0dfdc; border-radius: 7px; color: #a45b50; background: #fff; cursor: pointer; font-size: .64rem; }
+.academic-delete-button:hover { border-color: #e8c5bf; background: #fff7f5; }
+.academic-empty { grid-column: 1 / -1; margin: 0; padding: 44px 12px; color: #87958c; font-size: .76rem; text-align: center; }
+.academic-file-note { color: #859188; font-size: .66rem; }
+.form-field[hidden], .form-grid[hidden] { display: none; }
+.form-field textarea { width: 100%; min-height: 84px; padding: 10px; border: 1px solid #dfe8e1; border-radius: 7px; outline: none; color: #34493c; background: #fff; font: inherit; font-size: .74rem; resize: vertical; }
+.form-field textarea:focus { border-color: #78a588; box-shadow: 0 0 0 3px rgb(52 123 92 / 10%); }
+
+@media (max-width: 760px) {
+  .academic-heading { align-items: flex-start; }
+  .academic-heading > .student-primary-button { flex: 0 0 auto; padding-inline: 10px; font-size: .68rem; }
+  .academic-documents-panel .student-toolbar { align-items: flex-start; flex-direction: column; padding: 16px; }
+  .academic-documents-panel .student-search { width: 100%; }
+  .academic-document-grid { grid-template-columns: 1fr; padding: 14px; }
+}

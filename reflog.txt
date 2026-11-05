@@ -1,0 +1,2 @@
+﻿689a457 HEAD@{0}: reset: moving to 689a457a70196d7e56dc5f143b789cdd6b9d6f6a
+689a457 HEAD@{1}: commit (initial): feat: source terbaru dari desktop

@@ -1,20 +1,15 @@
 <?php
-require_once __DIR__ . '/config.php';
-require_once __DIR__ . '/academic-calendar-helpers.php';
+declare(strict_types=1);
 
-$user = require_login();
-$academicCalendarWarning = null;
-try {
-    process_academic_semester_rollovers($conn);
-} catch (Throwable $error) {
-    error_log('Academic semester rollover is unavailable: ' . $error->getMessage());
-    $academicCalendarWarning = "Kalender akademik belum siap. Jalankan migrasi mysantriqu_academic_calendar_migration.sql untuk mengaktifkan kenaikan semester otomatis.";
+require_once __DIR__ . '/config.php';
+
+if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
+    json_response(['success' => false, 'error' => 'Metode tidak didukung.'], 405);
 }
 
-json_response([
-    "success" => true,
-    "authenticated" => true,
-    "user" => $user,
-    "academic_calendar_warning" => $academicCalendarWarning,
-]);
-?>
+$user = current_user();
+if ($user === null) {
+    json_response(['success' => true, 'user' => null]);
+}
+
+json_response(['success' => true, 'user' => $user]);

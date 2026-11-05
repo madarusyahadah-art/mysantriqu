@@ -1,347 +1,144 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#114d35">
-    <link rel="manifest" href="manifest.webmanifest">
-    <link rel="apple-touch-icon" href="assets/app-icon-192.png">
-    <title>Input Pelanggaran - Recording Mahasantri</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f5f5; }
-        .navbar {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 1rem 2rem; background: #2d5016; color: white;
-        }
-        .nav-brand { display: flex; align-items: center; gap: 10px; font-size: 1.2rem; font-weight: bold; }
-        .nav-logo { width: 40px; height: 40px; }
-        .nav-user { display: flex; align-items: center; gap: 15px; }
-        .user-photo { width: 35px; height: 35px; border-radius: 50%; }
-        .btn-logout { padding: 8px 16px; background: #dc3545; color: white; border: none; border-radius: 5px; cursor: pointer; }
-        .container { max-width: 1200px; margin: 2rem auto; padding: 0 2rem; }
-        h1 { margin-bottom: 1.5rem; color: #2d5016; }
-        .btn-back {
-            display: inline-block; margin-bottom: 1rem; padding: 10px 20px;
-            background: #2d5016; color: white; text-decoration: none; border-radius: 5px;
-        }
-        .btn { padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-size: 14px; }
-        .btn-primary { background: #28a745; color: white; }
-        .btn-secondary { background: #6c757d; color: white; }
-        .card {
-            background: white; border-radius: 10px; padding: 20px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 20px;
-        }
-        .form-group { margin-bottom: 15px; }
-        .form-group label { display: block; margin-bottom: 5px; font-weight: bold; color: #333; }
-        .form-group input, .form-group select, .form-group textarea {
-            width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px;
-        }
-        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #eee; }
-        th { background: #f8f9fa; font-weight: bold; color: #2d5016; }
-        .poin-input { width: 100px; padding: 5px 10px; border: 1px solid #ddd; border-radius: 5px; }
-        .keterangan-input { width: 100%; padding: 5px 10px; border: 1px solid #ddd; border-radius: 5px; }
-    </style>
-    <link rel="stylesheet" href="style.css?v=20261023-4">
-    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
-    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
-</head>
-<body data-access="supervisor">
-    <nav class="navbar">
-        <div class="nav-brand">
-            <img src="assets/Logo.png" alt="Logo" class="nav-logo">
-            <ion-icon name="school-outline" aria-hidden="true"></ion-icon>
-            <span>Recording Mahasantri</span>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#123c32" />
+    <meta name="description" content="Kelola catatan pelanggaran dan tindak lanjut santri." />
+    <title>Data Pelanggaran - Recording Kemahasantrian</title>
+    <link rel="icon" href="assets/app-icon-192.png" />
+    <link rel="stylesheet" href="dashboard.css" />
+    <link rel="stylesheet" href="pelanggaran.css" />
+    <script src="js/violations.js" defer></script>
+  </head>
+  <body>
+    <div class="app-shell">
+      <button class="sidebar-scrim" id="sidebar-scrim" type="button" aria-label="Tutup menu"></button>
+      <aside class="sidebar" id="sidebar">
+        <a class="brand" href="dashboard.html" aria-label="Recording Kemahasantrian, dashboard">
+          <img src="assets/Logo.png" alt="" />
+          <span><strong>Recording</strong><small>Kemahasantrian</small></span>
+        </a>
+        <nav class="primary-nav" aria-label="Navigasi utama">
+          <p class="nav-caption">BERANDA</p>
+          <a class="nav-link" href="dashboard.html"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.5"/></svg><span>Dashboard</span></a>
+          <p class="nav-caption">KEMAHASANTRIAN</p>
+          <a class="nav-link" href="absensi-input.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4.5h14v15H5zM8 8h8M8 12h8m-8 4h5"/></svg><span>Input Kehadiran</span></a>
+          <a class="nav-link active" href="pelanggaran.html" aria-current="page"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5 21 20H3z"/><path d="M12 9v4m0 3h.01"/></svg><span>Data Pelanggaran</span></a>
+          <span class="nav-link unavailable" aria-disabled="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3.5h14v17H5zM8 8h8m-8 4h8m-8 4h5"/></svg><span>Laporan</span><small>Segera</small></span>
+          <p class="nav-caption">AKADEMIK</p>
+          <a class="nav-link" href="kalender-akademik.html"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M7.5 3v4m9-4v4m-13 3h17M8 14h3m2 0h3m-8 3h3"/></svg><span>Kalender Akademik</span></a>
+          <a class="nav-link" href="dokumen-akademik.html?type=khs"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5A3.5 3.5 0 0 1 7.5 2H20v17H7.5A3.5 3.5 0 0 0 4 22z"/><path d="M4 5.5v13A3.5 3.5 0 0 1 7.5 15H20M8 6h8m-8 4h7"/></svg><span>KHS</span></a>
+          <a class="nav-link" href="dokumen-akademik.html?type=jurnal"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3.5h14v17H5zM8 8h8m-8 4h8m-8 4h5"/></svg><span>Jurnal Munazharah</span></a>
+          <a class="nav-link" href="dokumen-akademik.html?type=skripsi"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5A3.5 3.5 0 0 1 7.5 2H20v17H7.5A3.5 3.5 0 0 0 4 22z"/><path d="M4 5.5v13A3.5 3.5 0 0 1 7.5 15H20m-11-8h7m-7 4h5"/></svg><span>Skripsi</span></a>
+          <p class="nav-caption">ADMINISTRASI</p>
+          <a class="nav-link" href="admin-users.html"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M3 20v-1.5a6 6 0 0 1 12 0V20zm13-5h7m-3.5-3.5v7"/></svg><span>Manajemen User</span></a>
+          <a class="nav-link" href="santri.html"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M3 20v-1.5a6 6 0 0 1 12 0V20zm13-5a3.5 3.5 0 0 1 4 3.5V20h-4"/></svg><span>Data Santri</span></a>
+          <a class="nav-link" href="asatidz.html"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M3 20v-1.5a6 6 0 0 1 12 0V20zm13-5h7m-3.5-3.5v7"/></svg><span>Data Asatidzah</span></a>
+          <a class="nav-link" href="kegiatan.html"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M7.5 3v4m9-4v4m-13 3h17"/></svg><span>Kegiatan</span></a>
+        </nav>
+        <div class="sidebar-bottom">
+          <div class="campus-mark"><span class="campus-dot"></span><span>Ma'had Aly Darusy Syahadah</span></div>
+          <div class="sidebar-user">
+            <span class="user-avatar" id="sidebar-avatar">?</span>
+            <span class="sidebar-user-copy"><strong id="sidebar-name">Memuat akun...</strong><small id="sidebar-role">Akun</small></span>
+            <button class="icon-button" id="logout-button" type="button" aria-label="Keluar" title="Keluar"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 5H5v14h5m5-3 4-4-4-4m4 4H9"/></svg></button>
+          </div>
         </div>
-        <div class="nav-user">
-            <img id="user-photo" src="" alt="User" class="user-photo">
-            <span id="user-name">Loading...</span>
-            <button id="btn-logout" class="btn-logout"><ion-icon name="log-out-outline" aria-hidden="true"></ion-icon> Logout</button>
-        </div>
-    </nav>
+      </aside>
 
-    <div class="container">
-        <a href="dashboard.html" class="btn-back"><ion-icon name="arrow-back-outline" aria-hidden="true"></ion-icon> Kembali ke Dashboard</a>
-        <h1><span class="page-heading-icon"><ion-icon name="alert-circle-outline" aria-hidden="true"></ion-icon></span> Input Pelanggaran</h1>
-        
-        <div class="card">
-            <section id="catalog-management" style="display:none; margin-bottom:1.5rem;">
-                <h2>Manajemen Jenis Pelanggaran</h2>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="catalog-name">Nama jenis pelanggaran</label>
-                        <input id="catalog-name" maxlength="150" type="text">
-                    </div>
-                    <div class="form-group">
-                        <label for="catalog-points">Poin default</label>
-                        <input id="catalog-points" type="number" min="0" max="100000" value="0">
-                    </div>
-                </div>
-                <button type="button" class="btn btn-primary" onclick="saveCatalogType()">Tambah jenis</button>
-                <div id="catalog-list"></div>
-            </section>
-            <h2>Form Pelanggaran</h2>
-            <div class="form-row">
-                <div class="form-group">
-                    <label>Tanggal *</label>
-                    <input type="date" id="pelanggaranTanggal" required>
-                </div>
-                <div class="form-group">
-                    <label>Filter Angkatan</label>
-                    <select id="filterAngkatan" onchange="loadSantri()">
-                        <option value="">Semua Angkatan</option>
-                        <option value="2024">2024</option>
-                        <option value="2025">2025</option>
-                        <option value="2026">2026</option>
-                    </select>
-                </div>
-            </div>
-        </div>
+      <main class="main-content">
+        <header class="topbar">
+          <div class="topbar-leading">
+            <button class="icon-button menu-button" id="menu-button" type="button" aria-label="Buka menu" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+            <div class="breadcrumb"><a href="dashboard.html">Beranda</a><span aria-hidden="true">/</span><strong>Data Pelanggaran</strong></div>
+          </div>
+          <div class="topbar-user"><span class="today-label" id="today-label"></span><span class="user-avatar top-avatar" id="top-avatar">?</span><span class="topbar-user-name" id="topbar-name">Memuat...</span></div>
+        </header>
 
-        <div class="card">
-            <h2>Daftar Santri</h2>
-            <p>Total: <strong id="totalSantri">0</strong> santri</p>
-            
-            <table>
-                <thead>
-                    <tr>
-                        <th>No</th>
-                        <th>Nama Santri</th>
-                        <th>Angkatan</th>
-                        <th>Jenis Pelanggaran</th>
-                        <th>Poin</th>
-                        <th>Keterangan</th>
-                    </tr>
-                </thead>
-                <tbody id="santri-table-body">
-                    <tr><td colspan="6">Memuat data...</td></tr>
-                </tbody>
-            </table>
-            
-            <div style="margin-top: 20px; text-align: right;">
-                <button class="btn btn-secondary" onclick="resetForm()">Reset</button>
-                <button class="btn btn-primary" onclick="simpanPelanggaran()">Simpan Pelanggaran</button>
+        <div class="dashboard-content violation-content">
+          <section class="page-heading">
+            <div><p class="eyebrow">KEMAHASANTRIAN</p><h1>Data Pelanggaran</h1><p class="page-description">Catat kejadian secara faktual dan pantau tindak lanjutnya.</p></div>
+            <div class="violation-heading-actions">
+              <button class="violation-secondary-button" id="manage-types-button" type="button" hidden>Kelola Jenis</button>
+              <button class="violation-primary-button" id="add-violation-button" type="button" disabled>+ Catat Pelanggaran</button>
             </div>
+          </section>
+          <p class="violation-message" id="violation-message" role="status" aria-live="polite" hidden></p>
+
+          <section class="violation-filters panel" aria-label="Filter data pelanggaran">
+            <label class="violation-field violation-search"><span>Cari catatan</span><input id="violation-search" type="search" placeholder="Nama santri, NIM, jenis..." autocomplete="off" /></label>
+            <label class="violation-field"><span>Dari tanggal</span><input id="violation-from" type="date" /></label>
+            <label class="violation-field"><span>Sampai tanggal</span><input id="violation-to" type="date" /></label>
+            <label class="violation-field"><span>Angkatan</span><select id="violation-cohort"><option value="">Semua angkatan</option></select></label>
+            <label class="violation-field"><span>Tindak lanjut</span><select id="violation-followup-filter"><option value="">Semua status</option><option value="belum">Belum diproses</option><option value="diproses">Diproses</option><option value="selesai">Selesai</option></select></label>
+            <button class="violation-clear-button" id="clear-violation-filters" type="button">Reset filter</button>
+          </section>
+
+          <section class="violation-summary" aria-label="Ringkasan catatan sesuai filter">
+            <article class="violation-stat"><span class="violation-stat-label">Total Catatan</span><strong id="violation-total">0</strong><small>sesuai filter</small></article>
+            <article class="violation-stat"><span class="violation-stat-label">Belum Ditindaklanjuti</span><strong id="violation-pending">0</strong><small>perlu ditinjau</small></article>
+            <article class="violation-stat"><span class="violation-stat-label">Dalam Proses</span><strong id="violation-in-progress">0</strong><small>tindak lanjut berjalan</small></article>
+            <article class="violation-stat"><span class="violation-stat-label">Selesai</span><strong id="violation-completed">0</strong><small>tindak lanjut tercatat</small></article>
+            <article class="violation-stat"><span class="violation-stat-label">Akumulasi Poin</span><strong id="violation-points">0</strong><small>bukan penilaian tunggal santri</small></article>
+          </section>
+
+          <section class="panel violation-panel">
+            <div class="violation-toolbar">
+              <div><h2>Catatan Pelanggaran</h2><p><span id="violation-result-count">0</span> dari <span id="violation-total-count">0</span> catatan</p></div>
+              <label class="violation-page-size"><span>Tampilkan</span><select id="violation-page-size"><option value="25">25</option><option value="50" selected>50</option><option value="100">100</option></select></label>
+            </div>
+            <div class="violation-table-wrap">
+              <table class="violation-table">
+                <thead><tr><th>Tanggal</th><th>Santri</th><th>Jenis & Poin</th><th>Catatan</th><th>Tindak Lanjut</th><th class="violation-action-column">Aksi</th></tr></thead>
+                <tbody id="violation-table-body"><tr><td class="violation-table-state" colspan="6">Memuat data...</td></tr></tbody>
+              </table>
+            </div>
+            <div class="violation-pagination"><span id="violation-page-label">Halaman 1</span><div><button class="violation-secondary-button" id="violation-prev-page" type="button" disabled>Sebelumnya</button><button class="violation-secondary-button" id="violation-next-page" type="button" disabled>Berikutnya</button></div></div>
+          </section>
+          <footer class="content-footer">© <span id="current-year"></span> MaSantriQu <span class="footer-divider">·</span> Ma'had Aly Darusy Syahadah</footer>
         </div>
+      </main>
     </div>
 
-    <script>
-        console.log("Pelanggaran page loaded");
-        
-        const user_id = localStorage.getItem("user_id");
-        let catalogTypes = [];
-        
-        if (!user_id) {
-            window.location.href = "index.html";
-        }
-        
-        
-        // Set tanggal default hari ini
-        var today = new Date().toISOString().split('T')[0];
-        document.getElementById("pelanggaranTanggal").value = today;
-        
-        function escapeHtml(value) {
-            return String(value).replace(/[&<>"']/g, function(character) {
-                return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[character];
-            });
-        }
+    <dialog class="violation-dialog" id="violation-dialog" aria-labelledby="violation-dialog-title">
+      <form class="violation-form" id="violation-form">
+        <div class="violation-dialog-heading">
+          <div><p class="eyebrow">CATATAN KEMAHASANTRIAN</p><h2 id="violation-dialog-title">Catat Pelanggaran</h2><p>Gunakan keterangan yang objektif dan seperlunya.</p></div>
+          <button class="violation-dialog-close" id="close-violation-dialog" type="button" aria-label="Tutup">×</button>
+        </div>
+        <input id="violation-id" type="hidden" />
+        <div class="violation-form-grid">
+          <label class="violation-form-field"><span>Tanggal kejadian <b>*</b></span><input id="violation-date" type="date" required /></label>
+          <label class="violation-form-field"><span>Santri <b>*</b></span><select id="violation-student" required><option value="">Pilih santri</option></select></label>
+          <label class="violation-form-field"><span>Jenis pelanggaran <b>*</b></span><select id="violation-type" required><option value="">Pilih jenis</option></select></label>
+          <label class="violation-form-field"><span>Poin <b>*</b></span><input id="violation-points-input" type="number" min="0" max="1000" step="1" value="1" required /></label>
+          <label class="violation-form-field violation-wide-field"><span>Keterangan kejadian</span><textarea id="violation-description" rows="3" maxlength="4000" placeholder="Tuliskan fakta kejadian secara singkat dan objektif."></textarea></label>
+          <label class="violation-form-field"><span>Status tindak lanjut</span><select id="violation-followup"><option value="belum">Belum diproses</option><option value="diproses">Diproses</option><option value="selesai">Selesai</option></select></label>
+          <label class="violation-form-field violation-wide-field" id="counseling-note-field"><span>Catatan tindak lanjut (internal)</span><textarea id="violation-counseling-note" rows="3" maxlength="4000" placeholder="Catatan pembinaan atau tindak lanjut."></textarea></label>
+        </div>
+        <p class="violation-form-hint">Catatan ini hanya dapat diakses petugas berwenang. Data yang belum dicatat tidak dianggap sebagai pelanggaran.</p>
+        <p class="violation-dialog-message" id="violation-dialog-message" role="status" aria-live="polite" hidden></p>
+        <div class="violation-dialog-actions"><button class="violation-secondary-button" id="cancel-violation-dialog" type="button">Batal</button><button class="violation-primary-button" id="save-violation-button" type="submit">Simpan catatan</button></div>
+      </form>
+    </dialog>
 
-        async function loadCatalog() {
-            const response = await fetch("api/get-jenis-pelanggaran.php");
-            const data = await response.json();
-            if (!response.ok || !data.success) throw new Error(data.error || "Daftar jenis pelanggaran gagal dimuat.");
-            catalogTypes = data.jenis_pelanggaran;
-            const list = document.getElementById("catalog-list");
-            if (list) {
-                list.innerHTML = catalogTypes.map(function(type) {
-                    return '<p>' + escapeHtml(type.nama) + ' · ' + Number(type.poin_default) + ' poin ' +
-                        '<button type="button" onclick="editCatalogType(' + Number(type.id) + ')">Ubah</button> ' +
-                        '<button type="button" onclick="deactivateCatalogType(' + Number(type.id) + ')">Nonaktifkan</button></p>';
-                }).join("") || "<p>Belum ada jenis pelanggaran.</p>";
-            }
-        }
-
-        async function saveCatalogType() {
-            const nama = document.getElementById("catalog-name").value.trim();
-            const poin_default = Number(document.getElementById("catalog-points").value);
-            try {
-                const response = await fetch("api/manage-jenis-pelanggaran.php", {
-                    method: "POST", headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ nama: nama, poin_default: poin_default })
-                });
-                const data = await response.json();
-                if (!response.ok || !data.success) throw new Error(data.error || "Jenis pelanggaran gagal disimpan.");
-                document.getElementById("catalog-name").value = "";
-                await loadCatalog();
-                await loadSantri();
-            } catch (error) { alert(error.message); }
-        }
-
-        async function deactivateCatalogType(id) {
-            if (!confirm("Nonaktifkan jenis pelanggaran ini? Catatan lama tetap dipertahankan.")) return;
-            try {
-                const response = await fetch("api/manage-jenis-pelanggaran.php", {
-                    method: "POST", headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ action: "deactivate", id: id })
-                });
-                const data = await response.json();
-                if (!response.ok || !data.success) throw new Error(data.error || "Jenis pelanggaran gagal dinonaktifkan.");
-                await loadCatalog();
-                await loadSantri();
-            } catch (error) { alert(error.message); }
-        }
-
-        async function editCatalogType(id) {
-            const type = catalogTypes.find(function(item) { return item.id === id; });
-            if (!type) return;
-            const nama = prompt("Nama jenis pelanggaran:", type.nama);
-            if (nama === null) return;
-            const pointsText = prompt("Poin default:", String(type.poin_default));
-            if (pointsText === null) return;
-            try {
-                const response = await fetch("api/manage-jenis-pelanggaran.php", {
-                    method: "POST", headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ id: id, nama: nama.trim(), poin_default: Number(pointsText) })
-                });
-                const data = await response.json();
-                if (!response.ok || !data.success) throw new Error(data.error || "Jenis pelanggaran gagal diperbarui.");
-                await loadCatalog();
-                await loadSantri();
-            } catch (error) { alert(error.message); }
-        }
-
-        // Load santri
-        function loadSantri() {
-            var filterAngkatan = document.getElementById("filterAngkatan").value;
-            var url = 'api/get-santri.php';
-            if (filterAngkatan) {
-                url += '?angkatan=' + filterAngkatan;
-            }
-            
-            Promise.all([fetch(url), loadCatalog()])
-                .then(function(responses) { return responses[0].json(); })
-                .then(function(data) {
-                    if (data.success) {
-                        var tbody = document.getElementById("santri-table-body");
-                        document.getElementById("totalSantri").textContent = data.santri.length;
-                        
-                        if (data.santri.length === 0) {
-                            tbody.innerHTML = '<tr><td colspan="6">Tidak ada santri</td></tr>';
-                        } else {
-                            var html = '';
-                            data.santri.forEach(function(s, index) {
-                                html += '<tr>';
-                                html += '<td>' + (index + 1) + '</td>';
-                                html += '<td>' + escapeHtml(s.nama) + '</td>';
-                                html += '<td>' + escapeHtml(s.angkatan || '-') + '</td>';
-                                html += '<td>';
-                                html += '<select class="jenis-select" data-santri-id="' + Number(s.id) + '">';
-                                html += '<option value="">-- Pilih Jenis --</option>';
-                                catalogTypes.forEach(function(type) {
-                                    html += '<option value="' + Number(type.id) + '" data-points="' + Number(type.poin_default) + '">' + escapeHtml(type.nama) + '</option>';
-                                });
-                                html += '</select>';
-                                html += '</td>';
-                                html += '<td><input type="number" class="poin-input" data-santri-id="' + Number(s.id) + '" placeholder="0" min="0"></td>';
-                                html += '<td><input type="text" class="keterangan-input" data-santri-id="' + Number(s.id) + '" placeholder="Keterangan (opsional)"></td>';
-                                html += '</tr>';
-                            });
-                            tbody.innerHTML = html;
-                            tbody.querySelectorAll(".jenis-select").forEach(function(select) {
-                                select.addEventListener("change", function() {
-                                    const selected = select.options[select.selectedIndex];
-                                    const points = tbody.querySelector('.poin-input[data-santri-id="' + select.dataset.santriId + '"]');
-                                    if (selected.dataset.points) points.value = selected.dataset.points;
-                                });
-                            });
-                        }
-                    }
-                })
-                .catch(function(error) {
-                    console.error('Error:', error);
-                    alert(error.message || "Data gagal dimuat.");
-                });
-        }
-        
-        // Simpan pelanggaran
-        function simpanPelanggaran() {
-            var tanggal = document.getElementById("pelanggaranTanggal").value;
-            
-            if (!tanggal) {
-                alert('Tanggal wajib diisi!');
-                return;
-            }
-            
-            // Ambil data pelanggaran dari tabel
-            var pelanggaranData = [];
-            document.querySelectorAll('.jenis-select').forEach(function(select) {
-                var santriId = select.dataset.santriId;
-                var jenis = select.value;
-                var poin = document.querySelector('.poin-input[data-santri-id="' + santriId + '"]').value;
-                var keterangan = document.querySelector('.keterangan-input[data-santri-id="' + santriId + '"]').value;
-                
-                if (jenis && poin > 0) {
-                    pelanggaranData.push({
-                        santri_id: santriId,
-                        tanggal: tanggal,
-                        jenis_pelanggaran_id: parseInt(jenis, 10),
-                        poin: parseInt(poin),
-                        keterangan: keterangan
-                    });
-                }
-            });
-            
-            if (pelanggaranData.length === 0) {
-                alert('Tidak ada data pelanggaran yang diisi!');
-                return;
-            }
-            
-            // Kirim ke API
-            fetch('api/save-pelanggaran.php', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    user_id: user_id,
-                    pelanggaran: pelanggaranData
-                })
-            })
-            .then(function(res) { return res.json(); })
-            .then(function(data) {
-                if (data.success) {
-                    alert('Pelanggaran berhasil disimpan! Total: ' + data.total + ' data');
-                    resetForm();
-                } else {
-                    alert('Error: ' + data.error);
-                }
-            })
-            .catch(function(error) {
-                console.error('Error:', error);
-                alert('Terjadi kesalahan');
-            });
-        }
-        
-        // Reset form
-        function resetForm() {
-            document.getElementById("pelanggaranTanggal").value = new Date().toISOString().split('T')[0];
-            document.getElementById("filterAngkatan").value = "";
-            Promise.all([loadCatalog(), loadSantri()]).catch(function(error) { alert(error.message); });
-        }
-        
-        // Load data saat halaman dibuka
-        loadSantri();
-        
-        // Logout
-        document.getElementById("btn-logout").addEventListener("click", function() {
-            localStorage.removeItem("user_data");
-            localStorage.removeItem("user_id");
-            localStorage.removeItem("user_role");
-            window.location.href = "index.html";
-        });
-    </script>
-    <script src="js/role-guard.js?v=20261023-4"></script>
-    <script src="js/auth.js?v=20261023-4"></script>
-    <script src="js/theme.js?v=20261023-9"></script>
-</body>
+    <dialog class="violation-types-dialog" id="violation-types-dialog" aria-labelledby="violation-types-title">
+      <div class="violation-types-content">
+        <div class="violation-dialog-heading">
+          <div><p class="eyebrow">PENGATURAN ADMIN</p><h2 id="violation-types-title">Kelola Jenis Pelanggaran</h2><p>Jenis nonaktif tetap tersimpan pada catatan lama.</p></div>
+          <button class="violation-dialog-close" id="close-types-dialog" type="button" aria-label="Tutup">×</button>
+        </div>
+        <form class="violation-type-form" id="violation-type-form">
+          <input id="violation-type-id" type="hidden" />
+          <label class="violation-form-field"><span>Nama jenis <b>*</b></span><input id="violation-type-name" maxlength="255" required /></label>
+          <label class="violation-form-field"><span>Poin default <b>*</b></span><input id="violation-type-points" type="number" min="0" max="1000" step="1" value="1" required /></label>
+          <button class="violation-primary-button" id="save-violation-type" type="submit">Tambah jenis</button>
+          <button class="violation-secondary-button" id="cancel-violation-type-edit" type="button" hidden>Batal edit</button>
+        </form>
+        <p class="violation-dialog-message" id="types-message" role="status" aria-live="polite" hidden></p>
+        <div class="violation-types-table-wrap"><table class="violation-types-table"><thead><tr><th>Jenis</th><th>Poin default</th><th>Status</th><th>Aksi</th></tr></thead><tbody id="violation-types-body"><tr><td colspan="4" class="violation-table-state">Memuat jenis...</td></tr></tbody></table></div>
+      </div>
+    </dialog>
+  </body>
 </html>

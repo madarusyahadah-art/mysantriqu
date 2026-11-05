@@ -1,68 +1,130 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="id">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#114d35">
-  <title>Kalender Akademik - MySantriQu</title>
-  <link rel="stylesheet" href="style.css?v=20261023-4">
-  <style>
-    .calendar-page { max-width: 1100px; margin: 2rem auto; padding: 0 1rem 3rem; }
-    .calendar-card { margin: 1rem 0; padding: 1.25rem; border-radius: 14px; background: var(--surface, #fff); color: var(--text, #173528); box-shadow: 0 8px 28px rgba(0,0,0,.12); }
-    .calendar-toolbar, .calendar-event { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
-    .calendar-toolbar { flex-wrap: wrap; }
-    .calendar-toolbar label, .import-form label { display: grid; gap: .4rem; font-weight: 600; }
-    .calendar-toolbar input, .import-form input[type=file] { padding: .65rem; border: 1px solid #94a3b8; border-radius: 8px; }
-    .calendar-event { align-items: flex-start; padding: .9rem 0; border-bottom: 1px solid rgba(100,116,139,.25); }
-    .calendar-event:last-child { border-bottom: 0; }
-    .calendar-event p { margin: .3rem 0 0; white-space: pre-wrap; }
-    .calendar-date { min-width: 155px; font-weight: 700; }
-    .calendar-badge { display: inline-block; margin-top: .4rem; padding: .2rem .55rem; border-radius: 999px; background: #dbeafe; color: #1e40af; font-size: .8rem; }
-    .calendar-badge.done { background: #dcfce7; color: #166534; }
-    .import-preview { max-height: 28rem; overflow: auto; margin: 1rem 0; }
-    .import-preview label { display: flex; align-items: flex-start; gap: .65rem; padding: .6rem 0; border-bottom: 1px solid rgba(100,116,139,.2); }
-    .import-message { min-height: 1.5rem; }
-    .calendar-error { color: #b91c1c; }
-    .calendar-help { opacity: .8; }
-    @media(max-width:600px) { .calendar-event { display: block; } .calendar-date { margin-bottom: .3rem; } }
-  </style>
-  <script src="js/role-guard.js?v=20261023-4" defer></script>
-  <script src="js/auth.js?v=20261023-4" defer></script>
-  <script src="js/xlsx-calendar-parser.js?v=20261023-4" defer></script>
-  <script src="js/academic-calendar.js?v=20261023-4" defer></script>
-</head>
-<body>
-  <main class="calendar-page">
-    <a href="dashboard.html">â† Kembali ke dashboard</a>
-    <h1>Kalender Akademik</h1>
-    <p class="calendar-help">Jadwal Kaldik ditampilkan terpisah dari daftar kegiatan absensi. Kegiatan UAS yang telah diverifikasi akan menaikkan semester semua Mahasantri satu tingkat setelah hari terakhir ujian.</p>
-
-    <section class="calendar-card" id="import-card" hidden>
-      <h2>Impor Kaldik Excel</h2>
-      <p>Pilih berkas .xlsx. Periksa pratinjau, terutama penanda akhir semester, sebelum menyimpan. PDF dan berkas Excel dengan kata sandi tidak didukung.</p>
-      <form class="import-form" id="calendar-import-form">
-        <label for="calendar-file">Berkas kalender (.xlsx, maksimal 10 MB)</label>
-        <input id="calendar-file" type="file" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" required>
-        <p id="import-message" class="import-message" role="status"></p>
-        <div id="import-preview" class="import-preview" hidden></div>
-        <button id="import-submit" type="submit" hidden>Simpan kalender</button>
-      </form>
-    </section>
-
-    <section class="calendar-card">
-      <div class="calendar-toolbar">
-        <div>
-          <h2 id="calendar-title">Kegiatan kalender</h2>
-          <p id="calendar-year" class="calendar-help"></p>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#123c32" />
+    <meta name="description" content="Kalender akademik Ma'had Aly Darusy Syahadah." />
+    <link rel="manifest" href="manifest.webmanifest" />
+    <title>Kalender Akademik - Recording Kemahasantrian</title>
+    <link rel="icon" href="assets/app-icon-192.png" />
+    <link rel="stylesheet" href="dashboard.css" />
+    <link rel="stylesheet" href="kalender-akademik.css" />
+    <script src="js/xlsx-calendar-parser.js" defer></script>
+    <script src="js/academic-calendar.js" defer></script>
+  </head>
+  <body>
+    <div class="app-shell">
+      <button class="sidebar-scrim" id="sidebar-scrim" type="button" aria-label="Tutup menu"></button>
+      <aside class="sidebar" id="sidebar">
+        <a class="brand" href="dashboard.html" aria-label="Recording Kemahasantrian, dashboard">
+          <img src="assets/Logo.png" alt="" />
+          <span><strong>Recording</strong><small>Kemahasantrian</small></span>
+        </a>
+        <nav class="primary-nav" aria-label="Navigasi utama">
+          <p class="nav-caption">BERANDA</p>
+          <a class="nav-link" href="dashboard.html"><span>Dashboard</span></a>
+          <p class="nav-caption">AKADEMIK</p>
+          <a class="nav-link active" href="kalender-akademik.html" aria-current="page"><span>Kalender Akademik</span></a>
+          <a class="nav-link" href="dokumen-akademik.html?type=khs"><span>KHS</span></a>
+          <a class="nav-link" href="dokumen-akademik.html?type=jurnal"><span>Jurnal Munazharah</span></a>
+          <a class="nav-link" href="dokumen-akademik.html?type=skripsi"><span>Skripsi</span></a>
+          <p class="nav-caption admin-nav" hidden>ADMINISTRASI</p>
+          <a class="nav-link admin-nav" href="admin-users.html" hidden><span>Manajemen User</span></a>
+          <a class="nav-link admin-nav" href="santri.html" hidden><span>Data Santri</span></a>
+          <a class="nav-link admin-nav" href="asatidz.html" hidden><span>Data Asatidzah</span></a>
+          <a class="nav-link admin-nav" href="kegiatan.html" hidden><span>Kegiatan</span></a>
+        </nav>
+        <div class="sidebar-bottom">
+          <div class="campus-mark"><span class="campus-dot"></span><span>Ma'had Aly Darusy Syahadah</span></div>
+          <div class="sidebar-user">
+            <span class="user-avatar" id="sidebar-avatar">?</span>
+            <span class="sidebar-user-copy"><strong id="sidebar-name">Memuat akun...</strong><small id="sidebar-role">Akun</small></span>
+            <button class="icon-button" id="logout-button" type="button" aria-label="Keluar" title="Keluar"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 5H5v14h5m5-3 4-4-4-4m4 4H9"/></svg></button>
+          </div>
         </div>
-        <label for="calendar-month">Bulan
-          <input id="calendar-month" type="month">
-        </label>
-      </div>
-      <p id="semester-message" role="status"></p>
-      <div id="calendar-events" aria-live="polite"></div>
-    </section>
-    <p id="calendar-error" class="calendar-error" role="alert"></p>
-  </main>
-</body>
+      </aside>
+      <main class="main-content">
+        <header class="topbar">
+          <div class="topbar-leading">
+            <button class="icon-button menu-button" id="menu-button" type="button" aria-label="Buka menu" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+            <div class="breadcrumb"><a href="dashboard.html">Beranda</a><span aria-hidden="true">/</span><strong>Kalender Akademik</strong></div>
+          </div>
+          <div class="topbar-user"><span class="today-label" id="today-label"></span><span class="user-avatar top-avatar" id="top-avatar">?</span><span class="topbar-user-name" id="topbar-name">Memuat...</span></div>
+        </header>
+        <div class="dashboard-content calendar-content">
+          <section class="page-heading calendar-heading">
+            <div><p class="eyebrow">AKADEMIK</p><h1>Kalender Akademik</h1><p class="page-description" id="calendar-description">Jadwal kegiatan akademik dan pengumuman perubahan.</p></div>
+            <button class="student-primary-button" id="notification-button" type="button">Aktifkan notifikasi</button>
+          </section>
+          <p class="student-message" id="page-message" role="status" aria-live="polite" hidden></p>
+          <section class="panel calendar-panel">
+            <div class="calendar-toolbar">
+              <div><h2 id="calendar-title">Kalender Akademik</h2><p id="calendar-year">Memuat kalender...</p></div>
+              <div class="calendar-month-control">
+                <button class="calendar-nav-button" id="previous-month" type="button" aria-label="Bulan sebelumnya">‹</button>
+                <label class="sr-only" for="calendar-month">Pilih bulan</label>
+                <input id="calendar-month" type="month" />
+                <button class="calendar-nav-button" id="next-month" type="button" aria-label="Bulan selanjutnya">›</button>
+              </div>
+            </div>
+            <div class="calendar-legend" id="calendar-legend" aria-label="Kategori kegiatan"></div>
+            <div class="calendar-grid" id="calendar-grid" role="grid" aria-label="Kalender bulanan"></div>
+            <p class="calendar-rollover-message" id="semester-message" role="status"></p>
+          </section>
+          <section class="panel calendar-events-panel">
+            <div class="calendar-section-heading"><div><h2>Kegiatan Bulan Ini</h2><p id="event-count">Memuat kegiatan...</p></div></div>
+            <div class="calendar-event-list" id="calendar-events" aria-live="polite"></div>
+          </section>
+          <section class="panel calendar-changes-panel">
+            <div class="calendar-section-heading"><div><h2>Perubahan Terbaru</h2><p>Alasan perubahan dicatat agar jadwal sebelumnya tetap dapat ditelusuri.</p></div></div>
+            <div id="calendar-changes" class="calendar-change-list" aria-live="polite"></div>
+          </section>
+          <section class="panel calendar-import-panel admin-calendar-panel" id="import-card" hidden>
+            <div class="calendar-section-heading"><div><p class="eyebrow">KHUSUS ADMIN</p><h2>Impor Kalender dari Excel</h2><p>Unggah .xlsx, periksa dan rapikan pratinjau sebagai draf, lalu terbitkan.</p></div></div>
+            <form id="calendar-import-form" class="calendar-import-form">
+              <div class="calendar-import-fields">
+                <label class="form-field"><span>Judul kalender <b>*</b></span><input id="calendar-import-title" type="text" maxlength="255" required placeholder="Kalender Akademik" /></label>
+                <label class="form-field"><span>Tahun ajaran <b>*</b></span><input id="calendar-import-year" type="text" required pattern="\d{4}-\d{4}" placeholder="2026-2027" title="Gunakan format YYYY-YYYY dan tahun kedua harus berurutan" /></label>
+                <label class="form-field calendar-file-field"><span>File Excel (.xlsx) <b>*</b></span><input id="calendar-file" type="file" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" required /><small>Maksimal 10 MB. Kolom: Tanggal Mulai, Tanggal Selesai, Jam Mulai, Jam Selesai, Nama Kegiatan, Keterangan, Kategori. Jam bersifat opsional dan harus diisi berpasangan. Akhir Semester juga opsional.</small></label>
+              </div>
+              <p id="import-message" class="calendar-form-message" role="status" aria-live="polite"></p>
+              <div id="import-preview" class="calendar-preview" hidden></div>
+              <div class="calendar-form-actions">
+                <button id="save-draft" class="student-primary-button" type="button" hidden>Simpan sebagai draf</button>
+                <button id="publish-draft" class="calendar-publish-button" type="button" hidden>Terbitkan kalender</button>
+              </div>
+            </form>
+          </section>
+          <footer class="content-footer">© <span id="current-year"></span> Recording Kemahasantrian <span class="footer-divider">·</span> Ma'had Aly Darusy Syahadah</footer>
+        </div>
+      </main>
+    </div>
+    <dialog class="student-dialog calendar-event-dialog" id="event-dialog">
+      <form class="student-form" id="event-form">
+        <div class="dialog-heading">
+          <div><p class="eyebrow">KELOLA KEGIATAN</p><h2 id="event-dialog-title">Ubah jadwal</h2><p>Alasan perubahan wajib diisi dan akan terlihat di riwayat.</p></div>
+          <button class="dialog-close" id="close-event-dialog" type="button" aria-label="Tutup">×</button>
+        </div>
+        <div class="calendar-event-edit-fields">
+          <label class="form-field full-field"><span>Nama kegiatan <b>*</b></span><input id="edit-event-name" type="text" maxlength="1000" required /></label>
+          <label class="form-field"><span>Tanggal mulai <b>*</b></span><input id="edit-event-start" type="date" required /></label>
+          <label class="form-field"><span>Tanggal selesai <b>*</b></span><input id="edit-event-end" type="date" required /></label>
+          <label class="form-field"><span>Jam mulai</span><input id="edit-event-start-time" type="time" /></label>
+          <label class="form-field"><span>Jam selesai</span><input id="edit-event-end-time" type="time" /></label>
+          <label class="form-field"><span>Kategori <b>*</b></span><select id="edit-event-category" required></select></label>
+          <label class="form-field full-field"><span>Keterangan</span><textarea id="edit-event-description" maxlength="5000"></textarea></label>
+          <label class="calendar-checkbox-field full-field"><input id="edit-event-semester-end" type="checkbox" /><span>Tandai sebagai akhir semester untuk kenaikan semester otomatis</span></label>
+          <label class="form-field full-field"><span>Alasan perubahan <b>*</b></span><textarea id="edit-event-reason" maxlength="1000" required placeholder="Jelaskan mengapa jadwal perlu diubah atau dibatalkan"></textarea></label>
+        </div>
+        <p id="event-dialog-message" class="calendar-form-message" role="alert"></p>
+        <div class="calendar-form-actions">
+          <button class="calendar-cancel-event-button" id="cancel-event-button" type="button">Batalkan kegiatan</button>
+          <span class="calendar-dialog-spacer"></span>
+          <button class="student-secondary-button" id="dismiss-event-dialog" type="button">Tutup</button>
+          <button class="student-primary-button" id="save-event" type="submit">Simpan perubahan</button>
+        </div>
+      </form>
+    </dialog>
+  </body>
 </html>
